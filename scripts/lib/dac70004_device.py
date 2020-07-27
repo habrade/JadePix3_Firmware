@@ -1,6 +1,6 @@
 import logging
 
-from .dac70004_defs import *
+from lib.dac70004_defs import *
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 log = logging.getLogger(__name__)
@@ -14,27 +14,26 @@ class Dac70004Device:
     def __init__(self, hw):
         self.reg_name_base = "dac70004_dev."
         self.hw = hw
-        pass
 
     def is_busy(self):
         reg_name = "DAC_BUSY"
         node_name = self.reg_name_base + reg_name
         node = self.hw.getNode(node_name)
-        busy = node.read().value()
+        busy_raw = node.read()
         self.hw.dispatch()
-        if busy == 1:
-            return True
-        else:
-            return False
+        busy = busy_raw.value()
+        return busy == 1
 
     def write_data(self, data):
-        if not self.is_busy():
+        if self.is_busy():
+            log.error("DAC70004 is busy now, stop write!")
+            return False
+        else:
             ## Write to data reg
             reg_name = "DAC_DATA"
             node_name = self.reg_name_base + reg_name
             node = self.hw.getNode(node_name)
             node.write(data)
-            self.hw.dispatch()
             ## Set WE
             reg_name = "DAC_WE"
             node_name = self.reg_name_base + reg_name
@@ -42,9 +41,6 @@ class Dac70004Device:
             node.write(1)
             self.hw.dispatch()
             return True
-        else:
-            log.error("DAC70004 is busy now, stop write!")
-            return False
 
     def cmd(self, wr, cmd, chn, din, mode):
         if cmd not in [DAC70004_CMD_WR_BUF, DAC70004_CMD_UPDATE_CHN, DAC70004_CMD_W_UPDATE_ALL, DAC70004_CMD_W_UPDATE,
