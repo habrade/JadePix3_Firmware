@@ -20,7 +20,7 @@
 
 
 library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_1164.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -31,36 +31,37 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-use work.ipbus.ALL;
-use work.ipbus_reg_types.ALL;
+use work.ipbus.all;
+use work.ipbus_reg_types.all;
 
 
 entity ipbus_global_device is
-    port (
-    ipb_clk        : in  std_logic;
-    ipb_rst        : in  std_logic;
-    ipb_in         : in  ipb_wbus;
-    ipb_out        : out ipb_rbus;
+  port (
+    ipb_clk  : in  std_logic;
+    ipb_rst  : in  std_logic;
+    ipb_in   : in  ipb_wbus;
+    ipb_out  : out ipb_rbus;
     -- Global
     nuke     : out std_logic;
     soft_rst : out std_logic
     );
-    
+
 end ipbus_global_device;
 
 architecture behv of ipbus_global_device is
 
-  constant N_STAT     : integer := 1;
-  constant N_CTRL     : integer := 1;
-  signal stat : ipb_reg_v(N_STAT-1 downto 0);
-  signal ctrl : ipb_reg_v(N_CTRL-1 downto 0);
+  constant N_STAT : integer := 1;
+  constant N_CTRL : integer := 1;
+  signal stat     : ipb_reg_v(N_STAT-1 downto 0);
+  signal ctrl     : ipb_reg_v(N_CTRL-1 downto 0);
 
 begin
 
-    inst_ipbus_slave  : entity work.ipbus_ctrlreg_v
+  inst_ipbus_slave : entity work.ipbus_ctrlreg_v
     generic map(
-      N_CTRL => N_STAT,
-      N_STAT => N_CTRL
+      N_CTRL     => N_STAT,
+      N_STAT     => N_CTRL,
+      SWAP_ORDER => true
       )
     port map(
       clk       => ipb_clk,

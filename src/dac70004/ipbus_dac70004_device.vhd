@@ -56,8 +56,9 @@ architecture behv of ipbus_dac70004_device is
 begin
   inst_ipbus_ctrlreg : entity work.ipbus_ctrlreg_v
     generic map(
-      N_CTRL => N_CTRL,
-      N_STAT => N_STAT
+      N_CTRL     => N_CTRL,
+      N_STAT     => N_STAT,
+      SWAP_ORDER => true
       )
     port map(
       clk       => ipb_clk,
@@ -67,7 +68,7 @@ begin
       d         => stat,
       q         => ctrl
       );
-    
+
   stat(0)(0) <= DAC_BUSY;
 
   DAC_WE   <= ctrl(0)(0);
