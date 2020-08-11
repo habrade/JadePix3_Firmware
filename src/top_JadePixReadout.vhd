@@ -109,6 +109,9 @@ begin
       ipb_rst  => rst_ipb,
       ipb_in   => ipb_out,
       ipb_out  => ipb_in,
+      -- Payload clock
+      clk      => clk_aux,
+      rst      => rst_aux,
       -- Global
       nuke     => nuke,
       soft_rst => soft_rst,

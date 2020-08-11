@@ -15,6 +15,10 @@ entity ipbus_payload is
     ipb_in  : in  ipb_wbus;
     ipb_out : out ipb_rbus;
 
+    -- Payload Clock
+    clk : in std_logic;
+    rst : in std_logic;
+
     -- Global
     nuke     : out std_logic;
     soft_rst : out std_logic;
