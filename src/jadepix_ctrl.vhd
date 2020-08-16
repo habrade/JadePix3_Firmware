@@ -96,7 +96,7 @@ begin
     end if;
   end process;
 
-  process(cfg_out, cfg_start, rs_start, gs_start, state_reg)
+  process(cfg_out, cfg_start, rs_start, gs_start, RA_tmp, CA_tmp, apulse_in, dpulse_in, state_reg)
   begin
     state_next <= state_reg;
     case state_reg is
