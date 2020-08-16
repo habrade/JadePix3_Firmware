@@ -4,6 +4,8 @@ use work.ipbus.all;
 use work.ipbus_reg_types.all;
 use work.ipbus_decode_payload.all;
 --use work.drp_decl.all;
+use work.jadepix_defines.all;
+
 
 entity ipbus_payload is
   generic(
@@ -27,6 +29,15 @@ entity ipbus_payload is
     DAC_BUSY : in  std_logic;
     DAC_WE   : out std_logic;
     DAC_DATA : out std_logic_vector(31 downto 0);
+
+    -- JadePix
+    cfg_out   : out jadepix_cfg;
+    cfg_start : out std_logic;
+    rs_start  : out std_logic;
+    gs_start  : out std_logic;
+    apulse    : out std_logic;
+    dpulse    : out std_logic;
+    pdb       : out std_logic;
 
     -- SPI Master
     ss   : out std_logic_vector(N_SS - 1 downto 0);
@@ -94,5 +105,27 @@ begin
       miso    => miso,
       sclk    => sclk
       );
+
+
+  slave3 : entity work.ipbus_jadepix_device
+    port map(
+      ipb_clk => ipb_clk,
+      ipb_rst => ipb_rst,
+      ipb_in  => ipbw(N_SLV_JADEPIX),
+      ipb_out => ipbr(N_SLV_JADEPIX),
+
+      clk => clk,
+      rst => rst,
+
+      cfg_out   => cfg_out,
+      cfg_start => cfg_start,
+      rs_start  => rs_start,
+      gs_start  => gs_start,
+      apulse    => apulse,
+      dpulse    => dpulse,
+      pdb       => pdb
+
+      );
+
 end rtl;
 

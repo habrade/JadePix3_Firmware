@@ -40,8 +40,7 @@ entity ipbus_gmii_infra is
 		CLK_AUX_FREQ: real := 10.0 -- Default: 10 MHz clock
 		);
 	port(
-		sysclk_p: in std_logic; -- 200MHz board crystal clock
-		sysclk_n: in std_logic;
+		sysclk: in std_logic; -- 200MHz board crystal clock
 		clk_ipb_o: out std_logic; -- IPbus clock
 		rst_ipb_o: out std_logic;
 		clk_125_o: out std_logic;
@@ -85,8 +84,7 @@ begin
 			CLK_AUX_FREQ => CLK_AUX_FREQ
 			)
 		port map(
-			sysclk_p => sysclk_p,
-			sysclk_n => sysclk_n,
+			sysclk   => sysclk,
 			clko_125 => clk125,
 			clko_200 => clk200,
 			clko_ipb => clk_ipb_i,

@@ -18,10 +18,11 @@ package ipbus_decode_payload is
   function ipbus_sel_payload(addr : in std_logic_vector(31 downto 0)) return ipbus_sel_t;
 
 -- START automatically  generated VHDL the Thu May  3 15:36:57 2018 
-  constant N_SLV_GLOBAL      : integer := 0;
-  constant N_SLV_DAC70004    : integer := 1;
-  constant N_SLV_SPI         : integer := 2;
-  constant N_SLAVES          : integer := 3;
+  constant N_SLV_GLOBAL   : integer := 0;
+  constant N_SLV_DAC70004 : integer := 1;
+  constant N_SLV_SPI      : integer := 2;
+  constant N_SLV_JADEPIX  : integer := 3;
+  constant N_SLAVES       : integer := 4;
 -- END automatically generated VHDL
 
 
@@ -33,12 +34,14 @@ package body ipbus_decode_payload is
     variable sel : ipbus_sel_t;
   begin
 
-    if std_match(addr, "00------------------------------") then
-      sel := ipbus_sel_t(to_unsigned(N_SLV_GLOBAL, IPBUS_SEL_WIDTH)); 
-    elsif std_match(addr, "01------------------------------") then
-      sel := ipbus_sel_t(to_unsigned(N_SLV_DAC70004, IPBUS_SEL_WIDTH)); 
-    elsif std_match(addr, "10------------------------------") then
-      sel := ipbus_sel_t(to_unsigned(N_SLV_DAC70004, IPBUS_SEL_WIDTH)); 
+    if std_match(addr, "000-----------------------------") then
+      sel := ipbus_sel_t(to_unsigned(N_SLV_GLOBAL, IPBUS_SEL_WIDTH));
+    elsif std_match(addr, "001-----------------------------") then
+      sel := ipbus_sel_t(to_unsigned(N_SLV_DAC70004, IPBUS_SEL_WIDTH));
+    elsif std_match(addr, "010-----------------------------") then
+      sel := ipbus_sel_t(to_unsigned(N_SLV_SPI, IPBUS_SEL_WIDTH));
+    elsif std_match(addr, "011-----------------------------") then
+      sel := ipbus_sel_t(to_unsigned(N_SLV_JADEPIX, IPBUS_SEL_WIDTH));
     else
       sel := ipbus_sel_t(to_unsigned(N_SLAVES, IPBUS_SEL_WIDTH));
     end if;

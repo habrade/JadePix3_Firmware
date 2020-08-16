@@ -48,8 +48,7 @@ entity clocks_7s_extphy is
 		CLK_AUX_FREQ: real := 10.0
 	);
 	port(
-		sysclk_p: in std_logic;
-		sysclk_n: in std_logic;
+		sysclk  : in std_logic;
 		clko_125: out std_logic;
 		clko_125_90: out std_logic;
 		clko_200: out std_logic;
@@ -69,7 +68,7 @@ end clocks_7s_extphy;
 
 architecture rtl of clocks_7s_extphy is
 	
-	signal dcm_locked, sysclk, clk_ipb_i, clk_125_i, clk_125_90_i, clk_200_i, clkfb, clk_ipb_b, clk_125_b: std_logic;
+	signal dcm_locked, clk_ipb_i, clk_125_i, clk_125_90_i, clk_200_i, clkfb, clk_ipb_b, clk_125_b: std_logic;
 	signal clk_aux_i, clk_aux_b: std_logic;
 	signal d17, d17_d: std_logic;
 	signal nuke_i, nuke_d, nuke_d2: std_logic := '0';
@@ -78,11 +77,6 @@ architecture rtl of clocks_7s_extphy is
 
 begin
 
-	ibufgds0: IBUFGDS port map(
-		i => sysclk_p,
-		ib => sysclk_n,
-		o => sysclk
-	);
 	
 	clko_200 <= sysclk; -- io delay ref clock only, no bufg
 
