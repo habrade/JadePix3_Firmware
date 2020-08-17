@@ -26,9 +26,11 @@ entity ipbus_payload is
     soft_rst : out std_logic;
 
     -- DAC70004
-    DAC_BUSY : in  std_logic;
-    DAC_WE   : out std_logic;
-    DAC_DATA : out std_logic_vector(31 downto 0);
+    DACCLK     : in  std_logic;
+    DACCLK_RST : in  std_logic;
+    DAC_BUSY   : in  std_logic;
+    DAC_WE     : out std_logic;
+    DAC_DATA   : out std_logic_vector(31 downto 0);
 
     -- JadePix
     cfg_out   : out jadepix_cfg;
@@ -86,9 +88,11 @@ begin
       ipb_in  => ipbw(N_SLV_DAC70004),
       ipb_out => ipbr(N_SLV_DAC70004),
 
-      DAC_BUSY => DAC_BUSY,
-      DAC_WE   => DAC_WE,
-      DAC_DATA => DAC_DATA
+      DACCLK     => DACCLK,
+      DACCLK_RST => DACCLK_RST,
+      DAC_BUSY   => DAC_BUSY,
+      DAC_WE     => DAC_WE,
+      DAC_DATA   => DAC_DATA
       );
 
   slave2 : entity work.ipbus_spi

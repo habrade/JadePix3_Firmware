@@ -53,8 +53,8 @@ entity JadePix3_Readout is port(
 --  DAC_BUSY : out std_logic
 
   -- JadePix3
-  REFCLK_40M : out std_logic;
-  CACHE_CLK  : out std_logic;
+  REFCLK    : out std_logic;
+  CACHE_CLK : out std_logic;
 
   RA    : out std_logic_vector(8 downto 0);
   RA_EN : out std_logic;
@@ -91,7 +91,8 @@ end JadePix3_Readout;
 
 architecture rtl of JadePix3_Readout is
 
-  signal sysclk : std_logic;
+  signal sysclk                 : std_logic;
+  signal clk40M_rst, clk50M_rst : std_logic;
 
   -- IPbus
   signal clk_ipb, rst_ipb, clk_125M, clk_aux, rst_aux, locked_ipbus_mmcm, nuke, soft_rst, phy_rst_e, userled : std_logic;
@@ -101,10 +102,10 @@ architecture rtl of JadePix3_Readout is
   signal ipb_in                                                                                              : ipb_rbus;
 
   -- DAC70004
-  signal DACCLK_50M : std_logic;
-  signal DAC_BUSY   : std_logic;
-  signal DAC_WE     : std_logic;
-  signal DAC_DATA   : std_logic_vector(31 downto 0);
+  signal DACCLK   : std_logic;
+  signal DAC_BUSY : std_logic;
+  signal DAC_WE   : std_logic;
+  signal DAC_DATA : std_logic_vector(31 downto 0);
 
   -- JadePix
   signal locked_jadepix_mmcm : std_logic;
@@ -126,10 +127,12 @@ begin
 
   inst_jadepix_clock_gen : entity work.jadepix_clock_gen
     port map(
-      sysclk  => sysclk,
-      clk_40M => REFCLK_40M,
-      clk_50M => DACCLK_50M,
-      locked  => locked_jadepix_mmcm
+      sysclk     => sysclk,
+      clk40M     => REFCLK,
+      clk40M_rst => clk40M_rst,
+      clk50M     => DACCLK,
+      clk50M_rst => clk50M_rst,
+      locked     => locked_jadepix_mmcm
       );
 
   ipbus_infra : entity work.ipbus_gmii_infra
@@ -176,38 +179,40 @@ begin
       N_SS => N_SS
       )
     port map(
-      ipb_clk   => clk_ipb,
-      ipb_rst   => rst_ipb,
-      ipb_in    => ipb_out,
-      ipb_out   => ipb_in,
+      ipb_clk    => clk_ipb,
+      ipb_rst    => rst_ipb,
+      ipb_in     => ipb_out,
+      ipb_out    => ipb_in,
       -- Payload clock
-      clk       => clk_aux,
-      rst       => rst_aux,
+      clk        => clk_aux,
+      rst        => rst_aux,
       -- Global
-      nuke      => nuke,
-      soft_rst  => soft_rst,
+      nuke       => nuke,
+      soft_rst   => soft_rst,
       -- DAC70004
-      DAC_BUSY  => DAC_BUSY,
-      DAC_WE    => DAC_WE,
-      DAC_DATA  => DAC_DATA,
+      DACCLK     => DACCLK,
+      DACCLK_RST => clk50M_rst,
+      DAC_BUSY   => DAC_BUSY,
+      DAC_WE     => DAC_WE,
+      DAC_DATA   => DAC_DATA,
       -- JadePix
-      cfg_out   => cfg_out,
-      cfg_start => cfg_start,
-      rs_start  => rs_start,
-      gs_start  => gs_start,
-      apulse    => apulse_tmp,
-      dpulse    => dpulse_tmp,
-      pdb       => PDB,
+      cfg_out    => cfg_out,
+      cfg_start  => cfg_start,
+      rs_start   => rs_start,
+      gs_start   => gs_start,
+      apulse     => apulse_tmp,
+      dpulse     => dpulse_tmp,
+      pdb        => PDB,
       -- SPI master
-      ss        => ss,
-      mosi      => mosi,
-      miso      => miso,
-      sclk      => sclk
+      ss         => ss,
+      mosi       => mosi,
+      miso       => miso,
+      sclk       => sclk
       );
 
   inst_dac70004 : entity work.DAC_refresh
     port map(
-      CLK_50M    => DACCLK_50M,
+      CLK_50M    => DACCLK,
       DLL_LOCKED => locked_jadepix_mmcm,
       DAC_WE     => DAC_WE,
       DAC_DATA   => DAC_DATA,

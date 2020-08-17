@@ -37,16 +37,22 @@ entity jadepix_clock_gen is
     CLK_VCO_FREQ : real := 1000.0       -- VCO freq 1000M
     );
   port (
-    sysclk  : in  std_logic;
-    clk_40M : out std_logic;
-    clk_50M : out std_logic;
-    locked  : out std_logic
+    sysclk     : in  std_logic;
+    clk40M     : out std_logic;
+    clk50M     : out std_logic;
+    clk40M_rst : out std_logic;
+    clk50M_rst : out std_logic;
+    locked     : out std_logic
     );
 end jadepix_clock_gen;
 
 
 architecture behv of jadepix_clock_gen is
-  signal clkfb : std_logic;
+  signal clkfb              : std_logic;
+  signal clk50M_i, clk40M_i : std_logic;
+  signal mmcm_locked        : std_logic;
+  signal rst                : std_logic;
+
 
 begin
 
@@ -72,12 +78,12 @@ begin
       )
     port map (
       -- Clock Outputs: 1-bit (each) output: User configurable clock outputs
-      CLKOUT0  => clk_40M,              -- 1-bit output: CLKOUT0
-      CLKOUT1  => clk_50M,              -- 1-bit output: CLKOUT1
+      CLKOUT0  => clk40M_i,             -- 1-bit output: CLKOUT0
+      CLKOUT1  => clk50M_i,             -- 1-bit output: CLKOUT1
       -- Feedback Clocks: 1-bit (each) output: Clock feedback ports
       CLKFBOUT => clkfb,                -- 1-bit output: Feedback clock
       -- Status Ports: 1-bit (each) output: MMCM status ports
-      LOCKED   => locked,               -- 1-bit output: LOCK
+      LOCKED   => mmcm_locked,          -- 1-bit output: LOCK
       -- Clock Inputs: 1-bit (each) input: Clock input
       CLKIN1   => sysclk,               -- 1-bit input: Clock
       -- Control Ports: 1-bit (each) input: MMCM control ports
@@ -86,6 +92,45 @@ begin
       -- Feedback Clocks: 1-bit (each) input: Clock feedback ports
       CLKFBIN  => clkfb                 -- 1-bit input: Feedback clock
       );
+
+
+  locked <= mmcm_locked;
+
+
+  bufg50M : BUFG port map(
+    i => clk50M_i,
+    o => clk50M
+    );
+
+
+  bufg40M : BUFG port map(
+    i => clk40M_i,
+    o => clk40M
+    );
+
+  process(sysclk)
+  begin
+    if rising_edge(sysclk) then
+      rst <= not mmcm_locked;
+    end if;
+  end process;
+
+
+  process(clk40M_i)
+  begin
+    if rising_edge(clk40M_i) then
+      clk40M_rst <= rst;
+    end if;
+  end process;
+
+
+  process(clk50M_i)
+  begin
+    if rising_edge(clk50M_i) then
+      clk50M_rst <= rst;
+    end if;
+  end process;
+
 
 
 end behv;

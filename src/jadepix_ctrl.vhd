@@ -165,7 +165,7 @@ begin
         GSHUTTER   <= '1';
         APLSE      <= apulse_in;
         DPLSE      <= dpulse_in;
-        state_next <= IDLE;
+        state_next <= RS;
 
       when others =>
         state_next <= IDLE;
