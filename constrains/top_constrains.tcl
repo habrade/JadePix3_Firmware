@@ -76,13 +76,102 @@ set_property PACKAGE_PIN T26 [get_ports {gmii_rxd[6]}]
 set_property PACKAGE_PIN T28 [get_ports {gmii_rxd[7]}]
 set_property PACKAGE_PIN L20 [get_ports {phy_rst}]
 
+
 # DAC70004
-#set_property PACKAGE_PIN  [get_ports {DAC_SCLK}]
-#set_property PACKAGE_PIN  [get_ports {DAC_LOAD}]
-#set_property PACKAGE_PIN  [get_ports {DAC_SYNC}]
-#set_property PACKAGE_PIN  [get_ports {DAC_SDIN}]
-#set_property PACKAGE_PIN  [get_ports {DAC_CLR}]
- 
+set_property IOSTANDARD LVCMOS25 [get_ports {DAC_*}]
+set_property PACKAGE_PIN L15 [get_ports {DAC_SCLK}]
+set_property PACKAGE_PIN E13 [get_ports {DAC_LOAD}]
+set_property PACKAGE_PIN K15 [get_ports {DAC_SYNC}]
+set_property PACKAGE_PIN K16 [get_ports {DAC_SDIN}]
+set_property PACKAGE_PIN K13 [get_ports {DAC_CLR}]
+
+## JadePix3
+# SPI
+set_property PACKAGE_PIN AE23 [get_ports {mosi}]
+set_property IOSTANDARD LVCMOS25 [get_ports {mosi}]
+set_property IOSTANDARD LVCMOS25 [get_ports {miso}]
+set_property PACKAGE_PIN D26 [get_ports {miso}]
+set_property PACKAGE_PIN A25 [get_ports {sclk}]
+set_property IOSTANDARD LVCMOS25 [get_ports {sclk}]
+set_property PACKAGE_PIN C19 [get_ports {ss[0]}]
+set_property IOSTANDARD LVCMOS25 [get_ports {ss[0]}]
+set_property PACKAGE_PIN AK24 [get_ports LOAD]
+set_property IOSTANDARD LVCMOS25 [get_ports LOAD]
+
+# CHIP
+set_property PACKAGE_PIN F11 [get_ports REFCLK]
+set_property IOSTANDARD LVCMOS25 [get_ports REFCLK]
+set_property PACKAGE_PIN B15 [get_ports CACHE_CLK]
+set_property IOSTANDARD LVCMOS25 [get_ports CACHE_CLK]
+set_property IOSTANDARD LVCMOS25 [get_ports CACHE_BIT_SEL[*]]
+set_property PACKAGE_PIN C15 [get_ports CACHE_BIT_SEL[0]]
+set_property PACKAGE_PIN E15 [get_ports CACHE_BIT_SEL[1]]
+set_property PACKAGE_PIN E14 [get_ports CACHE_BIT_SEL[2]]
+set_property PACKAGE_PIN E11 [get_ports CACHE_BIT_SEL[3]]
+
+set_property IOSTANDARD LVCMOS25 [get_ports {RA*}]
+set_property PACKAGE_PIN E16 [get_ports RA_EN]
+set_property PACKAGE_PIN B30 [get_ports RA[0]]
+set_property PACKAGE_PIN AH22 [get_ports RA[1]]
+set_property PACKAGE_PIN AG22 [get_ports RA[2]]
+set_property PACKAGE_PIN AE21 [get_ports RA[3]]
+set_property PACKAGE_PIN AD21 [get_ports RA[4]]
+set_property PACKAGE_PIN C30 [get_ports RA[5]]
+set_property PACKAGE_PIN D29 [get_ports RA[6]]
+set_property PACKAGE_PIN AK21 [get_ports RA[7]]
+set_property PACKAGE_PIN AK20 [get_ports RA[8]]
+
+set_property IOSTANDARD LVCMOS25 [get_ports {CA*}]
+set_property PACKAGE_PIN AJ22 [get_ports CA_EN]
+set_property PACKAGE_PIN H27 [get_ports CA[0]]
+set_property PACKAGE_PIN H26 [get_ports CA[1]]
+set_property PACKAGE_PIN AC29 [get_ports CA[2]]
+set_property PACKAGE_PIN AA30 [get_ports CA[3]]
+set_property PACKAGE_PIN Y30 [get_ports CA[4]]
+set_property PACKAGE_PIN C22 [get_ports CA[5]]
+set_property PACKAGE_PIN D22 [get_ports CA[6]]
+set_property PACKAGE_PIN AF30 [get_ports CA[7]]
+set_property PACKAGE_PIN AE30 [get_ports CA[8]]
+  
+set_property IOSTANDARD LVCMOS25 [get_ports {CON_*}]
+set_property PACKAGE_PIN H12 [get_ports CON_SELM]
+set_property PACKAGE_PIN H11 [get_ports CON_SELP]
+set_property PACKAGE_PIN AH27 [get_ports CON_DATA]
+
+set_property PACKAGE_PIN H15 [get_ports HIT_RST]
+set_property IOSTANDARD LVCMOS25 [get_ports HIT_RST]
+set_property PACKAGE_PIN G15 [get_ports RD_EN]
+set_property IOSTANDARD LVCMOS25 [get_ports RD_EN]
+
+
+set_property PACKAGE_PIN AH26 [get_ports MATRIX_GRST]
+set_property IOSTANDARD LVCMOS25 [get_ports MATRIX_GRST]
+set_property PACKAGE_PIN E30 [get_ports DIGSEL_EN]
+set_property IOSTANDARD LVCMOS25 [get_ports DIGSEL_EN]
+set_property PACKAGE_PIN AA20 [get_ports ANASEL_EN]
+set_property IOSTANDARD LVCMOS25 [get_ports ANASEL_EN]
+set_property PACKAGE_PIN AF23 [get_ports GSHUTTER]
+set_property IOSTANDARD LVCMOS25 [get_ports GSHUTTER]
+set_property PACKAGE_PIN AK29 [get_ports DPLSE]
+set_property IOSTANDARD LVCMOS25 [get_ports DPLSE]
+set_property PACKAGE_PIN AK30 [get_ports APLSE]
+set_property IOSTANDARD LVCMOS25 [get_ports APLSE]
+
+
+set_property PACKAGE_PIN G15 [get_ports RD_EN]
+set_property IOSTANDARD LVCMOS25 [get_ports RD_EN]
+set_property PACKAGE_PIN F12 [get_ports PDB]
+set_property IOSTANDARD LVCMOS25 [get_ports PDB]
+  
+#set_property IOSTANDARD LVCMOS25 [get_ports {DATA_IN*}]
+#set_property PACKAGE_PIN H27 [get_ports DATA_IN[0]]
+#set_property PACKAGE_PIN H26 [get_ports DATA_IN[1]]
+#set_property PACKAGE_PIN AC29 [get_ports DATA_IN[2]]
+#set_property PACKAGE_PIN AA30 [get_ports DATA_IN[3]]
+#set_property PACKAGE_PIN Y30 [get_ports DATA_IN[4]]
+#set_property PACKAGE_PIN C22 [get_ports DATA_IN[5]]
+#set_property PACKAGE_PIN D22 [get_ports DATA_IN[6]]
+#set_property PACKAGE_PIN AF30 [get_ports DATA_IN[7]]
 
 # IPbus clock
 create_generated_clock -name ipbus_clk -source [get_pins ipbus_infra/clocks/mmcm/CLKIN1] [get_pins ipbus_infra/clocks/mmcm/CLKOUT3]
@@ -90,8 +179,17 @@ create_generated_clock -name ipbus_clk -source [get_pins ipbus_infra/clocks/mmcm
 # Other derived clocks
 create_generated_clock -name clk_aux -source [get_pins ipbus_infra/clocks/mmcm/CLKIN1] [get_pins ipbus_infra/clocks/mmcm/CLKOUT4]
 
+# DAC Clock
+create_generated_clock -name dac_clk -source [get_pins jadepix_clocks/mmcm/CLKIN1] [get_pins jadepix_clocks/mmcm/CLKOUT1]
+
+## JAdepix clocks
+create_generated_clock -name ref_clk -source [get_pins jadepix_clocks/mmcm/CLKIN1] [get_pins jadepix_clocks/mmcm/CLKOUT0]
+
+
 set_false_path -through [get_pins ipbus_infra/clocks/rst_reg/Q]
 set_false_path -through [get_nets ipbus_infra/clocks/nuke_i]
 
 
 set_clock_groups -asynchronous -group [get_clocks ipbus_clk] -group [get_clocks -include_generated_clocks [get_clocks clk_aux]]
+set_clock_groups -asynchronous -group [get_clocks ipbus_clk] -group [get_clocks -include_generated_clocks [get_clocks dac_clk]]
+set_clock_groups -asynchronous -group [get_clocks dac_clk] -group [get_clocks -include_generated_clocks [get_clocks ref_clk]]
