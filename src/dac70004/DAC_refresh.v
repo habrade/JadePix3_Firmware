@@ -34,7 +34,7 @@ module DAC_refresh(
     );
     
 //----------- Devide CLK_50M frequency by 2 ---------	
-       reg SCLK_reg = 1'b0;
+       (* mark_debug = "true" *) reg SCLK_reg = 1'b0;
        always @(posedge CLK_50M) begin
              SCLK_reg <= ~SCLK_reg;
        end
@@ -42,13 +42,13 @@ module DAC_refresh(
        assign DAC_SCLK = SCLK_reg;
     
     //----------- START OF FSM-MOORE-BINARY ---------    
-       reg [4:0] BS_cnt = 5'b0;
-       reg [31:0] DATA_shift_register = 32'b0;
-       reg [1:0] state = 2'b0;
-       reg DAC_BUSY_reg = 1'b1;
-       reg DAC_SYNC_reg = 1'b1;
-       reg DAC_LOAD_reg = 1'b0;
-       reg DAC_CLR_reg = 1'b1;
+       (* mark_debug = "true" *) reg [4:0] BS_cnt = 5'b0;
+       (* mark_debug = "true" *) reg [31:0] DATA_shift_register = 32'b0;
+       (* mark_debug = "true" *) reg [1:0] state = 2'b0;
+       (* mark_debug = "true" *) reg DAC_BUSY_reg = 1'b1;
+       (* mark_debug = "true" *) reg DAC_SYNC_reg = 1'b1;
+       (* mark_debug = "true" *) reg DAC_LOAD_reg = 1'b0;
+       (* mark_debug = "true" *) reg DAC_CLR_reg = 1'b1;
        parameter LOAD = 2'b00;
        parameter SYNC = 2'b01;
        parameter SHIFT = 2'b11;
@@ -57,7 +57,7 @@ module DAC_refresh(
           if (~DLL_LOCKED) begin
              state <= LOAD;
              DAC_SYNC_reg <= 1'b1;
-             DAC_BUSY_reg <= 1'b1;
+             DAC_BUSY_reg <= 1'b0;
              DAC_LOAD_reg <= 1'b0;
              DAC_CLR_reg <= 1'b1;
              BS_cnt <= 5'b0;
@@ -68,23 +68,27 @@ module DAC_refresh(
                    if (DAC_WE) begin
                       state <= SYNC;   
                       DATA_shift_register[31:0] <= DAC_DATA[31:0];
+                      DAC_BUSY_reg <= 1'b1;
+                   end
+                   else begin
                       DAC_BUSY_reg <= 1'b0;
+                      state <= LOAD;
                    end
                 end
                 SYNC : begin
                     if(~SCLK_reg) begin
                         state <= SHIFT;
-                        DAC_SYNC_reg <= 1'b0;
+                        DAC_SYNC_reg <= 1'b1;
                     end
                 end
                 SHIFT : begin
                    if (~SCLK_reg) begin
                       BS_cnt <= BS_cnt + 1;
                       DATA_shift_register[31:0] <= {DATA_shift_register[30:0],1'b0};
+                      DAC_SYNC_reg <= 1'b1;
                       if (BS_cnt[4:0] == 5'b11111) begin
                          state <= LOAD;
                          BS_cnt[4:0] <= 5'b0;
-                         DAC_SYNC_reg <= 1'b1;
                          DAC_BUSY_reg <= 1'b1;
                       end
                    end
@@ -92,7 +96,7 @@ module DAC_refresh(
                 default : begin  // Fault Recovery
                    state <= LOAD;
                    DAC_SYNC_reg <= 1'b1;
-                   DAC_BUSY_reg <= 1'b1;
+                   DAC_BUSY_reg <= 1'b0;
                    DAC_LOAD_reg <= 1'b0;
                    DAC_CLR_reg <= 1'b1;
                    BS_cnt <= 5'b0;

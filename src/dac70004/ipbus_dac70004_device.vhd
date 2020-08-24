@@ -54,7 +54,7 @@ architecture behv of ipbus_dac70004_device is
   constant N_STAT       : integer := 1;
   constant N_CTRL       : integer := 2;
   constant SYNC_REG_ENA : boolean := false;
-  
+
   constant REG_NSLV : integer  := reg_slave_num(N_STAT, N_CTRL);
   constant NSLV     : positive := REG_NSLV;
 
@@ -109,10 +109,21 @@ begin
     end generate;
   end generate;
 
-  stat(0)(0) <= DAC_BUSY;
 
-  DAC_WE   <= ctrl(0)(0);
-  DAC_DATA <= ctrl(1);
+  process(DACCLK)
+  begin
+    if rising_edge(DACCLK) then
+      DAC_WE     <= ctrl(0)(0);
+      DAC_DATA   <= ctrl(1);
+    end if;
+  end process;  
+  
+  process(DACCLK)
+  begin
+    if rising_edge(DACCLK) then
+      stat(0)(0) <= DAC_BUSY;
+    end if;
+  end process;
 
 
 end behv;
