@@ -56,8 +56,6 @@ entity ipbus_slave_reg_ram is
     ctrl_reg_stb : out std_logic_vector(integer_max(N_CTRL, 1)-1 downto 0);
     stat         : in  ipb_reg_v(integer_max(N_STAT, 1)-1 downto 0);
     stat_reg_stb : out std_logic_vector(integer_max(N_STAT, 1)-1 downto 0)
-
-
     );
 end ipbus_slave_reg_ram;
 

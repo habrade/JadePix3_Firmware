@@ -65,8 +65,8 @@ entity JadePix3_Readout is port(
   CON_SELP : out std_logic;
   CON_DATA : out std_logic;
 
-  DATA_IN    : in std_logic_vector(7 downto 0);
-  MATRIX_DIN : in std_logic_vector(15 downto 0);
+--  DATA_IN    : in std_logic_vector(7 downto 0);
+--  MATRIX_DIN : in std_logic_vector(15 downto 0);
 
   CACHE_BIT_SEL : out std_logic_vector(3 downto 0);
   HIT_RST       : out std_logic;
@@ -79,7 +79,8 @@ entity JadePix3_Readout is port(
   DPLSE       : out std_logic;
   APLSE       : out std_logic;
 
-  PDB : out std_logic;
+  PDB  : out std_logic;
+  LOAD : out std_logic;
 
   -- SPI Master
   ss   : out std_logic_vector(N_SS - 1 downto 0);
@@ -107,6 +108,14 @@ architecture rtl of JadePix3_Readout is
   signal DAC_WE   : std_logic;
   signal DAC_DATA : std_logic_vector(31 downto 0);
 
+  attribute mark_debug             : string;
+  attribute mark_debug of DACCLK   : signal is "true";
+  attribute mark_debug of DAC_BUSY : signal is "true";
+  attribute mark_debug of DAC_WE   : signal is "true";
+  attribute mark_debug of DAC_DATA : signal is "true";
+  attribute mark_debug of ipb_out  : signal is "true";
+  attribute mark_debug of ipb_in   : signal is "true";
+
   -- JadePix
   signal locked_jadepix_mmcm : std_logic;
   signal cfg_out             : jadepix_cfg;
@@ -125,7 +134,7 @@ begin
     );
 
 
-  inst_jadepix_clock_gen : entity work.jadepix_clock_gen
+  jadepix_clocks : entity work.jadepix_clock_gen
     port map(
       sysclk     => sysclk,
       clk40M     => REFCLK,
@@ -203,14 +212,15 @@ begin
       apulse     => apulse_tmp,
       dpulse     => dpulse_tmp,
       pdb        => PDB,
+      load       => LOAD,
       -- SPI master
-      ss         => ss,
+      ss         => open,
       mosi       => mosi,
       miso       => miso,
       sclk       => sclk
       );
 
-  inst_dac70004 : entity work.DAC_refresh
+  dac70004 : entity work.DAC_refresh
     port map(
       CLK_50M    => DACCLK,
       DLL_LOCKED => locked_jadepix_mmcm,
@@ -225,7 +235,7 @@ begin
       );
 
 
-  inst_jadepix_ctrl : entity work.jadepix_ctrl
+  jadepix_ctrl : entity work.jadepix_ctrl
     port map(
 
       clk => clk_aux,
@@ -249,7 +259,7 @@ begin
       CON_DATA => CON_DATA,
 
 --        DATA_IN     =>  DATA_IN,
-      MATRIX_DIN => MATRIX_DIN,
+--      MATRIX_DIN => MATRIX_DIN,
 
 --  CACHE_CLK      =>  out std_logic;
       CACHE_BIT_SEL => CACHE_BIT_SEL,

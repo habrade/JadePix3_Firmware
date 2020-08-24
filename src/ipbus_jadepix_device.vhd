@@ -54,14 +54,15 @@ entity ipbus_jadepix_device is
     apulse : out std_logic;
     dpulse : out std_logic;
 
-    pdb : out std_logic
+    pdb : out std_logic;
+    load : out std_logic
 
     );
 end ipbus_jadepix_device;
 
 architecture behv of ipbus_jadepix_device is
   -- IPbus reg
-  constant SYNC_REG_ENA : boolean := false;
+  constant SYNC_REG_ENA : boolean := true;
   constant N_STAT       : integer := 1;
   constant N_CTRL       : integer := 2;
   constant N_RAM        : integer := 0;
@@ -100,7 +101,7 @@ begin
       );
 
   -- control
-  process(clk)
+  process(ipb_clk)
   begin
     if rising_edge(clk) then
       cfg_out.row  <= ctrl(0)(20 downto 12);
@@ -112,15 +113,16 @@ begin
       apulse       <= ctrl(1)(3);
       dpulse       <= ctrl(1)(4);
       pdb          <= ctrl(1)(5);
+      load         <= ctrl(1)(6);
     end if;
   end process;
 
---  -- status
---  process(clk)
---  begin
---    if rising_edge(clk) then
---      stat(0)(1 downto 0) <= locked;
---    end if;
---  end process;
+  -- status
+  process(ipb_clk)
+  begin
+    if rising_edge(clk) then
+      stat(0)(1 downto 0) <= "00";
+    end if;
+  end process;
 
 end behv;

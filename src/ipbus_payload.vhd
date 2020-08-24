@@ -40,6 +40,7 @@ entity ipbus_payload is
     apulse    : out std_logic;
     dpulse    : out std_logic;
     pdb       : out std_logic;
+    load      : out std_logic;
 
     -- SPI Master
     ss   : out std_logic_vector(N_SS - 1 downto 0);
@@ -54,6 +55,13 @@ architecture rtl of ipbus_payload is
 
   signal ipbw : ipb_wbus_array(N_SLAVES - 1 downto 0);
   signal ipbr : ipb_rbus_array(N_SLAVES - 1 downto 0);
+
+  --Debug
+  attribute mark_debug         : string;
+  attribute mark_debug of miso : signal is "true";
+  attribute mark_debug of mosi : signal is "true";
+  attribute mark_debug of ss   : signal is "true";
+  attribute mark_debug of sclk : signal is "true";
 
 begin
 
@@ -127,7 +135,8 @@ begin
       gs_start  => gs_start,
       apulse    => apulse,
       dpulse    => dpulse,
-      pdb       => pdb
+      pdb       => pdb,
+      load      => load
 
       );
 

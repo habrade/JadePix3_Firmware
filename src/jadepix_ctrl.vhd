@@ -56,7 +56,7 @@ entity jadepix_ctrl is
     CON_SELP : out std_logic;
     CON_DATA : out std_logic;
 
-    MATRIX_DIN : in std_logic_vector(15 downto 0);
+--    MATRIX_DIN : in std_logic_vector(15 downto 0);
 
 --    CACHE_CLK     : out std_logic;
     CACHE_BIT_SEL : out std_logic_vector(3 downto 0);

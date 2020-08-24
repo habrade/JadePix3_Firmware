@@ -56,7 +56,7 @@ architecture behv of jadepix_clock_gen is
 
 begin
 
-  MMCME2_BASE_inst : MMCME2_BASE
+  mmcm : MMCME2_BASE
     generic map (
       BANDWIDTH          => "OPTIMIZED",  -- Jitter programming (OPTIMIZED, HIGH, LOW)
       CLKFBOUT_MULT_F    => CLK_VCO_FREQ / CLK_FR_FREQ,  -- Multiply value for all CLKOUT (2.000-64.000).
@@ -108,13 +108,8 @@ begin
     o => clk40M
     );
 
-  process(sysclk)
-  begin
-    if rising_edge(sysclk) then
-      rst <= not mmcm_locked;
-    end if;
-  end process;
 
+  rst <= not mmcm_locked;
 
   process(clk40M_i)
   begin

@@ -34,6 +34,6 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 package GLOBAL_DEFINES is
   
-  constant N_SS: positive := 8;
+  constant N_SS: positive := 1;   -- Number of SPI Slaves
 
 end GLOBAL_DEFINES;
