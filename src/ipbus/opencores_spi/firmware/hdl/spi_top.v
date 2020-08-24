@@ -93,7 +93,7 @@ module spi_top
   wire                             ass;              // automatic slave select
   wire                             spi_divider_sel;  // divider register select
   wire                             spi_ctrl_sel;     // ctrl register select
-  wire                       [3:0] spi_tx_sel;       // tx_l register select
+  wire                       [7:0] spi_tx_sel;       // tx_l register select
   wire                             spi_ss_sel;       // ss register select
   wire                             tip;              // transfer in progress
   wire                             pos_edge;         // recognize posedge of sclk
@@ -107,12 +107,26 @@ module spi_top
   assign spi_tx_sel[1]   = wb_cyc_i & wb_stb_i & (wb_adr_i[`SPI_OFS_BITS] == `SPI_TX_1);
   assign spi_tx_sel[2]   = wb_cyc_i & wb_stb_i & (wb_adr_i[`SPI_OFS_BITS] == `SPI_TX_2);
   assign spi_tx_sel[3]   = wb_cyc_i & wb_stb_i & (wb_adr_i[`SPI_OFS_BITS] == `SPI_TX_3);
+  assign spi_tx_sel[4]   = wb_cyc_i & wb_stb_i & (wb_adr_i[`SPI_OFS_BITS] == `SPI_TX_4);
+  assign spi_tx_sel[5]   = wb_cyc_i & wb_stb_i & (wb_adr_i[`SPI_OFS_BITS] == `SPI_TX_5);
+  assign spi_tx_sel[6]   = wb_cyc_i & wb_stb_i & (wb_adr_i[`SPI_OFS_BITS] == `SPI_TX_6);
+  assign spi_tx_sel[7]   = wb_cyc_i & wb_stb_i & (wb_adr_i[`SPI_OFS_BITS] == `SPI_TX_7);
   assign spi_ss_sel      = wb_cyc_i & wb_stb_i & (wb_adr_i[`SPI_OFS_BITS] == `SPI_SS);
  
   // Read from registers
   always @(wb_adr_i or rx or ctrl or divider or ss)
   begin
     case (wb_adr_i[`SPI_OFS_BITS])
+`ifdef SPI_MAX_CHAR_256
+      `SPI_RX_0:    wb_dat = rx[31:0];
+      `SPI_RX_1:    wb_dat = rx[63:32];
+      `SPI_RX_2:    wb_dat = rx[95:64];
+      `SPI_RX_3:    wb_dat = rx[127:96];
+      `SPI_RX_4:    wb_dat = rx[159:128];
+      `SPI_RX_5:    wb_dat = rx[191:160];
+      `SPI_RX_6:    wb_dat = rx[223:192];
+      `SPI_RX_7:    wb_dat = {{256-`SPI_MAX_CHAR{1'b0}}, rx[`SPI_MAX_CHAR-1:224]};
+`else
 `ifdef SPI_MAX_CHAR_128
       `SPI_RX_0:    wb_dat = rx[31:0];
       `SPI_RX_1:    wb_dat = rx[63:32];
@@ -129,6 +143,7 @@ module spi_top
       `SPI_RX_1:    wb_dat = 32'b0;
       `SPI_RX_2:    wb_dat = 32'b0;
       `SPI_RX_3:    wb_dat = 32'b0;
+`endif
 `endif
 `endif
       `SPI_CTRL:    wb_dat = {{32-`SPI_CTRL_BIT_NB{1'b0}}, ctrl};
@@ -277,7 +292,7 @@ module spi_top
                    .neg_edge(neg_edge));
  
   spi_shift shift (.clk(wb_clk_i), .rst(wb_rst_i), .len(char_len[`SPI_CHAR_LEN_BITS-1:0]),
-                   .latch(spi_tx_sel[3:0] & {4{wb_we_i}}), .byte_sel(wb_sel_i), .lsb(lsb), 
+                   .latch(spi_tx_sel[7:0] & {8{wb_we_i}}), .byte_sel(wb_sel_i), .lsb(lsb), 
                    .go(go), .pos_edge(pos_edge), .neg_edge(neg_edge), 
                    .rx_negedge(rx_negedge), .tx_negedge(tx_negedge),
                    .tip(tip), .last(last_bit), 

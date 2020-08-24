@@ -63,8 +63,8 @@ begin
 		port map(
 			wb_clk_i => clk,
 			wb_rst_i => rst,
-			wb_adr_i(4 downto 2) => ipb_in.ipb_addr(2 downto 0),
-			wb_adr_i(1 downto 0) => std_logic_vector'("00"),
+			wb_adr_i(4 downto 1) => ipb_in.ipb_addr(3 downto 0),
+			wb_adr_i(0 downto 0) => std_logic_vector'("0"),
 			wb_dat_i => ipb_in.ipb_wdata,
 			wb_dat_o => ipb_out.ipb_rdata,
 			wb_sel_i => std_logic_vector'("1111"),
