@@ -62,6 +62,7 @@ architecture rtl of ipbus_payload is
   attribute mark_debug of mosi : signal is "true";
   attribute mark_debug of ss   : signal is "true";
   attribute mark_debug of sclk : signal is "true";
+  attribute mark_debug of load : signal is "true";
 
 begin
 

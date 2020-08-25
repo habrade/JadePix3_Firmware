@@ -174,7 +174,7 @@ begin
       ipb_out      => ipb_out
       );
 
-  leds(3 downto 2) <= '0' & userled;
+  leds(3 downto 2) <= '0' & locked_jadepix_mmcm;
   phy_rst          <= not phy_rst_e;
 
   mac_addr <= X"020ddba1151" & dip_sw;  -- Careful here, arbitrary addresses do not always work
