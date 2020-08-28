@@ -46,7 +46,14 @@ entity ipbus_jadepix_device is
     clk : in std_logic;
     rst : in std_logic;
 
-    cfg_out   : out jadepix_cfg;
+    -- chip config fifo
+    cfg_sync       : out jadepix_cfg;
+    cfg_fifo_rst   : out std_logic;
+    cfg_fifo_empty : in  std_logic;
+    cfg_fifo_pfull : in  std_logic;
+    cfg_fifo_count : in  std_logic_vector(16 downto 0);
+
+
     cfg_start : out std_logic;
     rs_start  : out std_logic;
     gs_start  : out std_logic;
@@ -61,17 +68,24 @@ end ipbus_jadepix_device;
 
 architecture behv of ipbus_jadepix_device is
   -- IPbus reg
-  constant SYNC_REG_ENA : boolean := false;
-  constant N_STAT       : integer := 1;
-  constant N_CTRL       : integer := 2;
-  constant N_RAM        : integer := 0;
-  signal stat           : ipb_reg_v(N_STAT-1 downto 0);
-  signal ctrl           : ipb_reg_v(N_CTRL-1 downto 0);
-  signal ctrl_reg_stb   : std_logic_vector(N_CTRL-1 downto 0);
-  signal stat_reg_stb   : std_logic_vector(N_STAT-1 downto 0);
+  constant SYNC_REG_ENA               : boolean := false;
+  constant N_STAT                     : integer := 1;
+  constant N_CTRL                     : integer := 2;
+  constant N_RAM                      : integer := 0;
+  signal stat                         : ipb_reg_v(N_STAT-1 downto 0);
+  signal ctrl                         : ipb_reg_v(N_CTRL-1 downto 0);
+  signal ctrl_reg_stb, ctrl_reg_stb_r : std_logic_vector(N_CTRL-1 downto 0);
+  signal stat_reg_stb, stat_reg_stb_r : std_logic_vector(N_STAT-1 downto 0);
 
   -- IPbus drp
   signal ram_rst : std_logic_vector(N_RAM-1 downto 0);
+
+  signal cfg : jadepix_cfg;
+
+  -- DEBUG
+  attribute mark_debug         : string;
+  attribute mark_debug of load : signal is "true";
+
 begin
 
   inst_ipbus_slave_reg_ram : entity work.ipbus_slave_reg_ram
@@ -102,25 +116,42 @@ begin
   process(clk)
   begin
     if rising_edge(clk) then
-      cfg_out.row  <= ctrl(0)(20 downto 12);
-      cfg_out.col  <= ctrl(0)(11 downto 3);
-      cfg_out.data <= ctrl(0)(2 downto 0);
-      cfg_start    <= ctrl(1)(0);
-      rs_start     <= ctrl(1)(1);
-      gs_start     <= ctrl(1)(2);
-      apulse       <= ctrl(1)(3);
-      dpulse       <= ctrl(1)(4);
-      pdb          <= ctrl(1)(5);
-      load         <= ctrl(1)(6);
+      cfg.wr_en      <= ctrl(0)(3);
+      cfg.din        <= ctrl(0)(2 downto 0);
+      cfg_start      <= ctrl(1)(0);
+      rs_start       <= ctrl(1)(1);
+      gs_start       <= ctrl(1)(2);
+      apulse         <= ctrl(1)(3);
+      dpulse         <= ctrl(1)(4);
+      pdb            <= ctrl(1)(5);
+      load           <= ctrl(1)(6);
+      cfg_fifo_rst   <= ctrl(1)(7);
+      ctrl_reg_stb_r <= ctrl_reg_stb;
+      stat_reg_stb_r <= stat_reg_stb;
     end if;
   end process;
+
+  process(clk)
+  begin
+    if rising_edge(clk) then
+      if ctrl_reg_stb_r(0) = '1' then
+        cfg_sync <= cfg;
+      else
+        cfg_sync <= JADEPIX_CFG_NULL;
+      end if;
+    end if;
+  end process;
+
 
   -- status
   process(clk)
   begin
     if rising_edge(clk) then
-      stat(0)(1 downto 0) <= "11";
+      stat(0)(0)           <= cfg_fifo_empty;
+      stat(0)(1)           <= cfg_fifo_pfull;
+      stat(0)(18 downto 2) <= cfg_fifo_count;
     end if;
   end process;
+
 
 end behv;

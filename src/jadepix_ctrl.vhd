@@ -39,9 +39,7 @@ entity jadepix_ctrl is
     clk : in std_logic;
     rst : in std_logic;
 
-    cfg_out   : in jadepix_cfg;
     cfg_start : in std_logic;
-
     rs_start  : in std_logic;
     gs_start  : in std_logic;
     apulse_in : in std_logic;
@@ -55,6 +53,13 @@ entity jadepix_ctrl is
     CON_SELM : out std_logic;
     CON_SELP : out std_logic;
     CON_DATA : out std_logic;
+
+    -- chip config fifo
+    cfg_sync       : in  jadepix_cfg;
+    cfg_fifo_rst   : in  std_logic;
+    cfg_fifo_empty : out std_logic;
+    cfg_fifo_pfull : out std_logic;
+    cfg_fifo_count : out std_logic_vector(16 downto 0);
 
 --    MATRIX_DIN : in std_logic_vector(15 downto 0);
 
@@ -85,6 +90,20 @@ architecture behv of jadepix_ctrl is
 
   signal rs_finished : std_logic;
 
+  -- FIFO
+  signal empty, prog_full, fifo_rst : std_logic;
+  signal cfg_dout                   : std_logic_vector(2 downto 0);
+  signal cfg_rd_en, cfg_dout_valid  : std_logic;
+  signal data_count                 : std_logic_vector(16 downto 0);
+
+  -- DEBUG
+  attribute mark_debug                   : string;
+  attribute mark_debug of cfg_fifo_empty : signal is "true";
+  attribute mark_debug of cfg_fifo_pfull : signal is "true";
+  attribute mark_debug of fifo_rst       : signal is "true";
+  attribute mark_debug of cfg_fifo_count : signal is "true";
+  attribute mark_debug of cfg_sync       : signal is "true";
+
 begin
 
   process(clk, rst)
@@ -96,7 +115,7 @@ begin
     end if;
   end process;
 
-  process(cfg_out, cfg_start, rs_start, gs_start, RA_tmp, CA_tmp, apulse_in, dpulse_in, state_reg)
+  process(cfg_start, rs_start, gs_start, RA_tmp, CA_tmp, apulse_in, dpulse_in, state_reg)
   begin
     state_next <= state_reg;
     case state_reg is
@@ -128,11 +147,11 @@ begin
       when CFG =>
         RA_EN_tmp    <= '1';
         CA_EN_tmp    <= '1';
-        RA_tmp       <= to_integer(unsigned(cfg_out.row));
-        CA_tmp       <= to_integer(unsigned(cfg_out.col));
-        CON_SELM_tmp <= cfg_out.data(2);
-        CON_SELP_tmp <= cfg_out.data(1);
-        CON_DATA_tmp <= cfg_out.data(0);
+--        RA_tmp       <= to_integer(unsigned(cfg_out.row));
+--        CA_tmp       <= to_integer(unsigned(cfg_out.col));
+        CON_SELM_tmp <= cfg_dout(2);
+        CON_SELP_tmp <= cfg_dout(1);
+        CON_DATA_tmp <= cfg_dout(0);
         state_next   <= IDLE;
 
       when RS =>
@@ -192,4 +211,27 @@ begin
       CON_DATA <= CON_DATA_tmp;
     end if;
   end process;
+
+
+  process(clk)
+  begin
+    if rising_edge(clk) then
+      fifo_rst <= rst or cfg_fifo_rst;
+    end if;
+  end process;
+
+  conf_fifo : entity work.fifo_generator_0
+    port map (
+      clk        => clk,
+      srst       => fifo_rst,
+      din        => cfg_sync.din,
+      wr_en      => cfg_sync.wr_en,
+      rd_en      => cfg_rd_en,
+      dout       => cfg_dout,
+      full       => open,
+      empty      => cfg_fifo_empty,
+      valid      => cfg_dout_valid,
+      data_count => cfg_fifo_count,
+      prog_full  => cfg_fifo_pfull
+      );
 end behv;

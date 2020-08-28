@@ -17,7 +17,7 @@ entity ipbus_payload is
     ipb_in  : in  ipb_wbus;
     ipb_out : out ipb_rbus;
 
-    -- Payload Clock
+    -- Chip System Clock
     clk : in std_logic;
     rst : in std_logic;
 
@@ -33,14 +33,19 @@ entity ipbus_payload is
     DAC_DATA   : out std_logic_vector(31 downto 0);
 
     -- JadePix
-    cfg_out   : out jadepix_cfg;
-    cfg_start : out std_logic;
-    rs_start  : out std_logic;
-    gs_start  : out std_logic;
-    apulse    : out std_logic;
-    dpulse    : out std_logic;
-    pdb       : out std_logic;
-    load      : out std_logic;
+    -- chip config fifo
+    cfg_sync       : out jadepix_cfg;
+    cfg_fifo_rst   : out std_logic;
+    cfg_fifo_empty : in  std_logic;
+    cfg_fifo_pfull : in  std_logic;
+    cfg_fifo_count : in  std_logic_vector(16 downto 0);
+    cfg_start      : out std_logic;
+    rs_start       : out std_logic;
+    gs_start       : out std_logic;
+    apulse         : out std_logic;
+    dpulse         : out std_logic;
+    pdb            : out std_logic;
+    load           : out std_logic;
 
     -- SPI Master
     ss   : out std_logic_vector(N_SS - 1 downto 0);
@@ -130,7 +135,12 @@ begin
       clk => clk,
       rst => rst,
 
-      cfg_out   => cfg_out,
+      cfg_sync       => cfg_sync,
+      cfg_fifo_rst   => cfg_fifo_rst,
+      cfg_fifo_empty => cfg_fifo_empty,
+      cfg_fifo_pfull => cfg_fifo_pfull,
+      cfg_fifo_count => cfg_fifo_count,
+
       cfg_start => cfg_start,
       rs_start  => rs_start,
       gs_start  => gs_start,

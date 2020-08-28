@@ -92,8 +92,9 @@ end JadePix3_Readout;
 
 architecture rtl of JadePix3_Readout is
 
-  signal sysclk                 : std_logic;
-  signal clk40M_rst, clk50M_rst : std_logic;
+  signal sysclk                                : std_logic;
+  signal clk_sys                               : std_logic;
+  signal clk_ref_rst, clk_dac_rst, clk_sys_rst : std_logic;
 
   -- IPbus
   signal clk_ipb, rst_ipb, clk_125M, clk_aux, rst_aux, locked_ipbus_mmcm, nuke, soft_rst, phy_rst_e, userled : std_logic;
@@ -109,7 +110,6 @@ architecture rtl of JadePix3_Readout is
   signal DAC_DATA : std_logic_vector(31 downto 0);
 
   attribute mark_debug             : string;
-  attribute mark_debug of DACCLK   : signal is "true";
   attribute mark_debug of DAC_BUSY : signal is "true";
   attribute mark_debug of DAC_WE   : signal is "true";
   attribute mark_debug of DAC_DATA : signal is "true";
@@ -118,12 +118,18 @@ architecture rtl of JadePix3_Readout is
 
   -- JadePix
   signal locked_jadepix_mmcm : std_logic;
-  signal cfg_out             : jadepix_cfg;
   signal cfg_start           : std_logic;
   signal rs_start            : std_logic;
   signal gs_start            : std_logic;
   signal apulse_tmp          : std_logic;
   signal dpulse_tmp          : std_logic;
+
+  -- config FIFO signals
+  signal cfg_sync       : jadepix_cfg;
+  signal cfg_fifo_rst   : std_logic;
+  signal cfg_fifo_empty : std_logic;
+  signal cfg_fifo_pfull : std_logic;
+  signal cfg_fifo_count : std_logic_vector(16 downto 0);
 
 begin
 
@@ -136,12 +142,14 @@ begin
 
   jadepix_clocks : entity work.jadepix_clock_gen
     port map(
-      sysclk     => sysclk,
-      clk40M     => REFCLK,
-      clk40M_rst => clk40M_rst,
-      clk50M     => DACCLK,
-      clk50M_rst => clk50M_rst,
-      locked     => locked_jadepix_mmcm
+      sysclk      => sysclk,
+      clk_ref     => REFCLK,
+      clk_dac     => DACCLK,
+      clk_sys     => clk_sys,
+      clk_dac_rst => clk_dac_rst,
+      clk_ref_rst => clk_ref_rst,
+      clk_sys_rst => clk_sys_rst,
+      locked      => locked_jadepix_mmcm
       );
 
   ipbus_infra : entity work.ipbus_gmii_infra
@@ -188,37 +196,43 @@ begin
       N_SS => N_SS
       )
     port map(
-      ipb_clk    => clk_ipb,
-      ipb_rst    => rst_ipb,
-      ipb_in     => ipb_out,
-      ipb_out    => ipb_in,
-      -- Payload clock
-      clk        => clk_aux,
-      rst        => rst_aux,
+      ipb_clk        => clk_ipb,
+      ipb_rst        => rst_ipb,
+      ipb_in         => ipb_out,
+      ipb_out        => ipb_in,
+      -- Chip system clock
+      clk            => clk_sys,
+      rst            => clk_sys_rst,
       -- Global
-      nuke       => nuke,
-      soft_rst   => soft_rst,
+      nuke           => nuke,
+      soft_rst       => soft_rst,
       -- DAC70004
-      DACCLK     => DACCLK,
-      DACCLK_RST => clk50M_rst,
-      DAC_BUSY   => DAC_BUSY,
-      DAC_WE     => DAC_WE,
-      DAC_DATA   => DAC_DATA,
+      DACCLK         => DACCLK,
+      DACCLK_RST     => clk_dac_rst,
+      DAC_BUSY       => DAC_BUSY,
+      DAC_WE         => DAC_WE,
+      DAC_DATA       => DAC_DATA,
       -- JadePix
-      cfg_out    => cfg_out,
-      cfg_start  => cfg_start,
-      rs_start   => rs_start,
-      gs_start   => gs_start,
-      apulse     => apulse_tmp,
-      dpulse     => dpulse_tmp,
-      pdb        => PDB,
-      load       => LOAD,
+      cfg_sync       => cfg_sync,
+      cfg_fifo_rst   => cfg_fifo_rst,
+      cfg_fifo_empty => cfg_fifo_empty,
+      cfg_fifo_pfull => cfg_fifo_pfull,
+      cfg_fifo_count => cfg_fifo_count,
+
+      cfg_start => cfg_start,
+      rs_start  => rs_start,
+      gs_start  => gs_start,
+      apulse    => apulse_tmp,
+      dpulse    => dpulse_tmp,
+      pdb       => PDB,
+      load      => LOAD,
       -- SPI master
-      ss         => open,
-      mosi       => mosi,
-      miso       => miso,
-      sclk       => sclk
+      ss        => open,
+      mosi      => mosi,
+      miso      => miso,
+      sclk      => sclk
       );
+
 
   dac70004 : entity work.DAC_refresh
     port map(
@@ -238,12 +252,16 @@ begin
   jadepix_ctrl : entity work.jadepix_ctrl
     port map(
 
-      clk => clk_aux,
-      rst => rst_aux,
+      clk => clk_sys,
+      rst => clk_sys_rst,
 
-      cfg_out   => cfg_out,
+      cfg_sync       => cfg_sync,
+      cfg_fifo_rst   => cfg_fifo_rst,
+      cfg_fifo_empty => cfg_fifo_empty,
+      cfg_fifo_pfull => cfg_fifo_pfull,
+      cfg_fifo_count => cfg_fifo_count,
+
       cfg_start => cfg_start,
-
       rs_start  => rs_start,
       gs_start  => gs_start,
       apulse_in => apulse_tmp,

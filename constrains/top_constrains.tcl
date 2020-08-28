@@ -32,6 +32,7 @@ create_clock -period 5.000 -name sysclk [get_ports sysclk_p]
 set_false_path -through [get_pins ipbus_infra/clocks/rst_reg/Q]
 set_false_path -through [get_nets ipbus_infra/clocks/nuke_i]
 
+
 set_property IOSTANDARD LVDS [get_ports {sysclk_*}]
 set_property PACKAGE_PIN AD12 [get_ports sysclk_p]
 set_property PACKAGE_PIN AD11 [get_ports sysclk_n]
@@ -183,13 +184,13 @@ create_generated_clock -name clk_aux -source [get_pins ipbus_infra/clocks/mmcm/C
 create_generated_clock -name dac_clk -source [get_pins jadepix_clocks/mmcm/CLKIN1] [get_pins jadepix_clocks/mmcm/CLKOUT1]
 
 ## JAdepix clocks
-create_generated_clock -name ref_clk -source [get_pins jadepix_clocks/mmcm/CLKIN1] [get_pins jadepix_clocks/mmcm/CLKOUT0]
-
-
-set_false_path -through [get_pins ipbus_infra/clocks/rst_reg/Q]
-set_false_path -through [get_nets ipbus_infra/clocks/nuke_i]
+create_generated_clock -name ref_clk -source [get_pins jadepix_clocks/mmcm/CLKIN1] [get_pins jadepix_clocks/mmcm/CLKOUT2]
+create_generated_clock -name clk_sys -source [get_pins jadepix_clocks/mmcm/CLKIN1] [get_pins jadepix_clocks/mmcm/CLKOUT0]
 
 
 set_clock_groups -asynchronous -group [get_clocks ipbus_clk] -group [get_clocks -include_generated_clocks [get_clocks clk_aux]]
 set_clock_groups -asynchronous -group [get_clocks ipbus_clk] -group [get_clocks -include_generated_clocks [get_clocks dac_clk]]
+set_clock_groups -asynchronous -group [get_clocks ipbus_clk] -group [get_clocks -include_generated_clocks [get_clocks clk_sys]]
 set_clock_groups -asynchronous -group [get_clocks dac_clk] -group [get_clocks -include_generated_clocks [get_clocks ref_clk]]
+set_clock_groups -asynchronous -group [get_clocks clk_sys] -group [get_clocks -include_generated_clocks [get_clocks ref_clk]]
+set_clock_groups -asynchronous -group [get_clocks clk_sys] -group [get_clocks -include_generated_clocks [get_clocks dac_clk]]

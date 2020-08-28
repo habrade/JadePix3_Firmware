@@ -127,7 +127,6 @@ begin
           rstb    => stat_reg_stb(N_STAT-1 downto 0)
           );
     end generate;
-
   end generate;
 
 
