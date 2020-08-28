@@ -118,6 +118,7 @@ architecture rtl of JadePix3_Readout is
 
   -- JadePix
   signal locked_jadepix_mmcm : std_logic;
+  signal cfg_busy            : std_logic;
   signal cfg_start           : std_logic;
   signal rs_start            : std_logic;
   signal gs_start            : std_logic;
@@ -129,7 +130,7 @@ architecture rtl of JadePix3_Readout is
   signal cfg_fifo_rst   : std_logic;
   signal cfg_fifo_empty : std_logic;
   signal cfg_fifo_pfull : std_logic;
-  signal cfg_fifo_count : std_logic_vector(16 downto 0);
+  signal cfg_fifo_count : std_logic_vector(17 downto 0);
 
 begin
 
@@ -215,6 +216,7 @@ begin
       -- JadePix
       cfg_sync       => cfg_sync,
       cfg_fifo_rst   => cfg_fifo_rst,
+      cfg_busy       => cfg_busy,
       cfg_fifo_empty => cfg_fifo_empty,
       cfg_fifo_pfull => cfg_fifo_pfull,
       cfg_fifo_count => cfg_fifo_count,
@@ -261,6 +263,7 @@ begin
       cfg_fifo_pfull => cfg_fifo_pfull,
       cfg_fifo_count => cfg_fifo_count,
 
+      cfg_busy  => cfg_busy,
       cfg_start => cfg_start,
       rs_start  => rs_start,
       gs_start  => gs_start,

@@ -49,9 +49,10 @@ entity ipbus_jadepix_device is
     -- chip config fifo
     cfg_sync       : out jadepix_cfg;
     cfg_fifo_rst   : out std_logic;
+    cfg_busy       : in  std_logic;
     cfg_fifo_empty : in  std_logic;
     cfg_fifo_pfull : in  std_logic;
-    cfg_fifo_count : in  std_logic_vector(16 downto 0);
+    cfg_fifo_count : in  std_logic_vector(17 downto 0);
 
 
     cfg_start : out std_logic;
@@ -69,7 +70,7 @@ end ipbus_jadepix_device;
 architecture behv of ipbus_jadepix_device is
   -- IPbus reg
   constant SYNC_REG_ENA               : boolean := false;
-  constant N_STAT                     : integer := 1;
+  constant N_STAT                     : integer := 2;
   constant N_CTRL                     : integer := 2;
   constant N_RAM                      : integer := 0;
   signal stat                         : ipb_reg_v(N_STAT-1 downto 0);
@@ -147,9 +148,10 @@ begin
   process(clk)
   begin
     if rising_edge(clk) then
-      stat(0)(0)           <= cfg_fifo_empty;
-      stat(0)(1)           <= cfg_fifo_pfull;
-      stat(0)(18 downto 2) <= cfg_fifo_count;
+      stat(0)(1)           <= cfg_busy;
+      stat(1)(0)           <= cfg_fifo_empty;
+      stat(1)(1)           <= cfg_fifo_pfull;
+      stat(1)(19 downto 2) <= cfg_fifo_count;
     end if;
   end process;
 

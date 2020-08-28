@@ -36,9 +36,10 @@ entity ipbus_payload is
     -- chip config fifo
     cfg_sync       : out jadepix_cfg;
     cfg_fifo_rst   : out std_logic;
+    cfg_busy       : in  std_logic;
     cfg_fifo_empty : in  std_logic;
     cfg_fifo_pfull : in  std_logic;
-    cfg_fifo_count : in  std_logic_vector(16 downto 0);
+    cfg_fifo_count : in  std_logic_vector(17 downto 0);
     cfg_start      : out std_logic;
     rs_start       : out std_logic;
     gs_start       : out std_logic;
@@ -137,6 +138,7 @@ begin
 
       cfg_sync       => cfg_sync,
       cfg_fifo_rst   => cfg_fifo_rst,
+      cfg_busy       => cfg_busy,
       cfg_fifo_empty => cfg_fifo_empty,
       cfg_fifo_pfull => cfg_fifo_pfull,
       cfg_fifo_count => cfg_fifo_count,

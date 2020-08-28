@@ -47,7 +47,8 @@ package JADEPIX_DEFINES is
     din   : std_logic_vector(2 downto 0);
   end record;
 
-  constant JADEPIX_CFG_NULL : jadepix_cfg := ('0', (others => '0'));
+  constant JADEPIX_CFG_NULL    : jadepix_cfg                   := ('0', (others => '0'));
+  constant CFG_FIFO_COUNT_ZERO : std_logic_vector(16 downto 0) := (others       => '0');
 
 end JADEPIX_DEFINES;
 
