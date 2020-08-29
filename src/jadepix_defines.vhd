@@ -40,6 +40,8 @@ package JADEPIX_DEFINES is
   constant DACCLK_PERIOD      : real := 20.0;  -- unit: ns
   constant JADEPIX_SYS_PERIOD : real := 12.0;  -- unit: ns
   constant JADEPIX_REF_PERIOD : real := 25.0;  -- unit: ns
+  
+  constant JADEPIX_CFG_PERIOD : real := 192.0;  -- unit: ns
 
   type jadepix_cfg is
   record

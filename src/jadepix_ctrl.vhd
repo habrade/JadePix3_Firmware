@@ -81,7 +81,7 @@ end jadepix_ctrl;
 
 architecture behv of jadepix_ctrl is
 
-  type JADEPIX_STATE is (IDLE, CFG_GO, CFG, RS, GS);
+  type JADEPIX_STATE is (IDLE, CFG_GO, CFG, CFG_RESTART, CFG_STOP, RS, GS);
   signal state_reg, state_next : JADEPIX_STATE;
 
   signal rs_finished : std_logic;
@@ -90,7 +90,8 @@ architecture behv of jadepix_ctrl is
   signal empty, prog_full, fifo_rst : std_logic;
   signal cfg_dout                   : std_logic_vector(2 downto 0);
   signal cfg_rd_en, cfg_dout_valid  : std_logic;
-  signal pix_cnt                    : integer range 0 to (N_ROW * N_COL - 1);
+  signal pix_cnt                    : integer range 0 to (N_ROW * N_COL - 1) := 0;
+  signal cfg_cnt                    : integer range 0 to (integer(JADEPIX_CFG_PERIOD/JADEPIX_SYS_PERIOD) - 1) := 0;
 
   -- DEBUG
   attribute mark_debug                   : string;
@@ -112,7 +113,9 @@ architecture behv of jadepix_ctrl is
   attribute mark_debug of cfg_dout       : signal is "true";
   attribute mark_debug of cfg_dout_valid : signal is "true";
   attribute mark_debug of pix_cnt        : signal is "true";
+  attribute mark_debug of cfg_cnt        : signal is "true";
   attribute mark_debug of cfg_busy       : signal is "true";
+  attribute mark_debug of cfg_start      : signal is "true";
 
 begin
 
@@ -146,11 +149,21 @@ begin
         state_next <= CFG;
 
       when CFG =>
-        if cfg_fifo_empty = '1' and cfg_fifo_count = CFG_FIFO_COUNT_ZERO then
-          state_next <= IDLE;
+        if cfg_cnt = (integer(JADEPIX_CFG_PERIOD/JADEPIX_SYS_PERIOD) - 1) then
+          state_next <= CFG_RESTART;
         else
           state_next <= CFG;
         end if;
+
+      when CFG_RESTART =>
+        if cfg_fifo_empty = '1' and cfg_fifo_count = CFG_FIFO_COUNT_ZERO then
+          state_next <= CFG_STOP;
+        else
+          state_next <= CFG;
+        end if;
+
+      when CFG_STOP =>
+        state_next <= IDLE;
 
       when RS => null;
       when GS => null;
@@ -173,35 +186,62 @@ begin
           GSHUTTER    <= '0';
           DPLSE       <= '0';
           APLSE       <= '0';
-          RA_EN       <= '0';
-          CA_EN       <= '0';
-          RA          <= (others => '0');
-          CA          <= (others => '0');
-          cfg_rd_en   <= '0';
-          pix_cnt     <= 0;
-          cfg_busy    <= '0';
 
-          CON_SELM <= '0';
-          CON_SELP <= '0';
-          CON_DATA <= '0';
+          RA_EN <= '0';
+          CA_EN <= '0';
+          RA    <= (others => '0');
+          CA    <= (others => '0');
+
+          cfg_rd_en <= '0';
+          cfg_busy  <= '0';
+          pix_cnt   <= 0;
+          cfg_cnt   <= 0;
+          CON_SELM  <= '0';
+          CON_SELP  <= '0';
+          CON_DATA  <= '0';
 
         when CFG_GO =>
           cfg_rd_en <= '1';
-
-        when CFG =>
-          cfg_busy <= '1';
-          pix_cnt  <= pix_cnt + 1;
-          -- Because FIFO need one clock period to readout, so make a clock period here          
-          RA_EN    <= '1';
-          CA_EN    <= '1';
-          RA       <= std_logic_vector(to_unsigned(pix_cnt / N_COL, ROW_WIDTH));
-          CA       <= std_logic_vector(to_unsigned(pix_cnt rem N_COL, COL_WIDTH));
+          cfg_busy  <= '1';
 
           if cfg_dout_valid = '1' then
             CON_SELM <= cfg_dout(2);
             CON_SELP <= cfg_dout(1);
             CON_DATA <= cfg_dout(0);
           end if;
+
+        when CFG =>
+          cfg_rd_en <= '0';
+          cfg_cnt   <= cfg_cnt + 1;
+
+          RA_EN <= '1';
+          CA_EN <= '1';
+          RA    <= std_logic_vector(to_unsigned(pix_cnt / N_COL, ROW_WIDTH));
+          CA    <= std_logic_vector(to_unsigned(pix_cnt rem N_COL, COL_WIDTH));
+
+        when CFG_RESTART =>
+          pix_cnt <= pix_cnt + 1;
+          cfg_cnt <= 0;
+
+          cfg_rd_en <= '1';
+          if cfg_dout_valid = '1' then
+            CON_SELM <= cfg_dout(2);
+            CON_SELP <= cfg_dout(1);
+            CON_DATA <= cfg_dout(0);
+          end if;
+
+        when CFG_STOP =>
+          RA_EN     <= '0';
+          CA_EN     <= '0';
+          RA        <= (others => '0');
+          CA        <= (others => '0');
+          cfg_rd_en <= '0';
+          cfg_busy  <= '0';
+          pix_cnt   <= 0;
+          cfg_cnt   <= 0;
+          CON_SELM  <= '0';
+          CON_SELP  <= '0';
+          CON_DATA  <= '0';
 
         when others => null;
       end case;
