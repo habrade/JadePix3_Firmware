@@ -48,7 +48,7 @@ package JADEPIX_DEFINES is
   end record;
 
   constant JADEPIX_CFG_NULL    : jadepix_cfg                   := ('0', (others => '0'));
-  constant CFG_FIFO_COUNT_ZERO : std_logic_vector(16 downto 0) := (others       => '0');
+  constant CFG_FIFO_COUNT_ZERO : std_logic_vector(17 downto 0) := (others       => '0');
 
 end JADEPIX_DEFINES;
 

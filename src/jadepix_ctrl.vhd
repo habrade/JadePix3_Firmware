@@ -81,7 +81,7 @@ end jadepix_ctrl;
 
 architecture behv of jadepix_ctrl is
 
-  type JADEPIX_STATE is (IDLE, CFG, RS, GS);
+  type JADEPIX_STATE is (IDLE, CFG_GO, CFG, RS, GS);
   signal state_reg, state_next : JADEPIX_STATE;
 
   signal rs_finished : std_logic;
@@ -133,7 +133,7 @@ begin
     case state_reg is
       when IDLE =>
         if cfg_start = '1' then
-          state_next <= CFG;
+          state_next <= CFG_GO;
         elsif rs_start = '1' then
           state_next <= RS;
         elsif gs_start = '1' then
@@ -142,8 +142,11 @@ begin
           state_next <= IDLE;
         end if;
 
+      when CFG_GO =>
+        state_next <= CFG;
+
       when CFG =>
-        if pix_cnt = (N_ROW * N_COL -1) then
+        if cfg_fifo_empty = '1' and cfg_fifo_count = CFG_FIFO_COUNT_ZERO then
           state_next <= IDLE;
         else
           state_next <= CFG;
@@ -178,6 +181,13 @@ begin
           pix_cnt     <= 0;
           cfg_busy    <= '0';
 
+          CON_SELM <= '0';
+          CON_SELP <= '0';
+          CON_DATA <= '0';
+
+        when CFG_GO =>
+          cfg_rd_en <= '1';
+
         when CFG =>
           cfg_busy <= '1';
           pix_cnt  <= pix_cnt + 1;
@@ -187,23 +197,17 @@ begin
           RA       <= std_logic_vector(to_unsigned(pix_cnt / N_COL, ROW_WIDTH));
           CA       <= std_logic_vector(to_unsigned(pix_cnt rem N_COL, COL_WIDTH));
 
-          cfg_rd_en <= '1';
+          if cfg_dout_valid = '1' then
+            CON_SELM <= cfg_dout(2);
+            CON_SELP <= cfg_dout(1);
+            CON_DATA <= cfg_dout(0);
+          end if;
 
         when others => null;
       end case;
     end if;
   end process;
 
-  process(clk)
-  begin
-    if rising_edge(clk) then
-      if cfg_dout_valid = '1' then
-        CON_SELM <= cfg_dout(2);
-        CON_SELP <= cfg_dout(1);
-        CON_DATA <= cfg_dout(0);
-      end if;
-    end if;
-  end process;
 
   process(clk)
   begin

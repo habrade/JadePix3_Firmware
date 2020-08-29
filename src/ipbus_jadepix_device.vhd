@@ -78,6 +78,8 @@ architecture behv of ipbus_jadepix_device is
   signal ctrl_reg_stb, ctrl_reg_stb_r : std_logic_vector(N_CTRL-1 downto 0);
   signal stat_reg_stb, stat_reg_stb_r : std_logic_vector(N_STAT-1 downto 0);
 
+  signal cfg_start_tmp : std_logic;
+
   -- IPbus drp
   signal ram_rst : std_logic_vector(N_RAM-1 downto 0);
 
@@ -119,7 +121,7 @@ begin
     if rising_edge(clk) then
       cfg.wr_en      <= ctrl(0)(3);
       cfg.din        <= ctrl(0)(2 downto 0);
-      cfg_start      <= ctrl(1)(0);
+      cfg_start_tmp  <= ctrl(1)(0);
       rs_start       <= ctrl(1)(1);
       gs_start       <= ctrl(1)(2);
       apulse         <= ctrl(1)(3);
@@ -139,6 +141,12 @@ begin
         cfg_sync <= cfg;
       else
         cfg_sync <= JADEPIX_CFG_NULL;
+      end if;
+
+      if ctrl_reg_stb_r(1) = '1' then
+        cfg_start <= cfg_start_tmp;
+      else
+        cfg_start <= '0';
       end if;
     end if;
   end process;

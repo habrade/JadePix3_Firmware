@@ -13,6 +13,7 @@ connect_debug_port u_ila_0/probe14 [get_nets [list jadepix_ctrl/RA_EN_tmp]]
 
 connect_debug_port u_ila_0/probe5 [get_nets [list {jadepix_ctrl/data_count[0]} {jadepix_ctrl/data_count[1]} {jadepix_ctrl/data_count[2]} {jadepix_ctrl/data_count[3]} {jadepix_ctrl/data_count[4]} {jadepix_ctrl/data_count[5]} {jadepix_ctrl/data_count[6]} {jadepix_ctrl/data_count[7]} {jadepix_ctrl/data_count[8]} {jadepix_ctrl/data_count[9]} {jadepix_ctrl/data_count[10]} {jadepix_ctrl/data_count[11]} {jadepix_ctrl/data_count[12]} {jadepix_ctrl/data_count[13]} {jadepix_ctrl/data_count[14]} {jadepix_ctrl/data_count[15]} {jadepix_ctrl/data_count[16]} {jadepix_ctrl/data_count[17]}]]
 
+
 create_debug_core u_ila_0 ila
 set_property ALL_PROBE_SAME_MU true [get_debug_cores u_ila_0]
 set_property ALL_PROBE_SAME_MU_CNT 1 [get_debug_cores u_ila_0]
@@ -25,36 +26,36 @@ set_property C_TRIGOUT_EN false [get_debug_cores u_ila_0]
 set_property port_width 1 [get_debug_ports u_ila_0/clk]
 connect_debug_port u_ila_0/clk [get_nets [list jadepix_clocks/clk]]
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe0]
-set_property port_width 2 [get_debug_ports u_ila_0/probe0]
-connect_debug_port u_ila_0/probe0 [get_nets [list {jadepix_ctrl/state_reg[0]} {jadepix_ctrl/state_reg[1]}]]
+set_property port_width 9 [get_debug_ports u_ila_0/probe0]
+connect_debug_port u_ila_0/probe0 [get_nets [list {jadepix_ctrl/CA[0]} {jadepix_ctrl/CA[1]} {jadepix_ctrl/CA[2]} {jadepix_ctrl/CA[3]} {jadepix_ctrl/CA[4]} {jadepix_ctrl/CA[5]} {jadepix_ctrl/CA[6]} {jadepix_ctrl/CA[7]} {jadepix_ctrl/CA[8]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe1]
 set_property port_width 9 [get_debug_ports u_ila_0/probe1]
-connect_debug_port u_ila_0/probe1 [get_nets [list {jadepix_ctrl/CA[0]} {jadepix_ctrl/CA[1]} {jadepix_ctrl/CA[2]} {jadepix_ctrl/CA[3]} {jadepix_ctrl/CA[4]} {jadepix_ctrl/CA[5]} {jadepix_ctrl/CA[6]} {jadepix_ctrl/CA[7]} {jadepix_ctrl/CA[8]}]]
+connect_debug_port u_ila_0/probe1 [get_nets [list {jadepix_ctrl/RA[0]} {jadepix_ctrl/RA[1]} {jadepix_ctrl/RA[2]} {jadepix_ctrl/RA[3]} {jadepix_ctrl/RA[4]} {jadepix_ctrl/RA[5]} {jadepix_ctrl/RA[6]} {jadepix_ctrl/RA[7]} {jadepix_ctrl/RA[8]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe2]
-set_property port_width 9 [get_debug_ports u_ila_0/probe2]
-connect_debug_port u_ila_0/probe2 [get_nets [list {jadepix_ctrl/RA[0]} {jadepix_ctrl/RA[1]} {jadepix_ctrl/RA[2]} {jadepix_ctrl/RA[3]} {jadepix_ctrl/RA[4]} {jadepix_ctrl/RA[5]} {jadepix_ctrl/RA[6]} {jadepix_ctrl/RA[7]} {jadepix_ctrl/RA[8]}]]
+set_property port_width 3 [get_debug_ports u_ila_0/probe2]
+connect_debug_port u_ila_0/probe2 [get_nets [list {jadepix_ctrl/cfg_dout[0]} {jadepix_ctrl/cfg_dout[1]} {jadepix_ctrl/cfg_dout[2]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe3]
-set_property port_width 3 [get_debug_ports u_ila_0/probe3]
-connect_debug_port u_ila_0/probe3 [get_nets [list {jadepix_ctrl/cfg_sync[din][0]} {jadepix_ctrl/cfg_sync[din][1]} {jadepix_ctrl/cfg_sync[din][2]}]]
+set_property port_width 18 [get_debug_ports u_ila_0/probe3]
+connect_debug_port u_ila_0/probe3 [get_nets [list {jadepix_ctrl/cfg_fifo_count[0]} {jadepix_ctrl/cfg_fifo_count[1]} {jadepix_ctrl/cfg_fifo_count[2]} {jadepix_ctrl/cfg_fifo_count[3]} {jadepix_ctrl/cfg_fifo_count[4]} {jadepix_ctrl/cfg_fifo_count[5]} {jadepix_ctrl/cfg_fifo_count[6]} {jadepix_ctrl/cfg_fifo_count[7]} {jadepix_ctrl/cfg_fifo_count[8]} {jadepix_ctrl/cfg_fifo_count[9]} {jadepix_ctrl/cfg_fifo_count[10]} {jadepix_ctrl/cfg_fifo_count[11]} {jadepix_ctrl/cfg_fifo_count[12]} {jadepix_ctrl/cfg_fifo_count[13]} {jadepix_ctrl/cfg_fifo_count[14]} {jadepix_ctrl/cfg_fifo_count[15]} {jadepix_ctrl/cfg_fifo_count[16]} {jadepix_ctrl/cfg_fifo_count[17]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe4]
-set_property port_width 2 [get_debug_ports u_ila_0/probe4]
-connect_debug_port u_ila_0/probe4 [get_nets [list {jadepix_ctrl/state_next[0]} {jadepix_ctrl/state_next[1]}]]
+set_property port_width 3 [get_debug_ports u_ila_0/probe4]
+connect_debug_port u_ila_0/probe4 [get_nets [list {jadepix_ctrl/cfg_sync[din][0]} {jadepix_ctrl/cfg_sync[din][1]} {jadepix_ctrl/cfg_sync[din][2]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe5]
-set_property port_width 17 [get_debug_ports u_ila_0/probe5]
-connect_debug_port u_ila_0/probe5 [get_nets [list {jadepix_ctrl/pix_cnt[0]} {jadepix_ctrl/pix_cnt[1]} {jadepix_ctrl/pix_cnt[2]} {jadepix_ctrl/pix_cnt[3]} {jadepix_ctrl/pix_cnt[4]} {jadepix_ctrl/pix_cnt[5]} {jadepix_ctrl/pix_cnt[6]} {jadepix_ctrl/pix_cnt[7]} {jadepix_ctrl/pix_cnt[8]} {jadepix_ctrl/pix_cnt[9]} {jadepix_ctrl/pix_cnt[10]} {jadepix_ctrl/pix_cnt[11]} {jadepix_ctrl/pix_cnt[12]} {jadepix_ctrl/pix_cnt[13]} {jadepix_ctrl/pix_cnt[14]} {jadepix_ctrl/pix_cnt[15]} {jadepix_ctrl/pix_cnt[16]}]]
+set_property port_width 3 [get_debug_ports u_ila_0/probe5]
+connect_debug_port u_ila_0/probe5 [get_nets [list {jadepix_ctrl/state_next[0]} {jadepix_ctrl/state_next[1]} {jadepix_ctrl/state_next[2]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe6]
-set_property port_width 3 [get_debug_ports u_ila_0/probe6]
-connect_debug_port u_ila_0/probe6 [get_nets [list {jadepix_ctrl/cfg_dout[0]} {jadepix_ctrl/cfg_dout[1]} {jadepix_ctrl/cfg_dout[2]}]]
+set_property port_width 17 [get_debug_ports u_ila_0/probe6]
+connect_debug_port u_ila_0/probe6 [get_nets [list {jadepix_ctrl/pix_cnt[0]} {jadepix_ctrl/pix_cnt[1]} {jadepix_ctrl/pix_cnt[2]} {jadepix_ctrl/pix_cnt[3]} {jadepix_ctrl/pix_cnt[4]} {jadepix_ctrl/pix_cnt[5]} {jadepix_ctrl/pix_cnt[6]} {jadepix_ctrl/pix_cnt[7]} {jadepix_ctrl/pix_cnt[8]} {jadepix_ctrl/pix_cnt[9]} {jadepix_ctrl/pix_cnt[10]} {jadepix_ctrl/pix_cnt[11]} {jadepix_ctrl/pix_cnt[12]} {jadepix_ctrl/pix_cnt[13]} {jadepix_ctrl/pix_cnt[14]} {jadepix_ctrl/pix_cnt[15]} {jadepix_ctrl/pix_cnt[16]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe7]
-set_property port_width 18 [get_debug_ports u_ila_0/probe7]
-connect_debug_port u_ila_0/probe7 [get_nets [list {jadepix_ctrl/cfg_fifo_count[0]} {jadepix_ctrl/cfg_fifo_count[1]} {jadepix_ctrl/cfg_fifo_count[2]} {jadepix_ctrl/cfg_fifo_count[3]} {jadepix_ctrl/cfg_fifo_count[4]} {jadepix_ctrl/cfg_fifo_count[5]} {jadepix_ctrl/cfg_fifo_count[6]} {jadepix_ctrl/cfg_fifo_count[7]} {jadepix_ctrl/cfg_fifo_count[8]} {jadepix_ctrl/cfg_fifo_count[9]} {jadepix_ctrl/cfg_fifo_count[10]} {jadepix_ctrl/cfg_fifo_count[11]} {jadepix_ctrl/cfg_fifo_count[12]} {jadepix_ctrl/cfg_fifo_count[13]} {jadepix_ctrl/cfg_fifo_count[14]} {jadepix_ctrl/cfg_fifo_count[15]} {jadepix_ctrl/cfg_fifo_count[16]} {jadepix_ctrl/cfg_fifo_count[17]}]]
+set_property port_width 3 [get_debug_ports u_ila_0/probe7]
+connect_debug_port u_ila_0/probe7 [get_nets [list {jadepix_ctrl/state_reg[0]} {jadepix_ctrl/state_reg[1]} {jadepix_ctrl/state_reg[2]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe8]
 set_property port_width 1 [get_debug_ports u_ila_0/probe8]
