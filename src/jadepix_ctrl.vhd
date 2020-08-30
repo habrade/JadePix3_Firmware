@@ -60,7 +60,7 @@ entity jadepix_ctrl is
     cfg_busy       : out std_logic;
     cfg_fifo_empty : out std_logic;
     cfg_fifo_pfull : out std_logic;
-    cfg_fifo_count : out std_logic_vector(17 downto 0);
+    cfg_fifo_count : out std_logic_vector(16 downto 0);
 
 --    MATRIX_DIN : in std_logic_vector(15 downto 0);
 
@@ -81,18 +81,18 @@ end jadepix_ctrl;
 
 architecture behv of jadepix_ctrl is
 
-  type JADEPIX_STATE is (IDLE, CFG_GO, CFG, CFG_RESTART, CFG_STOP, RS, GS);
+  type JADEPIX_STATE is (IDLE, CFG_GO, CFG_GET_DATA, CFG_EN_DATA, CFG_EN_SEL, CFG_DIS_SEL, CFG_NEXT_PIX, CFG_STOP, RS, RS_GO, RS_RESTART, RS_STOP, GS);
   signal state_reg, state_next : JADEPIX_STATE;
 
   signal rs_finished : std_logic;
 
   -- FIFO
-  signal empty, prog_full, fifo_rst : std_logic;
-  signal cfg_dout                   : std_logic_vector(2 downto 0);
-  signal cfg_rd_en, cfg_dout_valid  : std_logic;
-  signal pix_cnt                    : integer range 0 to (N_ROW * N_COL - 1) := 0;
-  signal cfg_cnt                    : integer range 0 to (integer(JADEPIX_CFG_PERIOD/JADEPIX_SYS_PERIOD) - 1) := 0;
-
+  signal empty, prog_full, fifo_rst      : std_logic;
+  signal cfg_dout, cfg_dout_reg          : std_logic_vector(2 downto 0);
+  signal cfg_rd_en, cfg_dout_valid       : std_logic;
+  signal pix_cnt                         : integer range 0 to (N_ROW * N_COL - 1)                                 := 0;
+  signal cfg_cnt                         : integer range 0 to (JADEPIX_CFG_CNT_MAX)                               := 0;
+  signal rs_cnt                          : integer range 0 to (integer(JADEPIX_RS_PERIOD/JADEPIX_SYS_PERIOD) - 1) := 0;
   -- DEBUG
   attribute mark_debug                   : string;
   attribute mark_debug of cfg_fifo_empty : signal is "true";
@@ -111,6 +111,7 @@ architecture behv of jadepix_ctrl is
   attribute mark_debug of state_reg      : signal is "true";
   attribute mark_debug of cfg_rd_en      : signal is "true";
   attribute mark_debug of cfg_dout       : signal is "true";
+  attribute mark_debug of cfg_dout_reg   : signal is "true";
   attribute mark_debug of cfg_dout_valid : signal is "true";
   attribute mark_debug of pix_cnt        : signal is "true";
   attribute mark_debug of cfg_cnt        : signal is "true";
@@ -138,7 +139,7 @@ begin
         if cfg_start = '1' then
           state_next <= CFG_GO;
         elsif rs_start = '1' then
-          state_next <= RS;
+          state_next <= RS_GO;
         elsif gs_start = '1' then
           state_next <= GS;
         else
@@ -146,26 +147,62 @@ begin
         end if;
 
       when CFG_GO =>
-        state_next <= CFG;
+        state_next <= CFG_GET_DATA;
 
-      when CFG =>
-        if cfg_cnt = (integer(JADEPIX_CFG_PERIOD/JADEPIX_SYS_PERIOD) - 1) then
-          state_next <= CFG_RESTART;
+      when CFG_GET_DATA =>
+        if cfg_dout_valid = '1' then
+          state_next <= CFG_EN_DATA;
         else
-          state_next <= CFG;
+          state_next <= CFG_GET_DATA;
         end if;
 
-      when CFG_RESTART =>
+      when CFG_EN_DATA =>
+        if cfg_cnt = 2 then
+          state_next <= CFG_EN_SEL;
+        else
+          state_next <= CFG_EN_DATA;
+        end if;
+
+      when CFG_EN_SEL =>
+        if cfg_cnt = 14 then
+          state_next <= CFG_DIS_SEL;
+        else
+          state_next <= CFG_EN_SEL;
+        end if;
+
+      when CFG_DIS_SEL =>
+        if cfg_cnt = (JADEPIX_CFG_CNT_MAX) then
+          state_next <= CFG_NEXT_PIX;
+        else
+          state_next <= CFG_DIS_SEL;
+        end if;
+
+      when CFG_NEXT_PIX =>
         if cfg_fifo_empty = '1' and cfg_fifo_count = CFG_FIFO_COUNT_ZERO then
           state_next <= CFG_STOP;
         else
-          state_next <= CFG;
+          state_next <= CFG_GO;
         end if;
 
       when CFG_STOP =>
         state_next <= IDLE;
 
-      when RS => null;
+      when RS_GO =>
+        state_next <= RS;
+
+      when RS =>
+        if RA = "111111111" then
+          state_next <= RS_STOP;
+        else
+          state_next <= RS_RESTART;
+        end if;
+
+      when RS_RESTART =>
+        state_next <= RS;
+
+      when RS_STOP =>
+        state_next <= IDLE;
+
       when GS => null;
       when others =>
         state_next <= IDLE;
@@ -204,31 +241,37 @@ begin
           cfg_rd_en <= '1';
           cfg_busy  <= '1';
 
-          if cfg_dout_valid = '1' then
-            CON_SELM <= cfg_dout(2);
-            CON_SELP <= cfg_dout(1);
-            CON_DATA <= cfg_dout(0);
-          end if;
+        when CFG_GET_DATA =>
+          cfg_rd_en    <= '0';
 
-        when CFG =>
-          cfg_rd_en <= '0';
-          cfg_cnt   <= cfg_cnt + 1;
+        when CFG_EN_DATA =>
+          cfg_cnt <= cfg_cnt + 1;
 
           RA_EN <= '1';
           CA_EN <= '1';
           RA    <= std_logic_vector(to_unsigned(pix_cnt / N_COL, ROW_WIDTH));
           CA    <= std_logic_vector(to_unsigned(pix_cnt rem N_COL, COL_WIDTH));
 
-        when CFG_RESTART =>
-          pix_cnt <= pix_cnt + 1;
-          cfg_cnt <= 0;
+          CON_DATA <= cfg_dout(0);
 
-          cfg_rd_en <= '1';
-          if cfg_dout_valid = '1' then
-            CON_SELM <= cfg_dout(2);
-            CON_SELP <= cfg_dout(1);
-            CON_DATA <= cfg_dout(0);
-          end if;
+        when CFG_EN_SEL =>
+          cfg_cnt  <= cfg_cnt + 1;
+          CON_SELM <= cfg_dout(2);
+          CON_SELP <= cfg_dout(1);
+
+        when CFG_DIS_SEL =>
+          cfg_cnt  <= cfg_cnt + 1;
+          CON_SELM <= '0';
+          CON_SELP <= '0';
+
+        when CFG_NEXT_PIX =>
+          pix_cnt  <= pix_cnt + 1;
+          cfg_cnt  <= 0;
+          CON_DATA <= '0';
+          RA_EN    <= '0';
+          CA_EN    <= '0';
+          RA       <= (others => '0');
+          CA       <= (others => '0');
 
         when CFG_STOP =>
           RA_EN     <= '0';
@@ -242,6 +285,9 @@ begin
           CON_SELM  <= '0';
           CON_SELP  <= '0';
           CON_DATA  <= '0';
+
+        when RS_GO =>
+          null;
 
         when others => null;
       end case;

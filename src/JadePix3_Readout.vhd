@@ -130,7 +130,7 @@ architecture rtl of JadePix3_Readout is
   signal cfg_fifo_rst   : std_logic;
   signal cfg_fifo_empty : std_logic;
   signal cfg_fifo_pfull : std_logic;
-  signal cfg_fifo_count : std_logic_vector(17 downto 0);
+  signal cfg_fifo_count : std_logic_vector(CFG_FIFO_COUNT_WITDH-1 downto 0);
 
 begin
 

@@ -52,7 +52,7 @@ entity ipbus_jadepix_device is
     cfg_busy       : in  std_logic;
     cfg_fifo_empty : in  std_logic;
     cfg_fifo_pfull : in  std_logic;
-    cfg_fifo_count : in  std_logic_vector(17 downto 0);
+    cfg_fifo_count : in  std_logic_vector(CFG_FIFO_COUNT_WITDH-1 downto 0);
 
 
     cfg_start : out std_logic;
@@ -159,7 +159,7 @@ begin
       stat(0)(1)           <= cfg_busy;
       stat(1)(0)           <= cfg_fifo_empty;
       stat(1)(1)           <= cfg_fifo_pfull;
-      stat(1)(19 downto 2) <= cfg_fifo_count;
+      stat(1)(18 downto 2) <= cfg_fifo_count;
     end if;
   end process;
 
