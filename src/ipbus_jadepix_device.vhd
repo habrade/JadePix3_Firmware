@@ -50,6 +50,7 @@ entity ipbus_jadepix_device is
     cfg_sync       : out jadepix_cfg;
     cfg_fifo_rst   : out std_logic;
     cfg_busy       : in  std_logic;
+    rs_busy        : in  std_logic;
     cfg_fifo_empty : in  std_logic;
     cfg_fifo_pfull : in  std_logic;
     cfg_fifo_count : in  std_logic_vector(CFG_FIFO_COUNT_WITDH-1 downto 0);
@@ -79,6 +80,8 @@ architecture behv of ipbus_jadepix_device is
   signal stat_reg_stb, stat_reg_stb_r : std_logic_vector(N_STAT-1 downto 0);
 
   signal cfg_start_tmp : std_logic;
+  signal rs_start_tmp  : std_logic;
+  signal gs_start_tmp  : std_logic;
 
   -- IPbus drp
   signal ram_rst : std_logic_vector(N_RAM-1 downto 0);
@@ -122,8 +125,8 @@ begin
       cfg.wr_en      <= ctrl(0)(3);
       cfg.din        <= ctrl(0)(2 downto 0);
       cfg_start_tmp  <= ctrl(1)(0);
-      rs_start       <= ctrl(1)(1);
-      gs_start       <= ctrl(1)(2);
+      rs_start_tmp   <= ctrl(1)(1);
+      gs_start_tmp   <= ctrl(1)(2);
       apulse         <= ctrl(1)(3);
       dpulse         <= ctrl(1)(4);
       pdb            <= ctrl(1)(5);
@@ -145,8 +148,12 @@ begin
 
       if ctrl_reg_stb_r(1) = '1' then
         cfg_start <= cfg_start_tmp;
+        rs_start  <= rs_start_tmp;
+        gs_start  <= gs_start_tmp;
       else
         cfg_start <= '0';
+        rs_start  <= '0';
+        gs_start  <= '0';
       end if;
     end if;
   end process;
@@ -160,6 +167,7 @@ begin
       stat(1)(0)           <= cfg_fifo_empty;
       stat(1)(1)           <= cfg_fifo_pfull;
       stat(1)(18 downto 2) <= cfg_fifo_count;
+      stat(1)(19)          <= rs_busy;
     end if;
   end process;
 

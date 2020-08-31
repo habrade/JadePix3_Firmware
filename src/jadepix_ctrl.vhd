@@ -62,10 +62,13 @@ entity jadepix_ctrl is
     cfg_fifo_pfull : out std_logic;
     cfg_fifo_count : out std_logic_vector(16 downto 0);
 
+
+    -- Rolling shutter
+    rs_busy : out std_logic;
 --    MATRIX_DIN : in std_logic_vector(15 downto 0);
 
 --    CACHE_CLK     : out std_logic;
-    CACHE_BIT_SEL : out std_logic_vector(3 downto 0);
+    CACHE_BIT_SET : out std_logic_vector(3 downto 0);
     HIT_RST       : out std_logic;
     RD_EN         : out std_logic;
 
@@ -81,18 +84,19 @@ end jadepix_ctrl;
 
 architecture behv of jadepix_ctrl is
 
-  type JADEPIX_STATE is (IDLE, CFG_GO, CFG_GET_DATA, CFG_EN_DATA, CFG_EN_SEL, CFG_DIS_SEL, CFG_NEXT_PIX, CFG_STOP, RS, RS_GO, RS_RESTART, RS_STOP, GS);
+  type JADEPIX_STATE is (IDLE, CFG_GO, CFG_GET_DATA, CFG_EN_DATA, CFG_EN_SEL, CFG_DIS_SEL, CFG_NEXT_PIX, CFG_STOP, RS_GO, RS_SET_ROW, RS_RD_EN, RS_HIT_RST, RS_END_ROW, RS_NEXT_ROW, RS_STOP, GS);
   signal state_reg, state_next : JADEPIX_STATE;
 
   signal rs_finished : std_logic;
 
   -- FIFO
-  signal empty, prog_full, fifo_rst      : std_logic;
-  signal cfg_dout, cfg_dout_reg          : std_logic_vector(2 downto 0);
-  signal cfg_rd_en, cfg_dout_valid       : std_logic;
-  signal pix_cnt                         : integer range 0 to (N_ROW * N_COL - 1)                                 := 0;
-  signal cfg_cnt                         : integer range 0 to (JADEPIX_CFG_CNT_MAX)                               := 0;
-  signal rs_cnt                          : integer range 0 to (integer(JADEPIX_RS_PERIOD/JADEPIX_SYS_PERIOD) - 1) := 0;
+  signal empty, prog_full, fifo_rst : std_logic;
+  signal cfg_dout, cfg_dout_reg     : std_logic_vector(2 downto 0);
+  signal cfg_rd_en, cfg_dout_valid  : std_logic;
+  signal pix_cnt                    : integer range 0 to (N_ROW * N_COL - 1) := 0;
+  signal cfg_cnt                    : integer range 0 to JADEPIX_CFG_CNT_MAX := 0;
+  signal rs_cnt                     : integer range 0 to JADEPIX_RS_CNT_MAX  := 0;
+
   -- DEBUG
   attribute mark_debug                   : string;
   attribute mark_debug of cfg_fifo_empty : signal is "true";
@@ -115,8 +119,13 @@ architecture behv of jadepix_ctrl is
   attribute mark_debug of cfg_dout_valid : signal is "true";
   attribute mark_debug of pix_cnt        : signal is "true";
   attribute mark_debug of cfg_cnt        : signal is "true";
+  attribute mark_debug of rs_cnt         : signal is "true";
   attribute mark_debug of cfg_busy       : signal is "true";
+  attribute mark_debug of rs_busy        : signal is "true";
   attribute mark_debug of cfg_start      : signal is "true";
+  attribute mark_debug of rs_start       : signal is "true";
+  attribute mark_debug of HIT_RST        : signal is "true";
+  attribute mark_debug of RD_EN          : signal is "true";
 
 begin
 
@@ -188,17 +197,42 @@ begin
         state_next <= IDLE;
 
       when RS_GO =>
-        state_next <= RS;
+        state_next <= RS_SET_ROW;
 
-      when RS =>
-        if RA = "111111111" then
-          state_next <= RS_STOP;
+      when RS_SET_ROW =>
+        if rs_cnt = 2 then
+          state_next <= RS_RD_EN;
         else
-          state_next <= RS_RESTART;
+          state_next <= RS_SET_ROW;
         end if;
 
-      when RS_RESTART =>
-        state_next <= RS;
+      when RS_RD_EN =>
+        if rs_cnt = 12 then
+          state_next <= RS_HIT_RST;
+        else
+          state_next <= RS_RD_EN;
+        end if;
+
+      when RS_HIT_RST =>
+        if rs_cnt = 14 then
+          state_next <= RS_END_ROW;
+        else
+          state_next <= RS_HIT_RST;
+        end if;
+
+      when RS_END_ROW =>
+        if rs_cnt = JADEPIX_RS_CNT_MAX then
+          if RA = "111111111" then
+            state_next <= RS_STOP;
+          else
+            state_next <= RS_NEXT_ROW;
+          end if;
+        else
+          state_next <= RS_END_ROW;
+        end if;
+
+      when RS_NEXT_ROW =>
+        state_next <= RS_SET_ROW;
 
       when RS_STOP =>
         state_next <= IDLE;
@@ -242,7 +276,7 @@ begin
           cfg_busy  <= '1';
 
         when CFG_GET_DATA =>
-          cfg_rd_en    <= '0';
+          cfg_rd_en <= '0';
 
         when CFG_EN_DATA =>
           cfg_cnt <= cfg_cnt + 1;
@@ -287,7 +321,34 @@ begin
           CON_DATA  <= '0';
 
         when RS_GO =>
-          null;
+          rs_busy <= '1';
+          RA      <= (others => '0');
+
+        when RS_SET_ROW =>
+          RA_EN  <= '1';
+          rs_cnt <= rs_cnt + 1;
+
+        when RS_RD_EN =>
+          rs_cnt <= rs_cnt + 1;
+          RD_EN  <= '1';
+
+        when RS_HIT_RST =>
+          rs_cnt  <= rs_cnt + 1;
+          RD_EN   <= '0';
+          HIT_RST <= '1';
+
+        when RS_END_ROW =>
+          rs_cnt  <= rs_cnt + 1;
+          HIT_RST <= '0';
+          RA_EN   <= '0';
+
+        when RS_NEXT_ROW =>
+          rs_cnt <= 0;
+          RA     <= std_logic_vector(unsigned (RA) + 1);
+
+        when RS_STOP =>
+          rs_busy <= '0';
+          RA      <= (others => '0');
 
         when others => null;
       end case;

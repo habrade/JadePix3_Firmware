@@ -68,7 +68,7 @@ entity JadePix3_Readout is port(
 --  DATA_IN    : in std_logic_vector(7 downto 0);
 --  MATRIX_DIN : in std_logic_vector(15 downto 0);
 
-  CACHE_BIT_SEL : out std_logic_vector(3 downto 0);
+  CACHE_BIT_SET : out std_logic_vector(3 downto 0);
   HIT_RST       : out std_logic;
   RD_EN         : out std_logic;
 
@@ -119,6 +119,7 @@ architecture rtl of JadePix3_Readout is
   -- JadePix
   signal locked_jadepix_mmcm : std_logic;
   signal cfg_busy            : std_logic;
+  signal rs_busy             : std_logic;
   signal cfg_start           : std_logic;
   signal rs_start            : std_logic;
   signal gs_start            : std_logic;
@@ -217,6 +218,7 @@ begin
       cfg_sync       => cfg_sync,
       cfg_fifo_rst   => cfg_fifo_rst,
       cfg_busy       => cfg_busy,
+      rs_busy        => rs_busy,
       cfg_fifo_empty => cfg_fifo_empty,
       cfg_fifo_pfull => cfg_fifo_pfull,
       cfg_fifo_count => cfg_fifo_count,
@@ -279,11 +281,14 @@ begin
       CON_SELP => CON_SELP,
       CON_DATA => CON_DATA,
 
+
+      rs_busy => rs_busy,
+
 --        DATA_IN     =>  DATA_IN,
 --      MATRIX_DIN => MATRIX_DIN,
 
 --  CACHE_CLK      =>  out std_logic;
-      CACHE_BIT_SEL => CACHE_BIT_SEL,
+      CACHE_BIT_SET => CACHE_BIT_SET,
       HIT_RST       => HIT_RST,
       RD_EN         => RD_EN,
 

@@ -54,6 +54,7 @@ package JADEPIX_DEFINES is
   end record;
 
   constant JADEPIX_CFG_CNT_MAX  : integer                                           := natural(JADEPIX_CFG_PERIOD/JADEPIX_SYS_PERIOD);
+  constant JADEPIX_RS_CNT_MAX   : integer                                           := natural(JADEPIX_RS_PERIOD/JADEPIX_SYS_PERIOD);
   constant JADEPIX_CFG_NULL     : jadepix_cfg                                       := ('0', (others => '0'));
   constant CFG_FIFO_COUNT_WITDH : integer                                           := 17;
   constant CFG_FIFO_COUNT_ZERO  : std_logic_vector(CFG_FIFO_COUNT_WITDH-1 downto 0) := (others       => '0');
