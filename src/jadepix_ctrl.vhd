@@ -45,6 +45,9 @@ entity jadepix_ctrl is
     apulse_in : in std_logic;
     dpulse_in : in std_logic;
 
+    matrix_col_low  : in std_logic_vector(COL_WIDTH-1 downto 0);
+    matrix_col_high : in std_logic_vector(COL_WIDTH-1 downto 0);
+
     RA    : out std_logic_vector(ROW_WIDTH-1 downto 0);
     RA_EN : out std_logic;
     CA    : out std_logic_vector(COL_WIDTH-1 downto 0);
@@ -68,16 +71,15 @@ entity jadepix_ctrl is
 --    MATRIX_DIN : in std_logic_vector(15 downto 0);
 
 --    CACHE_CLK     : out std_logic;
-    CACHE_BIT_SET : out std_logic_vector(3 downto 0);
-    HIT_RST       : out std_logic;
-    RD_EN         : out std_logic;
+--    CACHE_BIT_SET : out std_logic_vector(3 downto 0);
+    HIT_RST : out std_logic;
+    RD_EN   : out std_logic;
 
-    MATRIX_GRST : out std_logic;
-    DIGSEL_EN   : out std_logic;
-    ANASEL_EN   : out std_logic;
-    GSHUTTER    : out std_logic;
-    DPLSE       : out std_logic;
-    APLSE       : out std_logic
+    DIGSEL_EN : out std_logic;
+    ANASEL_EN : out std_logic;
+    GSHUTTER  : out std_logic;
+    DPLSE     : out std_logic;
+    APLSE     : out std_logic
 
     );
 end jadepix_ctrl;
@@ -91,7 +93,7 @@ architecture behv of jadepix_ctrl is
 
   -- FIFO
   signal empty, prog_full, fifo_rst : std_logic;
-  signal cfg_dout, cfg_dout_reg     : std_logic_vector(2 downto 0);
+  signal cfg_dout                   : std_logic_vector(2 downto 0);
   signal cfg_rd_en, cfg_dout_valid  : std_logic;
   signal pix_cnt                    : integer range 0 to (N_ROW * N_COL - 1) := 0;
   signal cfg_cnt                    : integer range 0 to JADEPIX_CFG_CNT_MAX := 0;
@@ -115,7 +117,6 @@ architecture behv of jadepix_ctrl is
   attribute mark_debug of state_reg      : signal is "true";
   attribute mark_debug of cfg_rd_en      : signal is "true";
   attribute mark_debug of cfg_dout       : signal is "true";
-  attribute mark_debug of cfg_dout_reg   : signal is "true";
   attribute mark_debug of cfg_dout_valid : signal is "true";
   attribute mark_debug of pix_cnt        : signal is "true";
   attribute mark_debug of cfg_cnt        : signal is "true";
@@ -249,14 +250,13 @@ begin
 
       case(state_next) is
         when IDLE =>
-          RD_EN       <= '0';
-          HIT_RST     <= '0';
-          MATRIX_GRST <= '0';
-          DIGSEL_EN   <= '0';
-          ANASEL_EN   <= '0';
-          GSHUTTER    <= '0';
-          DPLSE       <= '0';
-          APLSE       <= '0';
+          RD_EN     <= '0';
+          HIT_RST   <= '0';
+          DIGSEL_EN <= '0';
+          ANASEL_EN <= '0';
+          GSHUTTER  <= '0';
+          DPLSE     <= '0';
+          APLSE     <= '0';
 
           RA_EN <= '0';
           CA_EN <= '0';

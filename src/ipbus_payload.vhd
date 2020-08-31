@@ -41,13 +41,21 @@ entity ipbus_payload is
     cfg_fifo_empty : in  std_logic;
     cfg_fifo_pfull : in  std_logic;
     cfg_fifo_count : in  std_logic_vector(CFG_FIFO_COUNT_WITDH-1 downto 0);
-    cfg_start      : out std_logic;
-    rs_start       : out std_logic;
-    gs_start       : out std_logic;
-    apulse         : out std_logic;
-    dpulse         : out std_logic;
-    pdb            : out std_logic;
-    load           : out std_logic;
+
+    CACHE_BIT_SET : out std_logic_vector(3 downto 0);
+    MATRIX_GRST   : out std_logic;
+
+    matrix_col_low  : out std_logic_vector(COL_WIDTH-1 downto 0);
+    matrix_col_high : out std_logic_vector(COL_WIDTH-1 downto 0);
+
+
+    cfg_start : out std_logic;
+    rs_start  : out std_logic;
+    gs_start  : out std_logic;
+    apulse    : out std_logic;
+    dpulse    : out std_logic;
+    PDB       : out std_logic;
+    LOAD      : out std_logic;
 
     -- SPI Master
     ss   : out std_logic_vector(N_SS - 1 downto 0);
@@ -145,13 +153,19 @@ begin
       cfg_fifo_pfull => cfg_fifo_pfull,
       cfg_fifo_count => cfg_fifo_count,
 
+      CACHE_BIT_SET => CACHE_BIT_SET,
+      MATRIX_GRST   => MATRIX_GRST,
+
+      matrix_col_low  => matrix_col_low,
+      matrix_col_high => matrix_col_high,
+
       cfg_start => cfg_start,
       rs_start  => rs_start,
       gs_start  => gs_start,
       apulse    => apulse,
       dpulse    => dpulse,
-      pdb       => pdb,
-      load      => load
+      PDB       => PDB,
+      LOAD      => LOAD
 
       );
 

@@ -126,6 +126,9 @@ architecture rtl of JadePix3_Readout is
   signal apulse_tmp          : std_logic;
   signal dpulse_tmp          : std_logic;
 
+  signal matrix_col_low  : std_logic_vector(COL_WIDTH-1 downto 0);
+  signal matrix_col_high : std_logic_vector(COL_WIDTH-1 downto 0);
+
   -- config FIFO signals
   signal cfg_sync       : jadepix_cfg;
   signal cfg_fifo_rst   : std_logic;
@@ -223,13 +226,19 @@ begin
       cfg_fifo_pfull => cfg_fifo_pfull,
       cfg_fifo_count => cfg_fifo_count,
 
+      CACHE_BIT_SET => CACHE_BIT_SET,
+      MATRIX_GRST   => MATRIX_GRST,
+
+      matrix_col_low  => matrix_col_low,
+      matrix_col_high => matrix_col_high,
+
       cfg_start => cfg_start,
       rs_start  => rs_start,
       gs_start  => gs_start,
       apulse    => apulse_tmp,
       dpulse    => dpulse_tmp,
-      pdb       => PDB,
-      load      => LOAD,
+      PDB       => PDB,
+      LOAD      => LOAD,
       -- SPI master
       ss        => open,
       mosi      => mosi,
@@ -272,6 +281,8 @@ begin
       apulse_in => apulse_tmp,
       dpulse_in => dpulse_tmp,
 
+      matrix_col_low  => matrix_col_low,
+      matrix_col_high => matrix_col_high,
 
       RA       => RA,
       RA_EN    => RA_EN,
@@ -285,19 +296,16 @@ begin
       rs_busy => rs_busy,
 
 --        DATA_IN     =>  DATA_IN,
---      MATRIX_DIN => MATRIX_DIN,
 
 --  CACHE_CLK      =>  out std_logic;
-      CACHE_BIT_SET => CACHE_BIT_SET,
-      HIT_RST       => HIT_RST,
-      RD_EN         => RD_EN,
+      HIT_RST => HIT_RST,
+      RD_EN   => RD_EN,
 
-      MATRIX_GRST => MATRIX_GRST,
-      DIGSEL_EN   => DIGSEL_EN,
-      ANASEL_EN   => ANASEL_EN,
-      GSHUTTER    => GSHUTTER,
-      DPLSE       => DPLSE,
-      APLSE       => APLSE
+      DIGSEL_EN => DIGSEL_EN,
+      ANASEL_EN => ANASEL_EN,
+      GSHUTTER  => GSHUTTER,
+      DPLSE     => DPLSE,
+      APLSE     => APLSE
       );
 
 
