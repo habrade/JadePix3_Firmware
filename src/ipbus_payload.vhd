@@ -45,9 +45,10 @@ entity ipbus_payload is
     CACHE_BIT_SET : out std_logic_vector(3 downto 0);
     MATRIX_GRST   : out std_logic;
 
-    matrix_col_low  : out std_logic_vector(COL_WIDTH-1 downto 0);
-    matrix_col_high : out std_logic_vector(COL_WIDTH-1 downto 0);
-
+    hitmap_col_low  : out std_logic_vector(COL_WIDTH-1 downto 0);
+    hitmap_col_high : out std_logic_vector(COL_WIDTH-1 downto 0);
+    hitmap_en       : out std_logic;
+    hitmap_num      : out std_logic_vector(3 downto 0);
 
     cfg_start : out std_logic;
     rs_start  : out std_logic;
@@ -156,8 +157,9 @@ begin
       CACHE_BIT_SET => CACHE_BIT_SET,
       MATRIX_GRST   => MATRIX_GRST,
 
-      matrix_col_low  => matrix_col_low,
-      matrix_col_high => matrix_col_high,
+      hitmap_col_low  => hitmap_col_low,
+      hitmap_col_high => hitmap_col_high,
+      hitmap_en       => hitmap_en,
 
       cfg_start => cfg_start,
       rs_start  => rs_start,

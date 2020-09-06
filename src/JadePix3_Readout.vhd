@@ -126,8 +126,14 @@ architecture rtl of JadePix3_Readout is
   signal apulse_tmp          : std_logic;
   signal dpulse_tmp          : std_logic;
 
-  signal matrix_col_low  : std_logic_vector(COL_WIDTH-1 downto 0);
-  signal matrix_col_high : std_logic_vector(COL_WIDTH-1 downto 0);
+  signal hitmap_col_low  : std_logic_vector(COL_WIDTH-1 downto 0);
+  signal hitmap_col_high : std_logic_vector(COL_WIDTH-1 downto 0);
+  signal hitmap_en       : std_logic;
+  signal hitmap_num      : std_logic_vector(3 downto 0);
+
+
+  signal clk_cache     : std_logic;
+  signal clk_cache_rst : std_logic;
 
   -- config FIFO signals
   signal cfg_sync       : jadepix_cfg;
@@ -147,14 +153,16 @@ begin
 
   jadepix_clocks : entity work.jadepix_clock_gen
     port map(
-      sysclk      => sysclk,
-      clk_ref     => REFCLK,
-      clk_dac     => DACCLK,
-      clk_sys     => clk_sys,
-      clk_dac_rst => clk_dac_rst,
-      clk_ref_rst => clk_ref_rst,
-      clk_sys_rst => clk_sys_rst,
-      locked      => locked_jadepix_mmcm
+      sysclk        => sysclk,
+      clk_ref       => REFCLK,
+      clk_dac       => DACCLK,
+      clk_sys       => clk_sys,
+      clk_cache     => clk_cache,
+      clk_dac_rst   => clk_dac_rst,
+      clk_ref_rst   => clk_ref_rst,
+      clk_sys_rst   => clk_sys_rst,
+      clk_cache_rst => clk_cache_rst,
+      locked        => locked_jadepix_mmcm
       );
 
   ipbus_infra : entity work.ipbus_gmii_infra
@@ -229,8 +237,9 @@ begin
       CACHE_BIT_SET => CACHE_BIT_SET,
       MATRIX_GRST   => MATRIX_GRST,
 
-      matrix_col_low  => matrix_col_low,
-      matrix_col_high => matrix_col_high,
+      hitmap_col_low  => hitmap_col_low,
+      hitmap_col_high => hitmap_col_high,
+      hitmap_en       => hitmap_en,
 
       cfg_start => cfg_start,
       rs_start  => rs_start,
@@ -281,8 +290,12 @@ begin
       apulse_in => apulse_tmp,
       dpulse_in => dpulse_tmp,
 
-      matrix_col_low  => matrix_col_low,
-      matrix_col_high => matrix_col_high,
+      clk_cache       => clk_cache,
+      clk_cache_rst   => clk_cache_rst,
+      hitmap_col_low  => hitmap_col_low,
+      hitmap_col_high => hitmap_col_high,
+      hitmap_en       => hitmap_en,
+      hitmap_num      => hitmap_num,
 
       RA       => RA,
       RA_EN    => RA_EN,
@@ -297,18 +310,17 @@ begin
 
 --        DATA_IN     =>  DATA_IN,
 
---  CACHE_CLK      =>  out std_logic;
       HIT_RST => HIT_RST,
       RD_EN   => RD_EN,
 
-      DIGSEL_EN => DIGSEL_EN,
       ANASEL_EN => ANASEL_EN,
       GSHUTTER  => GSHUTTER,
       DPLSE     => DPLSE,
       APLSE     => APLSE
       );
 
-
+  DIGSEL_EN <= hitmap_en;
+  CACHE_CLK <= clk_cache;
 
 --  u_mig_7series_0 : entity work.mig_7series_0_1
 --    port map (

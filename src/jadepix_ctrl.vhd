@@ -45,9 +45,6 @@ entity jadepix_ctrl is
     apulse_in : in std_logic;
     dpulse_in : in std_logic;
 
-    matrix_col_low  : in std_logic_vector(COL_WIDTH-1 downto 0);
-    matrix_col_high : in std_logic_vector(COL_WIDTH-1 downto 0);
-
     RA    : out std_logic_vector(ROW_WIDTH-1 downto 0);
     RA_EN : out std_logic;
     CA    : out std_logic_vector(COL_WIDTH-1 downto 0);
@@ -70,12 +67,15 @@ entity jadepix_ctrl is
     rs_busy : out std_logic;
 --    MATRIX_DIN : in std_logic_vector(15 downto 0);
 
---    CACHE_CLK     : out std_logic;
---    CACHE_BIT_SET : out std_logic_vector(3 downto 0);
-    HIT_RST : out std_logic;
-    RD_EN   : out std_logic;
+    HIT_RST         : out std_logic;
+    RD_EN           : out std_logic;
+    clk_cache       : in  std_logic;
+    clk_cache_rst   : in  std_logic;
+    hitmap_col_low  : in  std_logic_vector(COL_WIDTH-1 downto 0);
+    hitmap_col_high : in  std_logic_vector(COL_WIDTH-1 downto 0);
+    hitmap_en       : in  std_logic;
+    hitmap_num      : in  std_logic_vector(3 downto 0);
 
-    DIGSEL_EN : out std_logic;
     ANASEL_EN : out std_logic;
     GSHUTTER  : out std_logic;
     DPLSE     : out std_logic;
@@ -86,7 +86,7 @@ end jadepix_ctrl;
 
 architecture behv of jadepix_ctrl is
 
-  type JADEPIX_STATE is (IDLE, CFG_GO, CFG_GET_DATA, CFG_EN_DATA, CFG_EN_SEL, CFG_DIS_SEL, CFG_NEXT_PIX, CFG_STOP, RS_GO, RS_SET_ROW, RS_RD_EN, RS_HIT_RST, RS_END_ROW, RS_NEXT_ROW, RS_STOP, GS);
+  type JADEPIX_STATE is (IDLE, CFG_GO, CFG_GET_DATA, CFG_EN_DATA, CFG_EN_SEL, CFG_DIS_SEL, CFG_NEXT_PIX, CFG_STOP, RS_GO, RS_SET_ROW, RS_RD_EN, RS_HITMAP_START, RS_HITMAP, RS_HITMAP_NEXT, RS_HITMAP_STOP, RS_HIT_RST, RS_END_ROW, RS_NEXT_ROW, RS_STOP, GS);
   signal state_reg, state_next : JADEPIX_STATE;
 
   signal rs_finished : std_logic;
@@ -97,7 +97,14 @@ architecture behv of jadepix_ctrl is
   signal cfg_rd_en, cfg_dout_valid  : std_logic;
   signal pix_cnt                    : integer range 0 to (N_ROW * N_COL - 1) := 0;
   signal cfg_cnt                    : integer range 0 to JADEPIX_CFG_CNT_MAX := 0;
-  signal rs_cnt                     : integer range 0 to JADEPIX_RS_CNT_MAX  := 0;
+
+  -- RS
+  signal rs_cnt        : integer range 0 to JADEPIX_RS_CNT_MAX     := 0;
+  signal rs_hitmap_cnt : integer range 0 to JADEPIX_HITMAP_CNT_MAX := 0;
+  signal hitmap_cnt    : integer range 0 to JADEPIX_HITMAP_CHN_MAX := 0;
+
+  -- Hitmap
+  signal CE : std_logic;
 
   -- DEBUG
   attribute mark_debug                   : string;
@@ -127,8 +134,17 @@ architecture behv of jadepix_ctrl is
   attribute mark_debug of rs_start       : signal is "true";
   attribute mark_debug of HIT_RST        : signal is "true";
   attribute mark_debug of RD_EN          : signal is "true";
+  attribute mark_debug of hitmap_num     : signal is "true";
 
 begin
+
+--  update_hitmap_num : process(clk)
+--  begin
+--    if rising_edge(clk) then
+--        hitmap_num <= to_integer(unsigned(hitmap_col_high)) - to_integer(unsigned(hitmap_col_low)) + 1;
+--    end if;
+--  end process;
+
 
   process(clk, rst)
   begin
@@ -208,10 +224,37 @@ begin
         end if;
 
       when RS_RD_EN =>
-        if rs_cnt = 12 then
-          state_next <= RS_HIT_RST;
+        if hitmap_en = '1' then
+          state_next <= RS_HITMAP_START;
         else
-          state_next <= RS_RD_EN;
+          if rs_cnt = (JADEPIX_HITMAP_CNT_MAX * to_integer(unsigned(hitmap_num))) then
+            state_next <= RS_HIT_RST;
+          else
+            state_next <= RS_RD_EN;
+          end if;
+        end if;
+
+      when RS_HITMAP_START =>
+        state_next <= RS_HITMAP;
+
+      when RS_HITMAP =>
+        if rs_hitmap_cnt = JADEPIX_HITMAP_CNT_MAX then
+          state_next <= RS_HITMAP_NEXT;
+        else
+          state_next <= RS_HITMAP;
+        end if;
+
+      when RS_HITMAP_NEXT =>
+        if hitmap_cnt = to_integer(unsigned(hitmap_num)) then
+          else
+            state_next <= RS_HITMAP_STOP;
+        end if;
+      
+      when RS_HITMAP_STOP =>
+        if rs_hitmap_cnt = 2 then
+            state_next <= RS_HIT_RST;
+        else
+            state_next <= RS_HITMAP_STOP;
         end if;
 
       when RS_HIT_RST =>
@@ -252,7 +295,6 @@ begin
         when IDLE =>
           RD_EN     <= '0';
           HIT_RST   <= '0';
-          DIGSEL_EN <= '0';
           ANASEL_EN <= '0';
           GSHUTTER  <= '0';
           DPLSE     <= '0';
@@ -270,6 +312,8 @@ begin
           CON_SELM  <= '0';
           CON_SELP  <= '0';
           CON_DATA  <= '0';
+
+          rs_hitmap_cnt <= 0;
 
         when CFG_GO =>
           cfg_rd_en <= '1';
@@ -332,6 +376,23 @@ begin
           rs_cnt <= rs_cnt + 1;
           RD_EN  <= '1';
 
+        when RS_HITMAP_START =>
+          CA_EN         <= '1';
+          CA         <= hitmap_col_low;
+          hitmap_cnt <= hitmap_cnt + 1;
+
+        when RS_HITMAP =>
+          rs_hitmap_cnt <= rs_hitmap_cnt + 1;
+
+        when RS_HITMAP_NEXT =>
+          CA            <= std_logic_vector(unsigned (CA) + 1);
+          hitmap_cnt    <= hitmap_cnt + 1;
+          rs_hitmap_cnt <= 0;
+
+        when RS_HITMAP_STOP =>
+          CA_EN         <= '0';
+          rs_hitmap_cnt <= rs_hitmap_cnt + 1;
+
         when RS_HIT_RST =>
           rs_cnt  <= rs_cnt + 1;
           RD_EN   <= '0';
@@ -347,6 +408,7 @@ begin
           RA     <= std_logic_vector(unsigned (RA) + 1);
 
         when RS_STOP =>
+          rs_cnt <= 0;
           rs_busy <= '0';
           RA      <= (others => '0');
 
@@ -356,7 +418,7 @@ begin
   end process;
 
 
-  process(clk)
+  fifo_rst_gen : process(clk)
   begin
     if rising_edge(clk) then
       fifo_rst <= rst or cfg_fifo_rst;
@@ -377,6 +439,5 @@ begin
       data_count => cfg_fifo_count,
       prog_full  => cfg_fifo_pfull
       );
-
 
 end behv;

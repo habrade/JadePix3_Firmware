@@ -40,24 +40,26 @@ entity jadepix_clock_gen is
     CLK_VCO_FREQ : real := 1000.0       -- VCO freq 1000M
     );
   port (
-    sysclk      : in  std_logic;
-    clk_ref     : out std_logic;
-    clk_dac     : out std_logic;
-    clk_sys     : out std_logic;
-    clk_ref_rst : out std_logic;
-    clk_dac_rst : out std_logic;
-    clk_sys_rst : out std_logic;
-    locked      : out std_logic
+    sysclk        : in  std_logic;
+    clk_ref       : out std_logic;
+    clk_dac       : out std_logic;
+    clk_sys       : out std_logic;
+    clk_cache     : out std_logic;
+    clk_ref_rst   : out std_logic;
+    clk_dac_rst   : out std_logic;
+    clk_sys_rst   : out std_logic;
+    clk_cache_rst : out std_logic;
+    locked        : out std_logic
     );
 end jadepix_clock_gen;
 
 
-architecture behv of jadepix_clock_gen is
+architecture behv of  jadepix_clock_gen is
 
-  signal clkfb                        : std_logic;
-  signal clkdac_i, clkref_i, clksys_i : std_logic;
-  signal mmcm_locked                  : std_logic;
-  signal rst                          : std_logic;
+  signal clkfb                                    : std_logic;
+  signal clkdac_i, clkref_i, clksys_i, clkcache_i : std_logic;
+  signal mmcm_locked                              : std_logic;
+  signal rst                                      : std_logic;
 
 begin
 
@@ -70,23 +72,32 @@ begin
       -- CLKOUT0_DIVIDE - CLKOUT6_DIVIDE: Divide amount for each CLKOUT (1-128)
       CLKOUT1_DIVIDE     => integer(CLK_VCO_FREQ / (1000.0 / DACCLK_PERIOD)),  -- Divide amount for CLKOUT0 (1.000-128.000).
       CLKOUT2_DIVIDE     => integer(CLK_VCO_FREQ / (1000.0 / JADEPIX_REF_PERIOD)),  -- Divide amount for CLKOUT0 (1.000-128.000).
-      CLKOUT0_DIVIDE_F   => CLK_VCO_FREQ / (1000.0 / JADEPIX_SYS_PERIOD),  -- Divide amount for CLKOUT0 (1.000-128.000).
+      CLKOUT4_DIVIDE     => integer(JADEPIX_CACHE_PERIOD / 2.0),  -- Divide amount for CLKOUT0 (1.000-128.000).
+      CLKOUT6_DIVIDE     => 2,  -- Divide amount for CLKOUT0 (1.000-128.000).
+      CLKOUT0_DIVIDE_F   => CLK_VCO_FREQ / (2.0 * (1000.0 / JADEPIX_SYS_PERIOD)),  -- Divide amount for CLKOUT0 (1.000-128.000).
       -- CLKOUT0_DUTY_CYCLE - CLKOUT6_DUTY_CYCLE: Duty cycle for each CLKOUT (0.01-0.99).
       CLKOUT0_DUTY_CYCLE => 0.5,
       CLKOUT1_DUTY_CYCLE => 0.5,
+      CLKOUT2_DUTY_CYCLE => 0.5,
+      CLKOUT4_DUTY_CYCLE => 0.5,
+      CLKOUT6_DUTY_CYCLE => 0.5,
       -- CLKOUT0_PHASE - CLKOUT6_PHASE: Phase offset for each CLKOUT (-360.000-360.000).
       CLKOUT0_PHASE      => 0.0,
       CLKOUT1_PHASE      => 0.0,
-      CLKOUT4_CASCADE    => false,  -- Cascade CLKOUT4 counter with CLKOUT6 (FALSE, TRUE)
+      CLKOUT2_PHASE      => 0.0,
+      CLKOUT4_PHASE      => 0.0,
+      CLKOUT6_PHASE      => 0.0,
+      CLKOUT4_CASCADE    => true,  -- Cascade CLKOUT4 counter with CLKOUT6 (FALSE, TRUE)
       DIVCLK_DIVIDE      => 1,          -- Master division value (1-106)
       REF_JITTER1        => 0.0,  -- Reference input jitter in UI (0.000-0.999).
       STARTUP_WAIT       => false  -- Delays DONE until MMCM is locked (FALSE, TRUE)
       )
     port map (
       -- Clock Outputs: 1-bit (each) output: User configurable clock outputs
-      CLKOUT0  => clksys_i,              -- 1-bit output: CLKOUT0
-      CLKOUT1  => clkdac_i,              -- 1-bit output: CLKOUT1
-      CLKOUT2  => clkref_i,              -- 1-bit output: CLKOUT1
+      CLKOUT0  => clksys_i,             -- 1-bit output: CLKOUT0
+      CLKOUT1  => clkdac_i,             -- 1-bit output: CLKOUT1
+      CLKOUT2  => clkref_i,             -- 1-bit output: CLKOUT1
+      CLKOUT4  => clkcache_i,           -- 1-bit output: CLKOUT1
       -- Feedback Clocks: 1-bit (each) output: Clock feedback ports
       CLKFBOUT => clkfb,                -- 1-bit output: Feedback clock
       -- Status Ports: 1-bit (each) output: MMCM status ports
@@ -99,10 +110,6 @@ begin
       -- Feedback Clocks: 1-bit (each) input: Clock feedback ports
       CLKFBIN  => clkfb                 -- 1-bit input: Feedback clock
       );
-
-
-  locked <= mmcm_locked;
-
 
   bufg0 : BUFG port map(
     i => clkdac_i,
@@ -120,6 +127,10 @@ begin
     o => clk_sys
     );
 
+  bufg3 : BUFG port map(
+    i => clkcache_i,
+    o => clk_cache
+    );
 
   rst <= not mmcm_locked;
 
@@ -144,5 +155,13 @@ begin
     end if;
   end process;
 
+  process(clkcache_i)
+  begin
+    if rising_edge(clkcache_i) then
+      clk_cache_rst <= rst;
+    end if;
+  end process;
+
+  locked <= mmcm_locked;
 
 end behv;

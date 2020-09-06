@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PRJ_NAME=JadePixReadout
-IMPL="impl_1"
+IMPL="impl_2"
 
 BUILD_DIR=../build
 if [[ ! -d $BUILD_DIR ]]; then
