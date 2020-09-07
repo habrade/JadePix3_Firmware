@@ -50,10 +50,12 @@ end ipbus_global_device;
 
 architecture behv of ipbus_global_device is
 
-  constant N_STAT : integer := 1;
-  constant N_CTRL : integer := 1;
-  signal stat     : ipb_reg_v(N_STAT-1 downto 0);
-  signal ctrl     : ipb_reg_v(N_CTRL-1 downto 0);
+  constant N_STAT     : integer := 1;
+  constant N_CTRL     : integer := 1;
+  signal stat         : ipb_reg_v(N_STAT-1 downto 0);
+  signal ctrl         : ipb_reg_v(N_CTRL-1 downto 0);
+  signal ctrl_reg_stb : std_logic_vector(N_CTRL - 1 downto 0);
+
 
 begin
 
@@ -69,10 +71,22 @@ begin
       ipbus_in  => ipb_in,
       ipbus_out => ipb_out,
       d         => stat,
-      q         => ctrl
+      q         => ctrl,
+      stb       => ctrl_reg_stb
       );
 
-  nuke     <= ctrl(0)(0);
-  soft_rst <= ctrl(0)(1);
+
+  sync_ctrl_signals : process(ipb_clk)
+  begin
+    if rising_edge(ipb_clk) then
+      if ctrl_reg_stb(0) = '1' then
+        nuke     <= ctrl(0)(0);
+        soft_rst <= ctrl(0)(1);
+      else
+        nuke     <= '0';
+        soft_rst <= '0';
+      end if;
+    end if;
+  end process;
 
 end behv;
