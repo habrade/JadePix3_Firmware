@@ -9,7 +9,8 @@ The readout system is developed and tested on:
 * IPbus Firmware: master branch
 
 ### Simulation
-Simulator: QuestaSim 10.7c
+Simulator: QuestaSim 10.7c Linux 64 bit
+
 Directory: sim
 		/sim_chip
 		/sim_design_logic
