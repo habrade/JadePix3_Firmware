@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.all;
 use work.ipbus.all;
 use work.ipbus_reg_types.all;
 use work.ipbus_decode_payload.all;
---use work.drp_decl.all;
+
 use work.jadepix_defines.all;
 
 
@@ -52,11 +52,22 @@ entity ipbus_payload is
 
     cfg_start : out std_logic;
     rs_start  : out std_logic;
+    rs_stop   : out std_logic;
     gs_start  : out std_logic;
-    apulse    : out std_logic;
-    dpulse    : out std_logic;
-    PDB       : out std_logic;
-    LOAD      : out std_logic;
+
+    ANASEL_EN    : out std_logic;
+    DIGSEL_EN    : out std_logic;
+    gs_sel_pulse : out std_logic;
+
+
+    gs_pulse_delay_cnt      : out std_logic_vector(8 downto 0);
+    gs_pulse_width_cnt_low  : out std_logic_vector(31 downto 0);
+    gs_pulse_width_cnt_high : out std_logic_vector(1 downto 0);
+    gs_pulse_deassert_cnt   : out std_logic_vector(8 downto 0);
+    gs_deassert_cnt         : out std_logic_vector(8 downto 0);
+
+    PDB  : out std_logic;
+    LOAD : out std_logic;
 
     -- SPI Master
     ss   : out std_logic_vector(N_SS - 1 downto 0);
@@ -165,10 +176,20 @@ begin
       cfg_start => cfg_start,
       rs_start  => rs_start,
       gs_start  => gs_start,
-      apulse    => apulse,
-      dpulse    => dpulse,
-      PDB       => PDB,
-      LOAD      => LOAD
+      rs_stop   => rs_stop,
+
+      ANASEL_EN    => ANASEL_EN,
+      DIGSEL_EN    => DIGSEL_EN,
+      gs_sel_pulse => gs_sel_pulse,
+
+      gs_pulse_delay_cnt      => gs_pulse_delay_cnt,
+      gs_pulse_width_cnt_low  => gs_pulse_width_cnt_low,
+      gs_pulse_width_cnt_high => gs_pulse_width_cnt_high,
+      gs_pulse_deassert_cnt   => gs_pulse_deassert_cnt,
+      gs_deassert_cnt         => gs_deassert_cnt,
+
+      PDB  => PDB,
+      LOAD => LOAD
 
       );
 

@@ -123,14 +123,20 @@ architecture rtl of JadePix3_Readout is
   signal cfg_start           : std_logic;
   signal rs_start            : std_logic;
   signal gs_start            : std_logic;
-  signal apulse_tmp          : std_logic;
-  signal dpulse_tmp          : std_logic;
+  signal rs_stop             : std_logic;
 
   signal hitmap_col_low  : std_logic_vector(COL_WIDTH-1 downto 0);
   signal hitmap_col_high : std_logic_vector(COL_WIDTH-1 downto 0);
   signal hitmap_en       : std_logic;
   signal hitmap_num      : std_logic_vector(3 downto 0);
 
+  signal gs_sel_pulse : std_logic;
+
+  signal gs_pulse_delay_cnt      : std_logic_vector(8 downto 0);
+  signal gs_pulse_width_cnt_low  : std_logic_vector(31 downto 0);
+  signal gs_pulse_width_cnt_high : std_logic_vector(1 downto 0);
+  signal gs_pulse_deassert_cnt   : std_logic_vector(8 downto 0);
+  signal gs_deassert_cnt         : std_logic_vector(8 downto 0);
 
   signal clk_cache     : std_logic;
   signal clk_cache_rst : std_logic;
@@ -245,15 +251,26 @@ begin
       cfg_start => cfg_start,
       rs_start  => rs_start,
       gs_start  => gs_start,
-      apulse    => apulse_tmp,
-      dpulse    => dpulse_tmp,
-      PDB       => PDB,
-      LOAD      => LOAD,
+      rs_stop   => rs_stop,
+
+      ANASEL_EN    => ANASEL_EN,
+      DIGSEL_EN    => DIGSEL_EN,
+      gs_sel_pulse => gs_sel_pulse,
+
+
+      gs_pulse_delay_cnt      => gs_pulse_delay_cnt,
+      gs_pulse_width_cnt_low  => gs_pulse_width_cnt_low,
+      gs_pulse_width_cnt_high => gs_pulse_width_cnt_high,
+      gs_pulse_deassert_cnt   => gs_pulse_deassert_cnt,
+      gs_deassert_cnt         => gs_deassert_cnt,
+
+      PDB  => PDB,
+      LOAD => LOAD,
       -- SPI master
-      ss        => open,
-      mosi      => mosi,
-      miso      => miso,
-      sclk      => sclk
+      ss   => open,
+      mosi => mosi,
+      miso => miso,
+      sclk => sclk
       );
 
 
@@ -288,8 +305,7 @@ begin
       cfg_start => cfg_start,
       rs_start  => rs_start,
       gs_start  => gs_start,
-      apulse_in => apulse_tmp,
-      dpulse_in => dpulse_tmp,
+      rs_stop   => rs_stop,
 
       clk_cache       => clk_cache,
       clk_cache_rst   => clk_cache_rst,
@@ -308,19 +324,24 @@ begin
 
 
       rs_busy => rs_busy,
-
---        DATA_IN     =>  DATA_IN,
-
       HIT_RST => HIT_RST,
       RD_EN   => RD_EN,
 
-      ANASEL_EN => ANASEL_EN,
-      GSHUTTER  => GSHUTTER,
-      DPLSE     => DPLSE,
-      APLSE     => APLSE
+
+      GSHUTTER => GSHUTTER,
+      APLSE    => APLSE,
+      DPLSE    => DPLSE,
+
+      gs_sel_pulse => gs_sel_pulse,
+
+      gs_pulse_delay_cnt      => gs_pulse_delay_cnt,
+      gs_pulse_width_cnt_low  => gs_pulse_width_cnt_low,
+      gs_pulse_width_cnt_high => gs_pulse_width_cnt_high,
+      gs_pulse_deassert_cnt   => gs_pulse_deassert_cnt,
+      gs_deassert_cnt         => gs_deassert_cnt
+
       );
 
-  DIGSEL_EN <= hitmap_en;
   CACHE_CLK <= clk_cache;
 
 --  u_mig_7series_0 : entity work.mig_7series_0_1

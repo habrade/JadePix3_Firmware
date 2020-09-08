@@ -42,8 +42,7 @@ entity jadepix_ctrl is
     cfg_start : in std_logic;
     rs_start  : in std_logic;
     gs_start  : in std_logic;
-    apulse_in : in std_logic;
-    dpulse_in : in std_logic;
+    rs_stop   : in std_logic;
 
     RA    : out std_logic_vector(ROW_WIDTH-1 downto 0);
     RA_EN : out std_logic;
@@ -62,31 +61,45 @@ entity jadepix_ctrl is
     cfg_fifo_pfull : out std_logic;
     cfg_fifo_count : out std_logic_vector(16 downto 0);
 
-
     -- Rolling shutter
     rs_busy : out std_logic;
+
+    HIT_RST : out std_logic;
+    RD_EN   : out std_logic;
+
+    clk_cache     : in std_logic;
+    clk_cache_rst : in std_logic;
+
+    hitmap_col_low  : in std_logic_vector(COL_WIDTH-1 downto 0);
+    hitmap_col_high : in std_logic_vector(COL_WIDTH-1 downto 0);
+    hitmap_en       : in std_logic;
+    hitmap_num      : in std_logic_vector(3 downto 0);
 --    MATRIX_DIN : in std_logic_vector(15 downto 0);
 
-    HIT_RST         : out std_logic;
-    RD_EN           : out std_logic;
-    clk_cache       : in  std_logic;
-    clk_cache_rst   : in  std_logic;
-    hitmap_col_low  : in  std_logic_vector(COL_WIDTH-1 downto 0);
-    hitmap_col_high : in  std_logic_vector(COL_WIDTH-1 downto 0);
-    hitmap_en       : in  std_logic;
-    hitmap_num      : in  std_logic_vector(3 downto 0);
+    -- Global shutter
+    APLSE    : out std_logic;
+    DPLSE    : out std_logic;
+    GSHUTTER : out std_logic;
 
-    ANASEL_EN : out std_logic;
-    GSHUTTER  : out std_logic;
-    DPLSE     : out std_logic;
-    APLSE     : out std_logic
+    gs_sel_pulse : in std_logic;
+
+    gs_pulse_delay_cnt      : in std_logic_vector(8 downto 0);
+    gs_pulse_width_cnt_low  : in std_logic_vector(31 downto 0);
+    gs_pulse_width_cnt_high : in std_logic_vector(1 downto 0);
+    gs_pulse_deassert_cnt   : in std_logic_vector(8 downto 0);
+    gs_deassert_cnt         : in std_logic_vector(8 downto 0)
 
     );
 end jadepix_ctrl;
 
 architecture behv of jadepix_ctrl is
 
-  type JADEPIX_STATE is (IDLE, CFG_GO, CFG_GET_DATA, CFG_EN_DATA, CFG_EN_SEL, CFG_DIS_SEL, CFG_NEXT_PIX, CFG_STOP, RS_GO, RS_SET_ROW, RS_RD_EN, RS_SET_COL, RS_HOLD_COL, RS_HITMAP_START, RS_HITMAP, RS_HITMAP_END_COL, RS_HITMAP_NEXT_COL, RS_HITMAP_STOP, RS_HIT_RST, RS_END_ROW, RS_NEXT_ROW, RS_STOP, GS);
+  type JADEPIX_STATE is (IDLE,
+                         CFG_GO, CFG_GET_DATA, CFG_EN_DATA, CFG_EN_SEL, CFG_DIS_SEL, CFG_NEXT_PIX, CFG_STOP,
+                         RS_GO, RS_SET_ROW, RS_RD_EN, RS_SET_COL, RS_HOLD_COL,
+                         RS_HITMAP_START, RS_HITMAP, RS_HITMAP_END_COL, RS_HITMAP_NEXT_COL, RS_HITMAP_STOP,
+                         RS_HIT_RST, RS_END_ROW, RS_NEXT_ROW, RS_DIE,
+                         GS_GO, GS_PULSE_DELAY, GS_PULSE_WIDTH, GS_PULSE_DEASSERT, GS_DEASSERT, GS_STOP);
   signal state_reg, state_next : JADEPIX_STATE;
 
   signal rs_finished : std_logic;
@@ -99,13 +112,18 @@ architecture behv of jadepix_ctrl is
   signal cfg_cnt                    : integer range 0 to JADEPIX_CFG_CNT_MAX := 0;
 
   -- RS
-  signal rs_cnt         : integer range 0 to JADEPIX_RS_CNT_MAX           := 0;
-  signal rs_hitmap_cnt  : integer range 0 to JADEPIX_HITMAP_CNT_MAX       := 0;
-  signal hitmap_cnt     : integer range 0 to (JADEPIX_HITMAP_CHN_MAX + 1) := 0;
-  signal hitmap_num_int : integer range 0 to JADEPIX_HITMAP_CHN_MAX       := 0;
-
+  signal rs_cnt                    : integer range 0 to JADEPIX_RS_CNT_MAX           := 0;
+  signal rs_hitmap_cnt             : integer range 0 to JADEPIX_HITMAP_CNT_MAX       := 0;
+  signal hitmap_cnt                : integer range 0 to (JADEPIX_HITMAP_CHN_MAX + 1) := 0;
+  signal hitmap_num_int            : integer range 0 to JADEPIX_HITMAP_CHN_MAX       := 0;
   -- Hitmap
-  signal CE : std_logic;
+  signal CE                        : std_logic;
+  -- GS
+  signal gs_width_counter          : unsigned(33 downto 0);
+  signal gs_pulse_delay_counter    : unsigned(8 downto 0);
+  signal gs_pulse_deassert_counter : unsigned(8 downto 0);
+  signal gs_deassert_counter       : unsigned(8 downto 0);
+  signal pulse_out                 : std_logic;
 
   -- DEBUG
   attribute mark_debug                   : string;
@@ -138,6 +156,18 @@ architecture behv of jadepix_ctrl is
   attribute mark_debug of hitmap_num     : signal is "true";
 
 begin
+
+  process(all)
+  begin
+    if gs_sel_pulse = '1' then
+      DPLSE <= pulse_out;
+      APLSE <= '0';
+    else
+      DPLSE <= '0';
+      APLSE <= pulse_out;
+    end if;
+  end process;
+
 
   update_hitmap_num : process(clk)
   begin
@@ -172,7 +202,7 @@ begin
         elsif rs_start = '1' then
           state_next <= RS_GO;
         elsif gs_start = '1' then
-          state_next <= GS;
+          state_next <= GS_GO;
         else
           state_next <= IDLE;
         end if;
@@ -283,18 +313,71 @@ begin
 
       when RS_END_ROW =>
         if RA = "111111111" then
-          state_next <= RS_STOP;
+          if rs_stop = '1' or rs_start = '0' then
+            state_next <= RS_DIE;
+          else
+            state_next <= RS_NEXT_ROW;
+          end if;
         else
-          state_next <= RS_NEXT_ROW;
+            state_next <= RS_NEXT_ROW;
         end if;
 
       when RS_NEXT_ROW =>
         state_next <= RS_SET_ROW;
 
-      when RS_STOP =>
+      when RS_DIE =>
         state_next <= IDLE;
 
-      when GS => null;
+      when GS_GO =>
+        if gs_pulse_delay_cnt = "000000000" then
+          state_next <= GS_PULSE_WIDTH;
+        else
+          state_next <= GS_PULSE_DELAY;
+        end if;
+
+      when GS_PULSE_DELAY =>
+        if gs_pulse_delay_counter = unsigned(gs_pulse_delay_cnt) then
+          state_next <= GS_PULSE_WIDTH;
+        else
+          state_next <= GS_PULSE_DELAY;
+        end if;
+
+      when GS_PULSE_WIDTH =>
+        if gs_width_counter = unsigned((gs_pulse_width_cnt_high & gs_pulse_width_cnt_low)) then
+          if gs_pulse_deassert_cnt = "000000000" then
+            if gs_deassert_cnt = "000000000" then
+              state_next <= GS_STOP;
+            else
+              state_next <= GS_DEASSERT;
+            end if;
+          else
+            state_next <= GS_PULSE_DEASSERT;
+          end if;
+        else
+          state_next <= GS_PULSE_WIDTH;
+        end if;
+
+      when GS_PULSE_DEASSERT =>
+        if gs_pulse_deassert_cnt = "000000000" then
+          state_next <= GS_STOP;
+        else
+          if gs_pulse_deassert_counter = unsigned(gs_pulse_deassert_cnt) then
+            state_next <= GS_DEASSERT;
+          else
+            state_next <= GS_PULSE_DEASSERT;
+          end if;
+        end if;
+
+      when GS_DEASSERT =>
+        if gs_deassert_counter = unsigned(gs_deassert_cnt) then
+          state_next <= GS_STOP;
+        else
+          state_next <= GS_DEASSERT;
+        end if;
+
+      when GS_STOP =>
+        state_next <= RS_GO;
+
       when others =>
         state_next <= IDLE;
     end case;
@@ -306,12 +389,12 @@ begin
 
       case(state_next) is
         when IDLE =>
-          RD_EN     <= '0';
-          HIT_RST   <= '0';
-          ANASEL_EN <= '0';
-          GSHUTTER  <= '0';
-          DPLSE     <= '0';
-          APLSE     <= '0';
+          RD_EN   <= '0';
+          HIT_RST <= '0';
+
+          APLSE    <= '0';
+          DPLSE    <= '0';
+          GSHUTTER <= '0';
 
           RA_EN <= '0';
           CA_EN <= '0';
@@ -326,7 +409,14 @@ begin
           CON_SELP  <= '0';
           CON_DATA  <= '0';
 
-          rs_hitmap_cnt <= 0;
+          rs_hitmap_cnt             <= 0;
+          gs_width_counter          <= (others => '0');
+          gs_pulse_delay_counter    <= (others => '0');
+          gs_pulse_deassert_counter <= (others => '0');
+          gs_deassert_counter       <= (others => '0');
+
+          pulse_out <= '0';
+          rs_busy   <= '0';
 
         when CFG_GO =>
           cfg_rd_en <= '1';
@@ -426,10 +516,38 @@ begin
           rs_cnt <= 0;
           RA     <= std_logic_vector(unsigned (RA) + 1);
 
-        when RS_STOP =>
+        when RS_DIE =>
           rs_cnt  <= 0;
           rs_busy <= '0';
           RA      <= (others => '0');
+
+        when GS_GO =>
+          GSHUTTER <= '1';
+
+        when GS_PULSE_DELAY =>
+          gs_pulse_delay_counter <= gs_pulse_delay_counter + 1;
+
+        when GS_PULSE_WIDTH =>
+          gs_width_counter <= gs_width_counter + 1;
+          pulse_out        <= '1';
+
+        when GS_PULSE_DEASSERT =>
+          gs_pulse_deassert_counter <= gs_pulse_deassert_counter + 1;
+          pulse_out                 <= '0';
+
+        when GS_DEASSERT =>
+          gs_deassert_counter <= gs_deassert_counter + 1;
+          pulse_out           <= '0';
+          GSHUTTER            <= '0';
+
+        when GS_STOP =>
+          pulse_out <= '0';
+          GSHUTTER  <= '0';
+
+          gs_width_counter          <= (others => '0');
+          gs_pulse_delay_counter    <= (others => '0');
+          gs_pulse_deassert_counter <= (others => '0');
+          gs_deassert_counter       <= (others => '0');
 
         when others => null;
       end case;

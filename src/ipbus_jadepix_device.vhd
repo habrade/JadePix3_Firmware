@@ -65,10 +65,20 @@ entity ipbus_jadepix_device is
 
     cfg_start : out std_logic;
     rs_start  : out std_logic;
+    rs_stop   : out std_logic;
     gs_start  : out std_logic;
 
-    apulse : out std_logic;
-    dpulse : out std_logic;
+    gs_col : out std_logic_vector(COL_WIDTH-1 downto 0);
+
+    ANASEL_EN    : out std_logic;
+    DIGSEL_EN    : out std_logic;
+    gs_sel_pulse : out std_logic;
+
+    gs_pulse_delay_cnt      : out std_logic_vector(8 downto 0);
+    gs_pulse_width_cnt_low  : out std_logic_vector(31 downto 0);
+    gs_pulse_width_cnt_high : out std_logic_vector(1 downto 0);
+    gs_pulse_deassert_cnt   : out std_logic_vector(8 downto 0);
+    gs_deassert_cnt         : out std_logic_vector(8 downto 0);
 
     PDB  : out std_logic;
     LOAD : out std_logic
@@ -79,7 +89,7 @@ architecture behv of ipbus_jadepix_device is
   -- IPbus reg
   constant SYNC_REG_ENA               : boolean := false;
   constant N_STAT                     : integer := 2;
-  constant N_CTRL                     : integer := 3;
+  constant N_CTRL                     : integer := 8;
   constant N_RAM                      : integer := 0;
   signal stat                         : ipb_reg_v(N_STAT-1 downto 0);
   signal ctrl                         : ipb_reg_v(N_CTRL-1 downto 0);
@@ -88,6 +98,7 @@ architecture behv of ipbus_jadepix_device is
 
   signal cfg_start_tmp     : std_logic;
   signal rs_start_tmp      : std_logic;
+  signal rs_stop_tmp       : std_logic;
   signal gs_start_tmp      : std_logic;
   signal cache_bit_set_tmp : std_logic_vector(3 downto 0);
   signal matrix_grst_tmp   : std_logic;
@@ -139,24 +150,38 @@ begin
   process(clk)
   begin
     if rising_edge(clk) then
-      cfg.wr_en       <= ctrl(0)(3);
-      cfg.din         <= ctrl(0)(2 downto 0);
+      cfg.wr_en <= ctrl(0)(3);
+      cfg.din   <= ctrl(0)(2 downto 0);
+
       cfg_start_tmp   <= ctrl(1)(0);
       rs_start_tmp    <= ctrl(1)(1);
-      gs_start_tmp    <= ctrl(1)(2);
-      apulse          <= ctrl(1)(3);
-      dpulse          <= ctrl(1)(4);
+      gs_start        <= ctrl(1)(2);
+      rs_stop_tmp     <= ctrl(1)(4);
       PDB             <= ctrl(1)(5);
       load_tmp        <= ctrl(1)(6);
       cfg_fifo_rst    <= ctrl(1)(7);
       cache_bit_set   <= ctrl(1)(11 downto 8);
       matrix_grst_tmp <= ctrl(1)(12);
+
+      gs_col       <= ctrl(1)(21 downto 13);
+      ANASEL_EN    <= ctrl(1)(22);
+      DIGSEL_EN    <= ctrl(1)(23);
+      gs_sel_pulse <= ctrl(1)(24);
+
       hitmap_col_low  <= ctrl(2)(8 downto 0);
       hitmap_col_high <= ctrl(2)(17 downto 9);
       hitmap_en       <= ctrl(2)(18);
       hitmap_num      <= ctrl(2)(22 downto 19);
-      ctrl_reg_stb_r  <= ctrl_reg_stb;
-      stat_reg_stb_r  <= stat_reg_stb;
+
+      gs_pulse_delay_cnt      <= ctrl(3)(8 downto 0);
+      gs_pulse_width_cnt_low  <= ctrl(4);
+      gs_pulse_width_cnt_high <= ctrl(5)(1 downto 0);
+      gs_pulse_deassert_cnt   <= ctrl(6)(8 downto 0);
+      gs_deassert_cnt         <= ctrl(7)(8 downto 0);
+
+
+      ctrl_reg_stb_r <= ctrl_reg_stb;
+      stat_reg_stb_r <= stat_reg_stb;
     end if;
   end process;
 
@@ -172,20 +197,17 @@ begin
       if ctrl_reg_stb_r(1) = '1' then
         cfg_start   <= cfg_start_tmp;
         rs_start    <= rs_start_tmp;
-        gs_start    <= gs_start_tmp;
+        rs_stop     <= rs_stop_tmp;
         MATRIX_GRST <= matrix_grst_tmp;
         LOAD        <= load_tmp;
       else
         cfg_start   <= '0';
         rs_start    <= '0';
-        gs_start    <= '0';
         MATRIX_GRST <= '0';
         LOAD        <= '0';
       end if;
-
     end if;
   end process;
-
 
   -- status
   process(clk)
