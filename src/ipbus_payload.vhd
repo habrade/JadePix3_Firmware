@@ -160,6 +160,7 @@ begin
       hitmap_col_low  => hitmap_col_low,
       hitmap_col_high => hitmap_col_high,
       hitmap_en       => hitmap_en,
+      hitmap_num      => hitmap_num,
 
       cfg_start => cfg_start,
       rs_start  => rs_start,

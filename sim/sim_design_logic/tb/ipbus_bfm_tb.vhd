@@ -46,8 +46,9 @@ architecture behavioral of ipbus_bfm_tb is
   signal clk_ipb : std_logic := '0';
   signal rst_ipb : std_logic := '0';
 
-  signal clk_sys : std_logic;
-  signal clk_dac_rst, clk_sys_rst : std_logic;
+  signal clk_sys : std_logic := '0';
+  signal clk_sys_rst : std_logic := '0';
+  signal clk_dac_rst : std_logic := '0';
 
   -- IPbus
   signal nuke, soft_rst: std_logic;
@@ -76,8 +77,8 @@ architecture behavioral of ipbus_bfm_tb is
   signal read_request_transaction : t_ipbus_transaction(bodyy(0 to 0))
          := ipbus_read_transaction(X"00000006", 1);
 
-  constant C_WRITE_DATA : t_ipbus_slv_array(0 to 1)
-           := (0 => X"00000007", 1 => X"00000004");
+  --constant C_WRITE_DATA : t_ipbus_slv_array(0 to 1)
+  --         := (0 => X"00000007", 1 => X"00000004");
   
   constant C_WRITE_RST : t_ipbus_slv_array(0 to 2)
            := (0 => X"00000000", 1 => X"00000002", 2 => X"00000000");
@@ -85,14 +86,20 @@ architecture behavioral of ipbus_bfm_tb is
   constant C_START_RS : t_ipbus_slv_array(0 to 2)
            := (0 => X"00000000", 1 => X"00000002", 2 => X"00000000");
 
+  constant C_HITMAP : t_ipbus_slv_array(0 to 0)
+           := (0 => X"0016ab54");
+
   signal write_rst_transaction : t_ipbus_transaction(bodyy(0 to 3))
-         := ipbus_write_transaction(X"00000000", 3, C_WRITE_RST);
+         := ipbus_non_inc_write_transaction(X"00000000", 3, C_WRITE_RST);
 
   signal start_rs_transaction : t_ipbus_transaction(bodyy(0 to 3))
-         := ipbus_write_transaction(X"60000005", 3, C_START_RS);
+         := ipbus_non_inc_write_transaction(X"60000005", 3, C_START_RS);
 
-  signal write_request_transaction : t_ipbus_transaction(bodyy(0 to 2))
-         := ipbus_write_transaction(X"00000000", 2, C_WRITE_DATA);
+  signal hitmap_transaction : t_ipbus_transaction(bodyy(0 to 1))
+         := ipbus_non_inc_write_transaction(X"60000006", 1, C_HITMAP);
+
+  --signal write_request_transaction : t_ipbus_transaction(bodyy(0 to 1))
+  --       := ipbus_write_transaction(X"00000000", 2, C_WRITE_DATA);
 
   signal non_inc_read_request_transaction : t_ipbus_transaction(bodyy(0 to 0))
          := ipbus_non_inc_read_transaction(X"00000007", 3);
@@ -111,7 +118,7 @@ architecture behavioral of ipbus_bfm_tb is
   signal response_transaction : t_ipbus_transaction(bodyy(0 to 2));
 
   -- DAC70004
-  signal DACCLK   : std_logic;
+  signal DACCLK   : std_logic := '0';
   signal DAC_BUSY : std_logic;
   signal DAC_WE   : std_logic;
   signal DAC_DATA : std_logic_vector(31 downto 0);
@@ -230,6 +237,7 @@ begin
       hitmap_col_low  => hitmap_col_low,
       hitmap_col_high => hitmap_col_high,
       hitmap_en       => hitmap_en,
+      hitmap_num      => hitmap_num,
 
       cfg_start => cfg_start,
       rs_start  => rs_start,
@@ -334,6 +342,13 @@ begin
                    ipbus_transactor_outputs,
                    clk_ipb);
 
+	
+	wait for 5*CLK_IPB_PERIOD;
+    ipbus_transact(hitmap_transaction,
+                   response_transaction,
+                   ipbus_transactor_inputs,
+                   ipbus_transactor_outputs,
+                   clk_ipb);
     --check_value(ipb_control_regs(0), C_WRITE_DATA(0), FAILURE,
     --            "Checking write transaction.");
     --check_value(ipb_control_regs(1), C_WRITE_DATA(1), FAILURE,
@@ -376,6 +391,7 @@ begin
     --            "Checking read/modify/write sum transaction.");
 
     wait for 15*CLK_IPB_PERIOD;
+	wait for 0.2 ms;
     std.env.stop;
   end process;
 

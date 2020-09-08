@@ -86,7 +86,7 @@ end jadepix_ctrl;
 
 architecture behv of jadepix_ctrl is
 
-  type JADEPIX_STATE is (IDLE, CFG_GO, CFG_GET_DATA, CFG_EN_DATA, CFG_EN_SEL, CFG_DIS_SEL, CFG_NEXT_PIX, CFG_STOP, RS_GO, RS_SET_ROW, RS_RD_EN, RS_HITMAP_START, RS_HITMAP, RS_HITMAP_NEXT, RS_HITMAP_STOP, RS_HIT_RST, RS_END_ROW, RS_NEXT_ROW, RS_STOP, GS);
+  type JADEPIX_STATE is (IDLE, CFG_GO, CFG_GET_DATA, CFG_EN_DATA, CFG_EN_SEL, CFG_DIS_SEL, CFG_NEXT_PIX, CFG_STOP, RS_GO, RS_SET_ROW, RS_RD_EN, RS_SET_COL, RS_HOLD_COL, RS_HITMAP_START, RS_HITMAP, RS_HITMAP_END_COL, RS_HITMAP_NEXT_COL, RS_HITMAP_STOP, RS_HIT_RST, RS_END_ROW, RS_NEXT_ROW, RS_STOP, GS);
   signal state_reg, state_next : JADEPIX_STATE;
 
   signal rs_finished : std_logic;
@@ -99,9 +99,10 @@ architecture behv of jadepix_ctrl is
   signal cfg_cnt                    : integer range 0 to JADEPIX_CFG_CNT_MAX := 0;
 
   -- RS
-  signal rs_cnt        : integer range 0 to JADEPIX_RS_CNT_MAX     := 0;
-  signal rs_hitmap_cnt : integer range 0 to JADEPIX_HITMAP_CNT_MAX := 0;
-  signal hitmap_cnt    : integer range 0 to JADEPIX_HITMAP_CHN_MAX := 0;
+  signal rs_cnt         : integer range 0 to JADEPIX_RS_CNT_MAX           := 0;
+  signal rs_hitmap_cnt  : integer range 0 to JADEPIX_HITMAP_CNT_MAX       := 0;
+  signal hitmap_cnt     : integer range 0 to (JADEPIX_HITMAP_CHN_MAX + 1) := 0;
+  signal hitmap_num_int : integer range 0 to JADEPIX_HITMAP_CHN_MAX       := 0;
 
   -- Hitmap
   signal CE : std_logic;
@@ -138,12 +139,16 @@ architecture behv of jadepix_ctrl is
 
 begin
 
---  update_hitmap_num : process(clk)
---  begin
---    if rising_edge(clk) then
---        hitmap_num <= to_integer(unsigned(hitmap_col_high)) - to_integer(unsigned(hitmap_col_low)) + 1;
---    end if;
---  end process;
+  update_hitmap_num : process(clk)
+  begin
+    if rising_edge(clk) then
+      if rst = '1' then
+        hitmap_num_int <= 0;
+      else
+        hitmap_num_int <= to_integer(unsigned(hitmap_num));
+      end if;
+    end if;
+  end process;
 
 
   process(clk, rst)
@@ -224,14 +229,26 @@ begin
         end if;
 
       when RS_RD_EN =>
-        if hitmap_en = '1' then
-          state_next <= RS_HITMAP_START;
-        else
-          if rs_cnt = (JADEPIX_HITMAP_CNT_MAX * to_integer(unsigned(hitmap_num))) then
-            state_next <= RS_HIT_RST;
+        state_next <= RS_SET_COL;
+
+
+      when RS_SET_COL =>
+        if rs_cnt = 12 then
+          state_next <= RS_HOLD_COL;
+          if hitmap_en = '1' then
+            state_next <= RS_HITMAP_START;
           else
-            state_next <= RS_RD_EN;
+            state_next <= RS_HOLD_COL;
           end if;
+        else
+          state_next <= RS_SET_COL;
+        end if;
+
+      when RS_HOLD_COL =>
+        if rs_cnt = 14 then
+          state_next <= RS_HIT_RST;
+        else
+          state_next <= RS_HOLD_COL;
         end if;
 
       when RS_HITMAP_START =>
@@ -239,40 +256,36 @@ begin
 
       when RS_HITMAP =>
         if rs_hitmap_cnt = JADEPIX_HITMAP_CNT_MAX then
-          state_next <= RS_HITMAP_NEXT;
+          state_next <= RS_HITMAP_END_COL;
         else
           state_next <= RS_HITMAP;
         end if;
 
-      when RS_HITMAP_NEXT =>
-        if hitmap_cnt = to_integer(unsigned(hitmap_num)) then
-          else
-            state_next <= RS_HITMAP_STOP;
-        end if;
-      
-      when RS_HITMAP_STOP =>
-        if rs_hitmap_cnt = 2 then
-            state_next <= RS_HIT_RST;
+      when RS_HITMAP_END_COL =>
+        if hitmap_cnt = hitmap_num_int - 1 then
+          state_next <= RS_HITMAP_STOP;
         else
-            state_next <= RS_HITMAP_STOP;
+          state_next <= RS_HITMAP_NEXT_COL;
         end if;
 
+      when RS_HITMAP_NEXT_COL =>
+        state_next <= RS_HITMAP;
+
+      when RS_HITMAP_STOP =>
+        state_next <= RS_HIT_RST;
+
       when RS_HIT_RST =>
-        if rs_cnt = 14 then
+        if rs_cnt = JADEPIX_RS_CNT_MAX then
           state_next <= RS_END_ROW;
         else
           state_next <= RS_HIT_RST;
         end if;
 
       when RS_END_ROW =>
-        if rs_cnt = JADEPIX_RS_CNT_MAX then
-          if RA = "111111111" then
-            state_next <= RS_STOP;
-          else
-            state_next <= RS_NEXT_ROW;
-          end if;
+        if RA = "111111111" then
+          state_next <= RS_STOP;
         else
-          state_next <= RS_END_ROW;
+          state_next <= RS_NEXT_ROW;
         end if;
 
       when RS_NEXT_ROW =>
@@ -373,25 +386,32 @@ begin
           rs_cnt <= rs_cnt + 1;
 
         when RS_RD_EN =>
+          RD_EN <= '1';
+
+        when RS_SET_COL =>
           rs_cnt <= rs_cnt + 1;
-          RD_EN  <= '1';
+
+        when RS_HOLD_COL =>
+          rs_cnt <= rs_cnt + 1;
 
         when RS_HITMAP_START =>
-          CA_EN         <= '1';
-          CA         <= hitmap_col_low;
-          hitmap_cnt <= hitmap_cnt + 1;
+          CA_EN <= '1';
+          CA    <= hitmap_col_low;
 
         when RS_HITMAP =>
           rs_hitmap_cnt <= rs_hitmap_cnt + 1;
 
-        when RS_HITMAP_NEXT =>
-          CA            <= std_logic_vector(unsigned (CA) + 1);
-          hitmap_cnt    <= hitmap_cnt + 1;
+        when RS_HITMAP_END_COL =>
           rs_hitmap_cnt <= 0;
 
+        when RS_HITMAP_NEXT_COL =>
+          CA         <= std_logic_vector(unsigned (CA) + 1);
+          hitmap_cnt <= hitmap_cnt + 1;
+
         when RS_HITMAP_STOP =>
-          CA_EN         <= '0';
-          rs_hitmap_cnt <= rs_hitmap_cnt + 1;
+          hitmap_cnt <= 0;
+          CA_EN      <= '0';
+          CA         <= (others => '0');
 
         when RS_HIT_RST =>
           rs_cnt  <= rs_cnt + 1;
@@ -399,7 +419,6 @@ begin
           HIT_RST <= '1';
 
         when RS_END_ROW =>
-          rs_cnt  <= rs_cnt + 1;
           HIT_RST <= '0';
           RA_EN   <= '0';
 
@@ -408,7 +427,7 @@ begin
           RA     <= std_logic_vector(unsigned (RA) + 1);
 
         when RS_STOP =>
-          rs_cnt <= 0;
+          rs_cnt  <= 0;
           rs_busy <= '0';
           RA      <= (others => '0');
 
