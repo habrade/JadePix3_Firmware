@@ -151,9 +151,27 @@ architecture behv of jadepix_ctrl is
   attribute mark_debug of rs_busy        : signal is "true";
   attribute mark_debug of cfg_start      : signal is "true";
   attribute mark_debug of rs_start       : signal is "true";
+  attribute mark_debug of gs_start       : signal is "true";
+  attribute mark_debug of rs_stop        : signal is "true";
   attribute mark_debug of HIT_RST        : signal is "true";
   attribute mark_debug of RD_EN          : signal is "true";
   attribute mark_debug of hitmap_num     : signal is "true";
+
+  attribute mark_debug of pulse_out                 : signal is "true";
+  attribute mark_debug of gs_deassert_counter       : signal is "true";
+  attribute mark_debug of gs_pulse_deassert_counter : signal is "true";
+  attribute mark_debug of gs_pulse_delay_counter    : signal is "true";
+  attribute mark_debug of gs_width_counter          : signal is "true";
+
+  attribute mark_debug of gs_sel_pulse            : signal is "true";
+  attribute mark_debug of APLSE                   : signal is "true";
+  attribute mark_debug of DPLSE                   : signal is "true";
+  attribute mark_debug of GSHUTTER                : signal is "true";
+  attribute mark_debug of gs_pulse_delay_cnt      : signal is "true";
+  attribute mark_debug of gs_pulse_width_cnt_low  : signal is "true";
+  attribute mark_debug of gs_pulse_width_cnt_high : signal is "true";
+  attribute mark_debug of gs_pulse_deassert_cnt   : signal is "true";
+  attribute mark_debug of gs_deassert_cnt         : signal is "true";
 
 begin
 
@@ -319,7 +337,7 @@ begin
             state_next <= RS_NEXT_ROW;
           end if;
         else
-            state_next <= RS_NEXT_ROW;
+          state_next <= RS_NEXT_ROW;
         end if;
 
       when RS_NEXT_ROW =>
@@ -522,12 +540,14 @@ begin
           RA      <= (others => '0');
 
         when GS_GO =>
-          GSHUTTER <= '1';
+          null;
 
         when GS_PULSE_DELAY =>
+          GSHUTTER <= '1';
           gs_pulse_delay_counter <= gs_pulse_delay_counter + 1;
 
         when GS_PULSE_WIDTH =>
+          GSHUTTER <= '1';
           gs_width_counter <= gs_width_counter + 1;
           pulse_out        <= '1';
 
