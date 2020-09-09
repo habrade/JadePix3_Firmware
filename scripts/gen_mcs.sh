@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PRJ_NAME=JadePixReadout
+PRJ_NAME=JadePix3_Readout
 IMPL="impl_2"
 
 BUILD_DIR=../build
