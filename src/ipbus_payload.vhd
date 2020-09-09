@@ -59,6 +59,7 @@ entity ipbus_payload is
     DIGSEL_EN    : out std_logic;
     gs_sel_pulse : out std_logic;
 
+    gs_col : out std_logic_vector(COL_WIDTH-1 downto 0);
 
     gs_pulse_delay_cnt      : out std_logic_vector(8 downto 0);
     gs_pulse_width_cnt_low  : out std_logic_vector(31 downto 0);
@@ -181,6 +182,8 @@ begin
       ANASEL_EN    => ANASEL_EN,
       DIGSEL_EN    => DIGSEL_EN,
       gs_sel_pulse => gs_sel_pulse,
+      
+      gs_col => gs_col,
 
       gs_pulse_delay_cnt      => gs_pulse_delay_cnt,
       gs_pulse_width_cnt_low  => gs_pulse_width_cnt_low,

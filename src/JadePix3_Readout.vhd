@@ -131,6 +131,8 @@ architecture rtl of JadePix3_Readout is
   signal hitmap_num      : std_logic_vector(3 downto 0);
 
   signal gs_sel_pulse : std_logic;
+  
+  signal gs_col : std_logic_vector(COL_WIDTH-1 downto 0);
 
   signal gs_pulse_delay_cnt      : std_logic_vector(8 downto 0);
   signal gs_pulse_width_cnt_low  : std_logic_vector(31 downto 0);
@@ -256,7 +258,8 @@ begin
       ANASEL_EN    => ANASEL_EN,
       DIGSEL_EN    => DIGSEL_EN,
       gs_sel_pulse => gs_sel_pulse,
-
+      
+      gs_col => gs_col,
 
       gs_pulse_delay_cnt      => gs_pulse_delay_cnt,
       gs_pulse_width_cnt_low  => gs_pulse_width_cnt_low,
@@ -333,6 +336,7 @@ begin
       DPLSE    => DPLSE,
 
       gs_sel_pulse => gs_sel_pulse,
+      gs_col       => gs_col,
 
       gs_pulse_delay_cnt      => gs_pulse_delay_cnt,
       gs_pulse_width_cnt_low  => gs_pulse_width_cnt_low,

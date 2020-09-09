@@ -77,7 +77,7 @@ comp_tb: comp_payload comp_ipbus_lib
 pre_config: map_uvvm_util comp_ipbus_lib ipcores comp_payload comp_tb 
 
 sim: pre_config
-	vsim -voptargs=+acc -t 1ns -L fifo_generator_v13_2_5 work.ipbus_bfm_tb 
+	vsim -fsmdebug -voptargs=+acc -t 1ns -L fifo_generator_v13_2_5 work.ipbus_bfm_tb 
 
 sim_nogui: pre_config
 	vsim -voptargs=+acc -t 1ns -c -L fifo_generator_v13_2_5 work.ipbus_bfm_tb 

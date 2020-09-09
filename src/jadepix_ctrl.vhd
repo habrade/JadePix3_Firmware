@@ -82,6 +82,7 @@ entity jadepix_ctrl is
     GSHUTTER : out std_logic;
 
     gs_sel_pulse : in std_logic;
+    gs_col       : in std_logic_vector(COL_WIDTH-1 downto 0);
 
     gs_pulse_delay_cnt      : in std_logic_vector(8 downto 0);
     gs_pulse_width_cnt_low  : in std_logic_vector(31 downto 0);
@@ -164,6 +165,7 @@ architecture behv of jadepix_ctrl is
   attribute mark_debug of gs_width_counter          : signal is "true";
 
   attribute mark_debug of gs_sel_pulse            : signal is "true";
+  attribute mark_debug of gs_col                  : signal is "true";
   attribute mark_debug of APLSE                   : signal is "true";
   attribute mark_debug of DPLSE                   : signal is "true";
   attribute mark_debug of GSHUTTER                : signal is "true";
@@ -540,7 +542,7 @@ begin
           RA      <= (others => '0');
 
         when GS_GO =>
-          null;
+          CA <= gs_col;
 
         when GS_PULSE_DELAY =>
           GSHUTTER <= '1';
@@ -568,6 +570,8 @@ begin
           gs_pulse_delay_counter    <= (others => '0');
           gs_pulse_deassert_counter <= (others => '0');
           gs_deassert_counter       <= (others => '0');
+          
+          CA <= (others => '0');
 
         when others => null;
       end case;
