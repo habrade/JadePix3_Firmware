@@ -42,9 +42,12 @@ end entity;
 architecture behavioral of ipbus_bfm_tb is
 
   constant CLK_IPB_PERIOD : time := C_IPBUS_USUAL_CLK_PERIOD;  -- 31.25 MHz
+  constant SYS_CLK_PERIOD : time := 5.0 ns;  -- 200 MHz
 
   signal clk_ipb : std_logic := '0';
   signal rst_ipb : std_logic := '0';
+
+  signal sysclk : std_logic := '0';
 
   signal clk_sys     : std_logic := '0';
   signal clk_sys_rst : std_logic := '0';
@@ -152,6 +155,9 @@ architecture behavioral of ipbus_bfm_tb is
   signal DAC_DATA : std_logic_vector(31 downto 0);
 
   -- JadePix
+  signal REFCLK : std_logic := '0';
+  signal clk_ref_rst : std_logic := '0';
+
   signal RA    : std_logic_vector(8 downto 0);
   signal RA_EN : std_logic;
   signal CA    : std_logic_vector(8 downto 0);
@@ -216,8 +222,7 @@ architecture behavioral of ipbus_bfm_tb is
 begin
 
   clk_ipb <= not clk_ipb after CLK_IPB_PERIOD/2;
-  DACCLK  <= not DACCLK  after (DACCLK_PERIOD/2.0) * 1 ns;
-  clk_sys <= not clk_sys after (JADEPIX_SYS_PERIOD/2.0) * 1 ns;
+  sysclk  <= not sysclk  after SYS_CLK_PERIOD/2;
 
   -- ipbus_ctrlreg_v_0 : entity work.ipbus_ctrlreg_v
   --     generic map (
@@ -235,6 +240,22 @@ begin
   --         qmask => open,
   --         stb => ipb_control_stbs
   --     );
+
+  
+  jadepix_clocks : entity work.jadepix_clock_gen
+    port map(
+      sysclk        => sysclk,
+      clk_ref       => REFCLK,
+      clk_dac       => DACCLK,
+      clk_sys       => clk_sys,
+      clk_cache     => clk_cache,
+      clk_dac_rst   => clk_dac_rst,
+      clk_ref_rst   => clk_ref_rst,
+      clk_sys_rst   => clk_sys_rst,
+      clk_cache_rst => clk_cache_rst,
+      locked        => locked_jadepix_mmcm
+      );
+
 
   ipbus_payload : entity work.ipbus_payload
     generic map(
@@ -368,8 +389,6 @@ begin
     wait for 2*CLK_IPB_PERIOD;
 
     gen_pulse(rst_ipb, 2 * CLK_IPB_PERIOD, "Reset ipbus pulse");
-    gen_pulse(clk_sys_rst, 2 * CLK_IPB_PERIOD, "Reset clk_sys pulse");
-    gen_pulse(clk_dac_rst, 2 * CLK_IPB_PERIOD, "Reset clk_dac pulse");
     wait for 2*CLK_IPB_PERIOD;
 
     --ipbus_transact(read_request_transaction,

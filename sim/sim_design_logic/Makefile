@@ -46,6 +46,7 @@ LOGIC_SRC_FILE= \
 	${LOGIC_SRC_DIR}/ipbus_global_device.vhd \
 	${LOGIC_SRC_DIR}/ipbus_decode_payload.vhd \
 	${LOGIC_SRC_DIR}/jadepix_defines.vhd \
+	${LOGIC_SRC_DIR}/jadepix_clock_gen.vhd \
 	${LOGIC_SRC_DIR}/ipbus_fabric_inside_device.vhd \
 	${LOGIC_SRC_DIR}/ipbus_slave_reg_ram.vhd \
 	${LOGIC_SRC_DIR}/ipbus_jadepix_device.vhd \
@@ -67,20 +68,23 @@ comp_ipbus_lib:
 map_uvvm_util:
 	vmap uvvm_util ${UVVM_UTIL_DIR}
 
-comp_payload: comp_ipbus_lib ipcores
+map_unisim:
+	vmap UNISIM ${XILINX_LIB_PATH}/unisim 
+
+comp_logic: map_unisim comp_ipbus_lib ipcores
 	vlog -work work ${LOGIC_SRC_DIR}/dac70004/DAC_refresh.v
 	vcom -work work ${VSTD} ${LOGIC_SRC_FILE}
 
-comp_tb: comp_payload comp_ipbus_lib
+comp_tb: map_uvvm_util comp_logic comp_ipbus_lib
 	vcom -work work ${VSTD} ${TB_SRCS}
 
-pre_config: map_uvvm_util comp_ipbus_lib ipcores comp_payload comp_tb 
+pre_config: map_unisim map_uvvm_util comp_ipbus_lib ipcores comp_logic comp_tb 
 
 sim: pre_config
-	vsim -fsmdebug -voptargs=+acc -t 1ns -L fifo_generator_v13_2_5 work.ipbus_bfm_tb 
+	vsim -fsmdebug -voptargs=+acc -t 1ps -L fifo_generator_v13_2_5 -L unisim work.ipbus_bfm_tb 
 
 sim_nogui: pre_config
-	vsim -voptargs=+acc -t 1ns -c -L fifo_generator_v13_2_5 work.ipbus_bfm_tb 
+	vsim -voptargs=+acc -t 1ps -c -L fifo_generator_v13_2_5 -L unisim work.ipbus_bfm_tb 
 .PHONY: clean
 clean:
 	rm -rf work 
