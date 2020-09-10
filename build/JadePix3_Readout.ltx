@@ -11,7 +11,7 @@
                         "type": "XSDB_V3",
                         "name": "dbg_hub",
                         "spec": "labtools_xsdbm_v3",
-                        "clk_input_freq_hz": "125000003"
+                        "clk_input_freq_hz": "31250000"
                     },
                     {
                         "type": "ILA_V3",
@@ -171,8 +171,41 @@
                                 "direction": "IN",
                                 "isVector": true,
                                 "leftIndex": 0,
-                                "rightIndex": 31,
+                                "rightIndex": 4,
                                 "portIndex": 2,
+                                "nets": [
+                                    {
+                                        "name": "dac70004/BS_cnt",
+                                        "isBus": true,
+                                        "subnets": [
+                                            {
+                                                "name": "dac70004/BS_cnt[4]"
+                                            },
+                                            {
+                                                "name": "dac70004/BS_cnt[3]"
+                                            },
+                                            {
+                                                "name": "dac70004/BS_cnt[2]"
+                                            },
+                                            {
+                                                "name": "dac70004/BS_cnt[1]"
+                                            },
+                                            {
+                                                "name": "dac70004/BS_cnt[0]"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "probe3",
+                                "id": 3,
+                                "type": "DATA_TRIGGER",
+                                "direction": "IN",
+                                "isVector": true,
+                                "leftIndex": 0,
+                                "rightIndex": 31,
+                                "portIndex": 3,
                                 "nets": [
                                     {
                                         "name": "dac70004/DATA_shift_register",
@@ -273,39 +306,6 @@
                                             },
                                             {
                                                 "name": "dac70004/DATA_shift_register[0]"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "probe3",
-                                "id": 3,
-                                "type": "DATA_TRIGGER",
-                                "direction": "IN",
-                                "isVector": true,
-                                "leftIndex": 0,
-                                "rightIndex": 4,
-                                "portIndex": 3,
-                                "nets": [
-                                    {
-                                        "name": "dac70004/BS_cnt",
-                                        "isBus": true,
-                                        "subnets": [
-                                            {
-                                                "name": "dac70004/BS_cnt[4]"
-                                            },
-                                            {
-                                                "name": "dac70004/BS_cnt[3]"
-                                            },
-                                            {
-                                                "name": "dac70004/BS_cnt[2]"
-                                            },
-                                            {
-                                                "name": "dac70004/BS_cnt[1]"
-                                            },
-                                            {
-                                                "name": "dac70004/BS_cnt[0]"
                                             }
                                         ]
                                     }
@@ -1589,7 +1589,7 @@
                                 "portIndex": 24,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/APLSE",
+                                        "name": "jadepix_ctrl/aplse_gs",
                                         "isBus": false
                                     }
                                 ]
@@ -1781,7 +1781,7 @@
                                 "portIndex": 36,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/DPLSE",
+                                        "name": "jadepix_ctrl/dplse_gs",
                                         "isBus": false
                                     }
                                 ]
@@ -1845,7 +1845,7 @@
                                 "portIndex": 40,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/GSHUTTER",
+                                        "name": "jadepix_ctrl/gshutter_gs",
                                         "isBus": false
                                     }
                                 ]
@@ -1893,7 +1893,7 @@
                                 "portIndex": 43,
                                 "nets": [
                                     {
-                                        "name": "ipbus_payload/LOAD",
+                                        "name": "ipbus_payload/slave3/LOAD",
                                         "isBus": false
                                     }
                                 ]
@@ -1909,7 +1909,7 @@
                                 "portIndex": 44,
                                 "nets": [
                                     {
-                                        "name": "ipbus_payload/slave3/LOAD",
+                                        "name": "ipbus_payload/LOAD",
                                         "isBus": false
                                     }
                                 ]
@@ -1925,7 +1925,7 @@
                                 "portIndex": 45,
                                 "nets": [
                                     {
-                                        "name": "ipbus_payload/slave3/MATRIX_GRST",
+                                        "name": "ipbus_payload/slave3/PDB",
                                         "isBus": false
                                     }
                                 ]
@@ -1941,7 +1941,7 @@
                                 "portIndex": 46,
                                 "nets": [
                                     {
-                                        "name": "ipbus_payload/slave3/PDB",
+                                        "name": "jadepix_ctrl/pulse_out",
                                         "isBus": false
                                     }
                                 ]
@@ -1957,7 +1957,7 @@
                                 "portIndex": 47,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/pulse_out",
+                                        "name": "jadepix_ctrl/RA_EN",
                                         "isBus": false
                                     }
                                 ]
@@ -1973,7 +1973,7 @@
                                 "portIndex": 48,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/RA_EN",
+                                        "name": "jadepix_ctrl/RD_EN",
                                         "isBus": false
                                     }
                                 ]
@@ -1989,7 +1989,7 @@
                                 "portIndex": 49,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/RD_EN",
+                                        "name": "jadepix_ctrl/rs_busy",
                                         "isBus": false
                                     }
                                 ]
@@ -2005,39 +2005,7 @@
                                 "portIndex": 50,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/rs_busy",
-                                        "isBus": false
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "probe51",
-                                "id": 62,
-                                "type": "DATA_TRIGGER",
-                                "direction": "IN",
-                                "isVector": false,
-                                "leftIndex": 0,
-                                "rightIndex": 0,
-                                "portIndex": 51,
-                                "nets": [
-                                    {
                                         "name": "jadepix_ctrl/rs_start",
-                                        "isBus": false
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "probe52",
-                                "id": 63,
-                                "type": "DATA_TRIGGER",
-                                "direction": "IN",
-                                "isVector": false,
-                                "leftIndex": 0,
-                                "rightIndex": 0,
-                                "portIndex": 52,
-                                "nets": [
-                                    {
-                                        "name": "jadepix_ctrl/rs_stop",
                                         "isBus": false
                                     }
                                 ]
@@ -2057,7 +2025,7 @@
                         "pins": [
                             {
                                 "name": "probe0",
-                                "id": 64,
+                                "id": 62,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": true,
@@ -2171,7 +2139,7 @@
                             },
                             {
                                 "name": "probe1",
-                                "id": 65,
+                                "id": 63,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": true,
@@ -2285,7 +2253,7 @@
                             },
                             {
                                 "name": "probe2",
-                                "id": 66,
+                                "id": 64,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": true,
@@ -2399,7 +2367,7 @@
                             },
                             {
                                 "name": "probe3",
-                                "id": 67,
+                                "id": 65,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": false,
@@ -2420,7 +2388,7 @@
                             },
                             {
                                 "name": "probe4",
-                                "id": 68,
+                                "id": 66,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": true,
@@ -2531,7 +2499,7 @@
                             },
                             {
                                 "name": "probe5",
-                                "id": 69,
+                                "id": 67,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": false,
@@ -2547,7 +2515,7 @@
                             },
                             {
                                 "name": "probe6",
-                                "id": 70,
+                                "id": 68,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": false,
@@ -2556,14 +2524,14 @@
                                 "portIndex": 6,
                                 "nets": [
                                     {
-                                        "name": "ipb_out[ipb_strobe]",
+                                        "name": "ipb_in[ipb_err]",
                                         "isBus": false
                                     }
                                 ]
                             },
                             {
                                 "name": "probe7",
-                                "id": 71,
+                                "id": 69,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": false,
@@ -2572,14 +2540,14 @@
                                 "portIndex": 7,
                                 "nets": [
                                     {
-                                        "name": "ipb_out[ipb_write]",
+                                        "name": "ipb_out[ipb_strobe]",
                                         "isBus": false
                                     }
                                 ]
                             },
                             {
                                 "name": "probe8",
-                                "id": 72,
+                                "id": 70,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": false,
@@ -2588,14 +2556,14 @@
                                 "portIndex": 8,
                                 "nets": [
                                     {
-                                        "name": "ipbus_payload/miso",
+                                        "name": "ipb_out[ipb_write]",
                                         "isBus": false
                                     }
                                 ]
                             },
                             {
                                 "name": "probe9",
-                                "id": 73,
+                                "id": 71,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": false,
@@ -2604,14 +2572,14 @@
                                 "portIndex": 9,
                                 "nets": [
                                     {
-                                        "name": "ipbus_payload/mosi",
+                                        "name": "ipbus_payload/miso",
                                         "isBus": false
                                     }
                                 ]
                             },
                             {
                                 "name": "probe10",
-                                "id": 74,
+                                "id": 72,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": false,
@@ -2620,36 +2588,23 @@
                                 "portIndex": 10,
                                 "nets": [
                                     {
-                                        "name": "ipbus_payload/sclk",
+                                        "name": "ipbus_payload/mosi",
                                         "isBus": false
                                     }
                                 ]
-                            }
-                        ]
-                    },
-                    {
-                        "type": "ILA_V3",
-                        "name": "u_ila_3",
-                        "spec": "labtools_ila_v6",
-                        "core_location": {
-                            "user_chain": 1,
-                            "slave_index": 3,
-                            "bscan_switch_index": 0
-                        },
-                        "uuid": "9c18410bb87b565386c9544cba1f346f",
-                        "pins": [
+                            },
                             {
-                                "name": "probe0",
-                                "id": 75,
+                                "name": "probe11",
+                                "id": 73,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": false,
                                 "leftIndex": 0,
                                 "rightIndex": 0,
-                                "portIndex": 0,
+                                "portIndex": 11,
                                 "nets": [
                                     {
-                                        "name": "ipb_in[ipb_err]",
+                                        "name": "ipbus_payload/sclk",
                                         "isBus": false
                                     }
                                 ]
