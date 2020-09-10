@@ -26,6 +26,14 @@ entity JadePix3_Readout is port(
   gmii_rxd     : in  std_logic_vector(7 downto 0);
   phy_rst      : out std_logic;
 
+  --  In-chip fifo
+  VALID_IN     : in  std_logic_vector(3 downto 0);
+  FIFO_READ_EN : out std_logic;
+  BLK_SELECT   : out std_logic_vector(1 downto 0);
+  INQUIRY      : out std_logic_vector(1 downto 0);
+  DATA_IN      : in  std_logic_vector(7 downto 0);
+  --MATRIX_DIN : in std_logic_vector(15 downto 0);
+
   -- SDRAM
 --  ddr3_dq    : inout std_logic_vector(63 downto 0);
 --  ddr3_dqs_p : inout std_logic_vector(7 downto 0);
@@ -64,9 +72,6 @@ entity JadePix3_Readout is port(
   CON_SELM : out std_logic;
   CON_SELP : out std_logic;
   CON_DATA : out std_logic;
-
---  DATA_IN    : in std_logic_vector(7 downto 0);
---  MATRIX_DIN : in std_logic_vector(15 downto 0);
 
   CACHE_BIT_SET : out std_logic_vector(3 downto 0);
   HIT_RST       : out std_logic;
@@ -123,7 +128,7 @@ architecture rtl of JadePix3_Readout is
   signal cfg_start           : std_logic;
   signal rs_start            : std_logic;
   signal gs_start            : std_logic;
-  signal rs_stop             : std_logic;
+  signal rs_frame_number     : std_logic_vector(31 downto 0);
 
   signal hitmap_col_low  : std_logic_vector(COL_WIDTH-1 downto 0);
   signal hitmap_col_high : std_logic_vector(COL_WIDTH-1 downto 0);
@@ -131,8 +136,9 @@ architecture rtl of JadePix3_Readout is
   signal hitmap_num      : std_logic_vector(3 downto 0);
 
   signal gs_sel_pulse : std_logic;
-  
-  signal gs_col : std_logic_vector(COL_WIDTH-1 downto 0);
+
+  signal gs_col  : std_logic_vector(COL_WIDTH-1 downto 0);
+  signal gs_busy : std_logic;
 
   signal gs_pulse_delay_cnt      : std_logic_vector(8 downto 0);
   signal gs_pulse_width_cnt_low  : std_logic_vector(31 downto 0);
@@ -150,6 +156,19 @@ architecture rtl of JadePix3_Readout is
   signal cfg_fifo_pfull : std_logic;
   signal cfg_fifo_count : std_logic_vector(CFG_FIFO_COUNT_WITDH-1 downto 0);
 
+  signal anasel_en_gs   : std_logic;
+  signal digsel_en_rs   : std_logic;
+  signal aplse_gs      : std_logic;
+  signal dplse_gs      : std_logic;
+  signal gshutter_gs   : std_logic;
+  
+  signal digsel_en_soft : std_logic;
+  signal anasel_en_soft : std_logic;
+  signal aplse_soft    : std_logic;
+  signal dplse_soft    : std_logic;
+  signal gshutter_soft : std_logic;
+
+
 begin
 
   ibufgds0 : IBUFGDS port map(
@@ -157,7 +176,6 @@ begin
     ib => sysclk_n,
     o  => sysclk
     );
-
 
   jadepix_clocks : entity work.jadepix_clock_gen
     port map(
@@ -217,49 +235,53 @@ begin
       N_SS => N_SS
       )
     port map(
-      ipb_clk        => clk_ipb,
-      ipb_rst        => rst_ipb,
-      ipb_in         => ipb_out,
-      ipb_out        => ipb_in,
+      ipb_clk => clk_ipb,
+      ipb_rst => rst_ipb,
+      ipb_in  => ipb_out,
+      ipb_out => ipb_in,
+
       -- Chip system clock
-      clk            => clk_sys,
-      rst            => clk_sys_rst,
+      clk => clk_sys,
+      rst => clk_sys_rst,
+
       -- Global
-      nuke           => nuke,
-      soft_rst       => soft_rst,
+      nuke     => nuke,
+      soft_rst => soft_rst,
+
       -- DAC70004
-      DACCLK         => DACCLK,
-      DACCLK_RST     => clk_dac_rst,
-      DAC_BUSY       => DAC_BUSY,
-      DAC_WE         => DAC_WE,
-      DAC_DATA       => DAC_DATA,
+      DACCLK     => DACCLK,
+      DACCLK_RST => clk_dac_rst,
+      DAC_BUSY   => DAC_BUSY,
+      DAC_WE     => DAC_WE,
+      DAC_DATA   => DAC_DATA,
+
       -- JadePix
+      cfg_start      => cfg_start,
       cfg_sync       => cfg_sync,
       cfg_fifo_rst   => cfg_fifo_rst,
       cfg_busy       => cfg_busy,
-      rs_busy        => rs_busy,
       cfg_fifo_empty => cfg_fifo_empty,
       cfg_fifo_pfull => cfg_fifo_pfull,
       cfg_fifo_count => cfg_fifo_count,
 
       CACHE_BIT_SET => CACHE_BIT_SET,
-      MATRIX_GRST   => MATRIX_GRST,
+
+      rs_start => rs_start,
+      rs_busy  => rs_busy,
 
       hitmap_col_low  => hitmap_col_low,
       hitmap_col_high => hitmap_col_high,
       hitmap_en       => hitmap_en,
       hitmap_num      => hitmap_num,
 
-      cfg_start => cfg_start,
-      rs_start  => rs_start,
-      gs_start  => gs_start,
-      rs_stop   => rs_stop,
-
-      ANASEL_EN    => ANASEL_EN,
-      DIGSEL_EN    => DIGSEL_EN,
+      gs_start     => gs_start,
+      gs_busy      => gs_busy,
       gs_sel_pulse => gs_sel_pulse,
+      gs_col       => gs_col,
       
-      gs_col => gs_col,
+      gshutter_soft   => gshutter_soft,
+      aplse_soft      => aplse_soft,
+      dplse_soft      => dplse_soft,
 
       gs_pulse_delay_cnt      => gs_pulse_delay_cnt,
       gs_pulse_width_cnt_low  => gs_pulse_width_cnt_low,
@@ -267,8 +289,12 @@ begin
       gs_pulse_deassert_cnt   => gs_pulse_deassert_cnt,
       gs_deassert_cnt         => gs_deassert_cnt,
 
+      anasel_en_soft => anasel_en_soft,
+      digsel_en_soft => digsel_en_soft,
+
       PDB  => PDB,
       LOAD => LOAD,
+
       -- SPI master
       ss   => open,
       mosi => mosi,
@@ -303,15 +329,12 @@ begin
       cfg_fifo_empty => cfg_fifo_empty,
       cfg_fifo_pfull => cfg_fifo_pfull,
       cfg_fifo_count => cfg_fifo_count,
+      cfg_busy       => cfg_busy,
+      cfg_start      => cfg_start,
 
-      cfg_busy  => cfg_busy,
-      cfg_start => cfg_start,
-      rs_start  => rs_start,
-      gs_start  => gs_start,
-      rs_stop   => rs_stop,
+      clk_cache     => clk_cache,
+      clk_cache_rst => clk_cache_rst,
 
-      clk_cache       => clk_cache,
-      clk_cache_rst   => clk_cache_rst,
       hitmap_col_low  => hitmap_col_low,
       hitmap_col_high => hitmap_col_high,
       hitmap_en       => hitmap_en,
@@ -325,16 +348,21 @@ begin
       CON_SELP => CON_SELP,
       CON_DATA => CON_DATA,
 
+      rs_busy         => rs_busy,
+      rs_start        => rs_start,
+      rs_frame_number => rs_frame_number,
 
-      rs_busy => rs_busy,
       HIT_RST => HIT_RST,
       RD_EN   => RD_EN,
+      
+      MATRIX_GRST => MATRIX_GRST,
 
+      gshutter_gs => gshutter_gs,
+      aplse_gs    => aplse_gs,
+      dplse_gs    => dplse_gs,
 
-      GSHUTTER => GSHUTTER,
-      APLSE    => APLSE,
-      DPLSE    => DPLSE,
-
+      gs_start     => gs_start,
+      gs_busy      => gs_busy,
       gs_sel_pulse => gs_sel_pulse,
       gs_col       => gs_col,
 
@@ -342,10 +370,19 @@ begin
       gs_pulse_width_cnt_low  => gs_pulse_width_cnt_low,
       gs_pulse_width_cnt_high => gs_pulse_width_cnt_high,
       gs_pulse_deassert_cnt   => gs_pulse_deassert_cnt,
-      gs_deassert_cnt         => gs_deassert_cnt
+      gs_deassert_cnt         => gs_deassert_cnt,
 
+      digsel_en_rs => digsel_en_rs,
+      anasel_en_gs => anasel_en_gs
       );
 
+
+  DIGSEL_EN <= digsel_en_rs and digsel_en_soft;
+  ANASEL_EN <= anasel_en_gs and anasel_en_soft;
+  GSHUTTER <= gshutter_gs or gshutter_soft;
+  APLSE <= aplse_gs and aplse_soft;
+  DPLSE <= dplse_gs and dplse_soft;
+  
   CACHE_CLK <= clk_cache;
 
 --  u_mig_7series_0 : entity work.mig_7series_0_1

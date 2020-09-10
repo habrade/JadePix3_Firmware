@@ -34,38 +34,41 @@ entity ipbus_payload is
 
     -- JadePix
     -- chip config fifo
+    cfg_start      : out std_logic;
     cfg_sync       : out jadepix_cfg;
     cfg_fifo_rst   : out std_logic;
     cfg_busy       : in  std_logic;
-    rs_busy        : in  std_logic;
     cfg_fifo_empty : in  std_logic;
     cfg_fifo_pfull : in  std_logic;
     cfg_fifo_count : in  std_logic_vector(CFG_FIFO_COUNT_WITDH-1 downto 0);
 
     CACHE_BIT_SET : out std_logic_vector(3 downto 0);
-    MATRIX_GRST   : out std_logic;
 
     hitmap_col_low  : out std_logic_vector(COL_WIDTH-1 downto 0);
     hitmap_col_high : out std_logic_vector(COL_WIDTH-1 downto 0);
     hitmap_en       : out std_logic;
     hitmap_num      : out std_logic_vector(3 downto 0);
 
-    cfg_start : out std_logic;
-    rs_start  : out std_logic;
-    rs_stop   : out std_logic;
-    gs_start  : out std_logic;
+    rs_busy         : in  std_logic;
+    rs_start        : out std_logic;
+    rs_frame_number : out std_logic_vector(31 downto 0);
 
-    ANASEL_EN    : out std_logic;
-    DIGSEL_EN    : out std_logic;
+    gs_start     : out std_logic;
     gs_sel_pulse : out std_logic;
-
-    gs_col : out std_logic_vector(COL_WIDTH-1 downto 0);
+    gs_busy      : in  std_logic;
+    gs_col       : out std_logic_vector(COL_WIDTH-1 downto 0);
+    gshutter_soft : out std_logic;
+    aplse_soft    : out std_logic;
+    dplse_soft    : out std_logic;
 
     gs_pulse_delay_cnt      : out std_logic_vector(8 downto 0);
     gs_pulse_width_cnt_low  : out std_logic_vector(31 downto 0);
     gs_pulse_width_cnt_high : out std_logic_vector(1 downto 0);
     gs_pulse_deassert_cnt   : out std_logic_vector(8 downto 0);
     gs_deassert_cnt         : out std_logic_vector(8 downto 0);
+
+    anasel_en_soft : out std_logic;
+    digsel_en_soft : out std_logic;
 
     PDB  : out std_logic;
     LOAD : out std_logic;
@@ -158,38 +161,43 @@ begin
       clk => clk,
       rst => rst,
 
+      cfg_start      => cfg_start,
       cfg_sync       => cfg_sync,
       cfg_fifo_rst   => cfg_fifo_rst,
       cfg_busy       => cfg_busy,
-      rs_busy        => rs_busy,
       cfg_fifo_empty => cfg_fifo_empty,
       cfg_fifo_pfull => cfg_fifo_pfull,
       cfg_fifo_count => cfg_fifo_count,
 
       CACHE_BIT_SET => CACHE_BIT_SET,
-      MATRIX_GRST   => MATRIX_GRST,
 
       hitmap_col_low  => hitmap_col_low,
       hitmap_col_high => hitmap_col_high,
       hitmap_en       => hitmap_en,
       hitmap_num      => hitmap_num,
 
-      cfg_start => cfg_start,
-      rs_start  => rs_start,
-      gs_start  => gs_start,
-      rs_stop   => rs_stop,
+      rs_busy         => rs_busy,
+      rs_start        => rs_start,
+      rs_frame_number => rs_frame_number,
 
-      ANASEL_EN    => ANASEL_EN,
-      DIGSEL_EN    => DIGSEL_EN,
       gs_sel_pulse => gs_sel_pulse,
+      gs_start     => gs_start,
+      gs_col       => gs_col,
+      gs_busy      => gs_busy,
       
-      gs_col => gs_col,
+      gshutter_soft   => gshutter_soft,
+      aplse_soft      => aplse_soft,
+      dplse_soft      => dplse_soft,
+
 
       gs_pulse_delay_cnt      => gs_pulse_delay_cnt,
       gs_pulse_width_cnt_low  => gs_pulse_width_cnt_low,
       gs_pulse_width_cnt_high => gs_pulse_width_cnt_high,
       gs_pulse_deassert_cnt   => gs_pulse_deassert_cnt,
       gs_deassert_cnt         => gs_deassert_cnt,
+
+      anasel_en_soft => anasel_en_soft,
+      digsel_en_soft => digsel_en_soft,
 
       PDB  => PDB,
       LOAD => LOAD

@@ -42,7 +42,6 @@ entity jadepix_ctrl is
     cfg_start : in std_logic;
     rs_start  : in std_logic;
     gs_start  : in std_logic;
-    rs_stop   : in std_logic;
 
     RA    : out std_logic_vector(ROW_WIDTH-1 downto 0);
     RA_EN : out std_logic;
@@ -61,11 +60,17 @@ entity jadepix_ctrl is
     cfg_fifo_pfull : out std_logic;
     cfg_fifo_count : out std_logic_vector(16 downto 0);
 
-    -- Rolling shutter
-    rs_busy : out std_logic;
+    digsel_en_rs : out std_logic;
+    anasel_en_gs : out std_logic;
 
-    HIT_RST : out std_logic;
-    RD_EN   : out std_logic;
+    -- Rolling shutter
+    rs_busy         : out std_logic;
+    rs_frame_number : in  std_logic_vector(31 downto 0);
+
+    HIT_RST     : out std_logic;
+    RD_EN       : out std_logic;
+    MATRIX_GRST : out std_logic;
+
 
     clk_cache     : in std_logic;
     clk_cache_rst : in std_logic;
@@ -77,9 +82,11 @@ entity jadepix_ctrl is
 --    MATRIX_DIN : in std_logic_vector(15 downto 0);
 
     -- Global shutter
-    APLSE    : out std_logic;
-    DPLSE    : out std_logic;
-    GSHUTTER : out std_logic;
+    aplse_gs    : out std_logic;
+    dplse_gs    : out std_logic;
+    gshutter_gs : out std_logic;
+
+    gs_busy : out std_logic;
 
     gs_sel_pulse : in std_logic;
     gs_col       : in std_logic_vector(COL_WIDTH-1 downto 0);
@@ -113,6 +120,7 @@ architecture behv of jadepix_ctrl is
   signal cfg_cnt                    : integer range 0 to JADEPIX_CFG_CNT_MAX := 0;
 
   -- RS
+  signal rs_frame_cnt              : integer range 0 to integer'high                 := 0;
   signal rs_cnt                    : integer range 0 to JADEPIX_RS_CNT_MAX           := 0;
   signal rs_hitmap_cnt             : integer range 0 to JADEPIX_HITMAP_CNT_MAX       := 0;
   signal hitmap_cnt                : integer range 0 to (JADEPIX_HITMAP_CHN_MAX + 1) := 0;
@@ -125,6 +133,7 @@ architecture behv of jadepix_ctrl is
   signal gs_pulse_deassert_counter : unsigned(8 downto 0);
   signal gs_deassert_counter       : unsigned(8 downto 0);
   signal pulse_out                 : std_logic;
+  signal is_gs                     : std_logic;
 
   -- DEBUG
   attribute mark_debug                   : string;
@@ -153,7 +162,6 @@ architecture behv of jadepix_ctrl is
   attribute mark_debug of cfg_start      : signal is "true";
   attribute mark_debug of rs_start       : signal is "true";
   attribute mark_debug of gs_start       : signal is "true";
-  attribute mark_debug of rs_stop        : signal is "true";
   attribute mark_debug of HIT_RST        : signal is "true";
   attribute mark_debug of RD_EN          : signal is "true";
   attribute mark_debug of hitmap_num     : signal is "true";
@@ -166,9 +174,9 @@ architecture behv of jadepix_ctrl is
 
   attribute mark_debug of gs_sel_pulse            : signal is "true";
   attribute mark_debug of gs_col                  : signal is "true";
-  attribute mark_debug of APLSE                   : signal is "true";
-  attribute mark_debug of DPLSE                   : signal is "true";
-  attribute mark_debug of GSHUTTER                : signal is "true";
+  attribute mark_debug of aplse_gs                : signal is "true";
+  attribute mark_debug of dplse_gs                : signal is "true";
+  attribute mark_debug of gshutter_gs             : signal is "true";
   attribute mark_debug of gs_pulse_delay_cnt      : signal is "true";
   attribute mark_debug of gs_pulse_width_cnt_low  : signal is "true";
   attribute mark_debug of gs_pulse_width_cnt_high : signal is "true";
@@ -179,12 +187,17 @@ begin
 
   process(all)
   begin
-    if gs_sel_pulse = '1' then
-      DPLSE <= pulse_out;
-      APLSE <= '0';
+    if rst = '1' then
+      dplse_gs <= '0';
+      aplse_gs <= '0';
     else
-      DPLSE <= '0';
-      APLSE <= pulse_out;
+      if gs_sel_pulse = '1' then
+        dplse_gs <= pulse_out;
+        aplse_gs <= '0';
+      else
+        dplse_gs <= '0';
+        aplse_gs <= pulse_out;
+      end if;
     end if;
   end process;
 
@@ -281,7 +294,6 @@ begin
       when RS_RD_EN =>
         state_next <= RS_SET_COL;
 
-
       when RS_SET_COL =>
         if rs_cnt = 12 then
           state_next <= RS_HOLD_COL;
@@ -333,7 +345,7 @@ begin
 
       when RS_END_ROW =>
         if RA = "111111111" then
-          if rs_stop = '1' or rs_start = '0' then
+          if rs_frame_cnt = to_integer(unsigned(rs_frame_number)) or is_gs = '1' then
             state_next <= RS_DIE;
           else
             state_next <= RS_NEXT_ROW;
@@ -412,9 +424,7 @@ begin
           RD_EN   <= '0';
           HIT_RST <= '0';
 
-          APLSE    <= '0';
-          DPLSE    <= '0';
-          GSHUTTER <= '0';
+          gshutter_gs <= '0';
 
           RA_EN <= '0';
           CA_EN <= '0';
@@ -429,18 +439,27 @@ begin
           CON_SELP  <= '0';
           CON_DATA  <= '0';
 
-          rs_hitmap_cnt             <= 0;
+          MATRIX_GRST  <= '1';
+          digsel_en_rs <= '0';
+          anasel_en_gs <= '0';
+
+          rs_hitmap_cnt <= 0;
+          rs_frame_cnt  <= 0;
+
           gs_width_counter          <= (others => '0');
           gs_pulse_delay_counter    <= (others => '0');
           gs_pulse_deassert_counter <= (others => '0');
           gs_deassert_counter       <= (others => '0');
 
+          is_gs <= '0';
+
           pulse_out <= '0';
           rs_busy   <= '0';
 
         when CFG_GO =>
-          cfg_rd_en <= '1';
-          cfg_busy  <= '1';
+          cfg_rd_en   <= '1';
+          cfg_busy    <= '1';
+          MATRIX_GRST <= '1';
 
         when CFG_GET_DATA =>
           cfg_rd_en <= '0';
@@ -475,25 +494,28 @@ begin
           CA       <= (others => '0');
 
         when CFG_STOP =>
-          RA_EN     <= '0';
-          CA_EN     <= '0';
-          RA        <= (others => '0');
-          CA        <= (others => '0');
-          cfg_rd_en <= '0';
-          cfg_busy  <= '0';
-          pix_cnt   <= 0;
-          cfg_cnt   <= 0;
-          CON_SELM  <= '0';
-          CON_SELP  <= '0';
-          CON_DATA  <= '0';
+          RA_EN       <= '0';
+          CA_EN       <= '0';
+          RA          <= (others => '0');
+          CA          <= (others => '0');
+          cfg_rd_en   <= '0';
+          cfg_busy    <= '0';
+          pix_cnt     <= 0;
+          cfg_cnt     <= 0;
+          CON_SELM    <= '0';
+          CON_SELP    <= '0';
+          CON_DATA    <= '0';
+          MATRIX_GRST <= '0';
 
         when RS_GO =>
-          rs_busy <= '1';
-          RA      <= (others => '0');
+          rs_busy      <= '1';
+          RA           <= (others => '0');
+          digsel_en_rs <= '1';
 
         when RS_SET_ROW =>
-          RA_EN  <= '1';
-          rs_cnt <= rs_cnt + 1;
+          RA_EN        <= '1';
+          rs_cnt       <= rs_cnt + 1;
+          rs_frame_cnt <= rs_frame_cnt + 1;
 
         when RS_RD_EN =>
           RD_EN <= '1';
@@ -537,19 +559,26 @@ begin
           RA     <= std_logic_vector(unsigned (RA) + 1);
 
         when RS_DIE =>
-          rs_cnt  <= 0;
-          rs_busy <= '0';
-          RA      <= (others => '0');
+          rs_cnt       <= 0;
+          rs_busy      <= '0';
+          RA           <= (others => '0');
+          digsel_en_rs <= '0';
+          rs_frame_cnt <= 0;
+          is_gs        <= '0';
 
         when GS_GO =>
-          CA <= gs_col;
+          CA           <= gs_col;
+          anasel_en_gs <= '1';
+          gs_busy      <= '1';
+          is_gs        <= '1';
+          MATRIX_GRST  <= '0';
 
         when GS_PULSE_DELAY =>
-          GSHUTTER <= '1';
+          gshutter_gs            <= '1';
           gs_pulse_delay_counter <= gs_pulse_delay_counter + 1;
 
         when GS_PULSE_WIDTH =>
-          GSHUTTER <= '1';
+          gshutter_gs      <= '1';
           gs_width_counter <= gs_width_counter + 1;
           pulse_out        <= '1';
 
@@ -560,17 +589,20 @@ begin
         when GS_DEASSERT =>
           gs_deassert_counter <= gs_deassert_counter + 1;
           pulse_out           <= '0';
-          GSHUTTER            <= '0';
+          gshutter_gs         <= '0';
 
         when GS_STOP =>
-          pulse_out <= '0';
-          GSHUTTER  <= '0';
+          pulse_out    <= '0';
+          anasel_en_gs <= '0';
+          gshutter_gs  <= '0';
+
+          gs_busy <= '0';
 
           gs_width_counter          <= (others => '0');
           gs_pulse_delay_counter    <= (others => '0');
           gs_pulse_deassert_counter <= (others => '0');
           gs_deassert_counter       <= (others => '0');
-          
+
           CA <= (others => '0');
 
         when others => null;

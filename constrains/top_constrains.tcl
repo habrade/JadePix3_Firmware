@@ -158,21 +158,38 @@ set_property IOSTANDARD LVCMOS25 [get_ports DPLSE]
 set_property PACKAGE_PIN AK30 [get_ports APLSE]
 set_property IOSTANDARD LVCMOS25 [get_ports APLSE]
 
-
 set_property PACKAGE_PIN G15 [get_ports RD_EN]
 set_property IOSTANDARD LVCMOS25 [get_ports RD_EN]
 set_property PACKAGE_PIN F12 [get_ports PDB]
 set_property IOSTANDARD LVCMOS25 [get_ports PDB]
-  
-#set_property IOSTANDARD LVCMOS25 [get_ports {DATA_IN*}]
-#set_property PACKAGE_PIN H27 [get_ports DATA_IN[0]]
-#set_property PACKAGE_PIN H26 [get_ports DATA_IN[1]]
-#set_property PACKAGE_PIN AC29 [get_ports DATA_IN[2]]
-#set_property PACKAGE_PIN AA30 [get_ports DATA_IN[3]]
-#set_property PACKAGE_PIN Y30 [get_ports DATA_IN[4]]
-#set_property PACKAGE_PIN C22 [get_ports DATA_IN[5]]
-#set_property PACKAGE_PIN D22 [get_ports DATA_IN[6]]
-#set_property PACKAGE_PIN AF30 [get_ports DATA_IN[7]]
+
+
+set_property IOSTANDARD LVCMOS25 [get_ports {BLK_SELECT[*]}]
+set_property PACKAGE_PIN AK26 [get_ports BLK_SELECT[0]]
+set_property PACKAGE_PIN AE26 [get_ports BLK_SELECT[1]]
+
+set_property IOSTANDARD LVCMOS25 [get_ports {INQUIRY[*]}]
+set_property PACKAGE_PIN AF26 [get_ports INQUIRY[0]]
+set_property PACKAGE_PIN AF27 [get_ports INQUIRY[1]]
+
+set_property IOSTANDARD LVCMOS25 [get_ports {FIFO_READ_EN}]
+set_property PACKAGE_PIN AJ27 [get_ports FIFO_READ_EN]
+
+set_property IOSTANDARD LVCMOS25 [get_ports {VALID_IN[*]}]
+set_property PACKAGE_PIN A4 [get_ports VALID_IN[0]]
+set_property PACKAGE_PIN A3 [get_ports VALID_IN[1]]
+set_property PACKAGE_PIN A8 [get_ports VALID_IN[2]]
+set_property PACKAGE_PIN A7 [get_ports VALID_IN[3]]
+
+set_property IOSTANDARD LVCMOS25 [get_ports {DATA_IN[*]}]
+set_property PACKAGE_PIN C4 [get_ports DATA_IN[0]]
+set_property PACKAGE_PIN D6 [get_ports DATA_IN[1]]
+set_property PACKAGE_PIN C3 [get_ports DATA_IN[2]]
+set_property PACKAGE_PIN D5 [get_ports DATA_IN[3]]
+set_property PACKAGE_PIN D2 [get_ports DATA_IN[4]]
+set_property PACKAGE_PIN E4 [get_ports DATA_IN[5]]
+set_property PACKAGE_PIN D1 [get_ports DATA_IN[6]]
+set_property PACKAGE_PIN E3 [get_ports DATA_IN[7]]
 
 # IPbus clock
 create_generated_clock -name ipbus_clk -source [get_pins ipbus_infra/clocks/mmcm/CLKIN1] [get_pins ipbus_infra/clocks/mmcm/CLKOUT3]
@@ -183,7 +200,7 @@ create_generated_clock -name clk_aux -source [get_pins ipbus_infra/clocks/mmcm/C
 # DAC Clock
 create_generated_clock -name dac_clk -source [get_pins jadepix_clocks/mmcm/CLKIN1] [get_pins jadepix_clocks/mmcm/CLKOUT1]
 
-## JAdepix clocks
+## Jadepix clocks
 create_generated_clock -name ref_clk -source [get_pins jadepix_clocks/mmcm/CLKIN1] [get_pins jadepix_clocks/mmcm/CLKOUT2]
 create_generated_clock -name clk_sys -source [get_pins jadepix_clocks/mmcm/CLKIN1] [get_pins jadepix_clocks/mmcm/CLKOUT0]
 create_generated_clock -name clk_cache -source [get_pins jadepix_clocks/mmcm/CLKIN1] [get_pins jadepix_clocks/mmcm/CLKOUT4]

@@ -2,6 +2,12 @@
 
 
 
+connect_debug_port u_ila_1/probe24 [get_nets [list jadepix_ctrl/APLSE]]
+connect_debug_port u_ila_1/probe36 [get_nets [list jadepix_ctrl/DPLSE]]
+connect_debug_port u_ila_1/probe40 [get_nets [list jadepix_ctrl/GSHUTTER]]
+connect_debug_port u_ila_1/probe45 [get_nets [list ipbus_payload/slave3/MATRIX_GRST]]
+connect_debug_port u_ila_1/probe52 [get_nets [list jadepix_ctrl/rs_stop]]
+
 create_debug_core u_ila_0 ila
 set_property ALL_PROBE_SAME_MU true [get_debug_cores u_ila_0]
 set_property ALL_PROBE_SAME_MU_CNT 1 [get_debug_cores u_ila_0]
@@ -22,12 +28,12 @@ set_property port_width 2 [get_debug_ports u_ila_0/probe1]
 connect_debug_port u_ila_0/probe1 [get_nets [list {dac70004/state[0]} {dac70004/state[1]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe2]
-set_property port_width 32 [get_debug_ports u_ila_0/probe2]
-connect_debug_port u_ila_0/probe2 [get_nets [list {dac70004/DATA_shift_register[0]} {dac70004/DATA_shift_register[1]} {dac70004/DATA_shift_register[2]} {dac70004/DATA_shift_register[3]} {dac70004/DATA_shift_register[4]} {dac70004/DATA_shift_register[5]} {dac70004/DATA_shift_register[6]} {dac70004/DATA_shift_register[7]} {dac70004/DATA_shift_register[8]} {dac70004/DATA_shift_register[9]} {dac70004/DATA_shift_register[10]} {dac70004/DATA_shift_register[11]} {dac70004/DATA_shift_register[12]} {dac70004/DATA_shift_register[13]} {dac70004/DATA_shift_register[14]} {dac70004/DATA_shift_register[15]} {dac70004/DATA_shift_register[16]} {dac70004/DATA_shift_register[17]} {dac70004/DATA_shift_register[18]} {dac70004/DATA_shift_register[19]} {dac70004/DATA_shift_register[20]} {dac70004/DATA_shift_register[21]} {dac70004/DATA_shift_register[22]} {dac70004/DATA_shift_register[23]} {dac70004/DATA_shift_register[24]} {dac70004/DATA_shift_register[25]} {dac70004/DATA_shift_register[26]} {dac70004/DATA_shift_register[27]} {dac70004/DATA_shift_register[28]} {dac70004/DATA_shift_register[29]} {dac70004/DATA_shift_register[30]} {dac70004/DATA_shift_register[31]}]]
+set_property port_width 5 [get_debug_ports u_ila_0/probe2]
+connect_debug_port u_ila_0/probe2 [get_nets [list {dac70004/BS_cnt[0]} {dac70004/BS_cnt[1]} {dac70004/BS_cnt[2]} {dac70004/BS_cnt[3]} {dac70004/BS_cnt[4]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe3]
-set_property port_width 5 [get_debug_ports u_ila_0/probe3]
-connect_debug_port u_ila_0/probe3 [get_nets [list {dac70004/BS_cnt[0]} {dac70004/BS_cnt[1]} {dac70004/BS_cnt[2]} {dac70004/BS_cnt[3]} {dac70004/BS_cnt[4]}]]
+set_property port_width 32 [get_debug_ports u_ila_0/probe3]
+connect_debug_port u_ila_0/probe3 [get_nets [list {dac70004/DATA_shift_register[0]} {dac70004/DATA_shift_register[1]} {dac70004/DATA_shift_register[2]} {dac70004/DATA_shift_register[3]} {dac70004/DATA_shift_register[4]} {dac70004/DATA_shift_register[5]} {dac70004/DATA_shift_register[6]} {dac70004/DATA_shift_register[7]} {dac70004/DATA_shift_register[8]} {dac70004/DATA_shift_register[9]} {dac70004/DATA_shift_register[10]} {dac70004/DATA_shift_register[11]} {dac70004/DATA_shift_register[12]} {dac70004/DATA_shift_register[13]} {dac70004/DATA_shift_register[14]} {dac70004/DATA_shift_register[15]} {dac70004/DATA_shift_register[16]} {dac70004/DATA_shift_register[17]} {dac70004/DATA_shift_register[18]} {dac70004/DATA_shift_register[19]} {dac70004/DATA_shift_register[20]} {dac70004/DATA_shift_register[21]} {dac70004/DATA_shift_register[22]} {dac70004/DATA_shift_register[23]} {dac70004/DATA_shift_register[24]} {dac70004/DATA_shift_register[25]} {dac70004/DATA_shift_register[26]} {dac70004/DATA_shift_register[27]} {dac70004/DATA_shift_register[28]} {dac70004/DATA_shift_register[29]} {dac70004/DATA_shift_register[30]} {dac70004/DATA_shift_register[31]}]]
 create_debug_port u_ila_0 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe4]
 set_property port_width 1 [get_debug_ports u_ila_0/probe4]
@@ -165,7 +171,7 @@ connect_debug_port u_ila_1/probe23 [get_nets [list {ipbus_payload/slave3/CACHE_B
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe24]
 set_property port_width 1 [get_debug_ports u_ila_1/probe24]
-connect_debug_port u_ila_1/probe24 [get_nets [list jadepix_ctrl/APLSE]]
+connect_debug_port u_ila_1/probe24 [get_nets [list jadepix_ctrl/aplse_gs]]
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe25]
 set_property port_width 1 [get_debug_ports u_ila_1/probe25]
@@ -213,7 +219,7 @@ connect_debug_port u_ila_1/probe35 [get_nets [list jadepix_ctrl/CON_SELP]]
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe36]
 set_property port_width 1 [get_debug_ports u_ila_1/probe36]
-connect_debug_port u_ila_1/probe36 [get_nets [list jadepix_ctrl/DPLSE]]
+connect_debug_port u_ila_1/probe36 [get_nets [list jadepix_ctrl/dplse_gs]]
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe37]
 set_property port_width 1 [get_debug_ports u_ila_1/probe37]
@@ -229,7 +235,7 @@ connect_debug_port u_ila_1/probe39 [get_nets [list jadepix_ctrl/gs_start]]
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe40]
 set_property port_width 1 [get_debug_ports u_ila_1/probe40]
-connect_debug_port u_ila_1/probe40 [get_nets [list jadepix_ctrl/GSHUTTER]]
+connect_debug_port u_ila_1/probe40 [get_nets [list jadepix_ctrl/gshutter_gs]]
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe41]
 set_property port_width 1 [get_debug_ports u_ila_1/probe41]
@@ -241,43 +247,35 @@ connect_debug_port u_ila_1/probe42 [get_nets [list ipbus_payload/slave3/hitmap_e
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe43]
 set_property port_width 1 [get_debug_ports u_ila_1/probe43]
-connect_debug_port u_ila_1/probe43 [get_nets [list ipbus_payload/LOAD]]
+connect_debug_port u_ila_1/probe43 [get_nets [list ipbus_payload/slave3/LOAD]]
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe44]
 set_property port_width 1 [get_debug_ports u_ila_1/probe44]
-connect_debug_port u_ila_1/probe44 [get_nets [list ipbus_payload/slave3/LOAD]]
+connect_debug_port u_ila_1/probe44 [get_nets [list ipbus_payload/LOAD]]
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe45]
 set_property port_width 1 [get_debug_ports u_ila_1/probe45]
-connect_debug_port u_ila_1/probe45 [get_nets [list ipbus_payload/slave3/MATRIX_GRST]]
+connect_debug_port u_ila_1/probe45 [get_nets [list ipbus_payload/slave3/PDB]]
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe46]
 set_property port_width 1 [get_debug_ports u_ila_1/probe46]
-connect_debug_port u_ila_1/probe46 [get_nets [list ipbus_payload/slave3/PDB]]
+connect_debug_port u_ila_1/probe46 [get_nets [list jadepix_ctrl/pulse_out]]
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe47]
 set_property port_width 1 [get_debug_ports u_ila_1/probe47]
-connect_debug_port u_ila_1/probe47 [get_nets [list jadepix_ctrl/pulse_out]]
+connect_debug_port u_ila_1/probe47 [get_nets [list jadepix_ctrl/RA_EN]]
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe48]
 set_property port_width 1 [get_debug_ports u_ila_1/probe48]
-connect_debug_port u_ila_1/probe48 [get_nets [list jadepix_ctrl/RA_EN]]
+connect_debug_port u_ila_1/probe48 [get_nets [list jadepix_ctrl/RD_EN]]
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe49]
 set_property port_width 1 [get_debug_ports u_ila_1/probe49]
-connect_debug_port u_ila_1/probe49 [get_nets [list jadepix_ctrl/RD_EN]]
+connect_debug_port u_ila_1/probe49 [get_nets [list jadepix_ctrl/rs_busy]]
 create_debug_port u_ila_1 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe50]
 set_property port_width 1 [get_debug_ports u_ila_1/probe50]
-connect_debug_port u_ila_1/probe50 [get_nets [list jadepix_ctrl/rs_busy]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe51]
-set_property port_width 1 [get_debug_ports u_ila_1/probe51]
-connect_debug_port u_ila_1/probe51 [get_nets [list jadepix_ctrl/rs_start]]
-create_debug_port u_ila_1 probe
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_1/probe52]
-set_property port_width 1 [get_debug_ports u_ila_1/probe52]
-connect_debug_port u_ila_1/probe52 [get_nets [list jadepix_ctrl/rs_stop]]
+connect_debug_port u_ila_1/probe50 [get_nets [list jadepix_ctrl/rs_start]]
 create_debug_core u_ila_2 ila
 set_property ALL_PROBE_SAME_MU true [get_debug_cores u_ila_2]
 set_property ALL_PROBE_SAME_MU_CNT 1 [get_debug_cores u_ila_2]
@@ -315,38 +313,28 @@ connect_debug_port u_ila_2/probe5 [get_nets [list {ipb_in[ipb_ack]}]]
 create_debug_port u_ila_2 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_2/probe6]
 set_property port_width 1 [get_debug_ports u_ila_2/probe6]
-connect_debug_port u_ila_2/probe6 [get_nets [list {ipb_out[ipb_strobe]}]]
+connect_debug_port u_ila_2/probe6 [get_nets [list {ipb_in[ipb_err]}]]
 create_debug_port u_ila_2 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_2/probe7]
 set_property port_width 1 [get_debug_ports u_ila_2/probe7]
-connect_debug_port u_ila_2/probe7 [get_nets [list {ipb_out[ipb_write]}]]
+connect_debug_port u_ila_2/probe7 [get_nets [list {ipb_out[ipb_strobe]}]]
 create_debug_port u_ila_2 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_2/probe8]
 set_property port_width 1 [get_debug_ports u_ila_2/probe8]
-connect_debug_port u_ila_2/probe8 [get_nets [list ipbus_payload/miso]]
+connect_debug_port u_ila_2/probe8 [get_nets [list {ipb_out[ipb_write]}]]
 create_debug_port u_ila_2 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_2/probe9]
 set_property port_width 1 [get_debug_ports u_ila_2/probe9]
-connect_debug_port u_ila_2/probe9 [get_nets [list ipbus_payload/mosi]]
+connect_debug_port u_ila_2/probe9 [get_nets [list ipbus_payload/miso]]
 create_debug_port u_ila_2 probe
 set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_2/probe10]
 set_property port_width 1 [get_debug_ports u_ila_2/probe10]
-connect_debug_port u_ila_2/probe10 [get_nets [list ipbus_payload/sclk]]
-create_debug_core u_ila_3 ila
-set_property ALL_PROBE_SAME_MU true [get_debug_cores u_ila_3]
-set_property ALL_PROBE_SAME_MU_CNT 1 [get_debug_cores u_ila_3]
-set_property C_ADV_TRIGGER false [get_debug_cores u_ila_3]
-set_property C_DATA_DEPTH 1024 [get_debug_cores u_ila_3]
-set_property C_EN_STRG_QUAL false [get_debug_cores u_ila_3]
-set_property C_INPUT_PIPE_STAGES 0 [get_debug_cores u_ila_3]
-set_property C_TRIGIN_EN false [get_debug_cores u_ila_3]
-set_property C_TRIGOUT_EN false [get_debug_cores u_ila_3]
-set_property port_width 1 [get_debug_ports u_ila_3/clk]
-connect_debug_port u_ila_3/clk [get_nets [list ipbus_infra/clocks/mmcm_0]]
-set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_3/probe0]
-set_property port_width 1 [get_debug_ports u_ila_3/probe0]
-connect_debug_port u_ila_3/probe0 [get_nets [list {ipb_in[ipb_err]}]]
+connect_debug_port u_ila_2/probe10 [get_nets [list ipbus_payload/mosi]]
+create_debug_port u_ila_2 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_2/probe11]
+set_property port_width 1 [get_debug_ports u_ila_2/probe11]
+connect_debug_port u_ila_2/probe11 [get_nets [list ipbus_payload/sclk]]
 set_property C_CLK_INPUT_FREQ_HZ 300000000 [get_debug_cores dbg_hub]
 set_property C_ENABLE_CLK_DIVIDER false [get_debug_cores dbg_hub]
 set_property C_USER_SCAN_CHAIN 1 [get_debug_cores dbg_hub]
-connect_debug_port dbg_hub/clk [get_nets u_ila_3_mmcm_0]
+connect_debug_port dbg_hub/clk [get_nets clk_ipb]
