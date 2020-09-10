@@ -74,7 +74,7 @@ begin
       CLKOUT2_DIVIDE     => integer(CLK_VCO_FREQ / (1000.0 / JADEPIX_REF_PERIOD)),  -- Divide amount for CLKOUT0 (1.000-128.000).
       CLKOUT4_DIVIDE     => integer(JADEPIX_CACHE_PERIOD / 2.0),  -- Divide amount for CLKOUT0 (1.000-128.000).
       CLKOUT6_DIVIDE     => 2,  -- Divide amount for CLKOUT0 (1.000-128.000).
-      CLKOUT0_DIVIDE_F   => CLK_VCO_FREQ / (2.0 * (1000.0 / JADEPIX_SYS_PERIOD)),  -- Divide amount for CLKOUT0 (1.000-128.000).
+      CLKOUT0_DIVIDE_F   => CLK_VCO_FREQ / (1000.0 / JADEPIX_SYS_PERIOD),  -- Divide amount for CLKOUT0 (1.000-128.000).
       -- CLKOUT0_DUTY_CYCLE - CLKOUT6_DUTY_CYCLE: Duty cycle for each CLKOUT (0.01-0.99).
       CLKOUT0_DUTY_CYCLE => 0.5,
       CLKOUT1_DUTY_CYCLE => 0.5,
