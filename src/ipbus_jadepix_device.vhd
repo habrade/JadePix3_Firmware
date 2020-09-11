@@ -157,7 +157,7 @@ begin
 
       cfg_start_tmp  <= ctrl(1)(0);
       rs_start_tmp   <= ctrl(1)(1);
-      gs_start       <= ctrl(1)(2);
+      gs_start_tmp   <= ctrl(1)(2);
       PDB            <= ctrl(1)(5);
       load_tmp       <= ctrl(1)(6);
       cfg_fifo_rst   <= ctrl(1)(7);
@@ -201,10 +201,12 @@ begin
       if ctrl_reg_stb_r(1) = '1' then
         cfg_start <= cfg_start_tmp;
         rs_start  <= rs_start_tmp;
+        gs_start  <= gs_start_tmp;
         LOAD      <= load_tmp;
       else
         cfg_start <= '0';
         rs_start  <= '0';
+        gs_start  <= '0';
         LOAD      <= '0';
       end if;
     end if;

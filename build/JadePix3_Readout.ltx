@@ -22,7 +22,7 @@
                             "slave_index": 0,
                             "bscan_switch_index": 0
                         },
-                        "uuid": "23E7D65A79BC59F7BC47406C1714DFAE",
+                        "uuid": "23e7d65a79bc59f7bc47406c1714dfae",
                         "pins": [
                             {
                                 "name": "probe0",
@@ -33,6 +33,120 @@
                                 "leftIndex": 0,
                                 "rightIndex": 31,
                                 "portIndex": 0,
+                                "nets": [
+                                    {
+                                        "name": "dac70004/DATA_shift_register",
+                                        "isBus": true,
+                                        "subnets": [
+                                            {
+                                                "name": "dac70004/DATA_shift_register[31]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[30]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[29]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[28]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[27]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[26]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[25]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[24]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[23]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[22]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[21]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[20]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[19]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[18]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[17]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[16]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[15]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[14]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[13]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[12]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[11]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[10]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[9]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[8]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[7]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[6]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[5]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[4]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[3]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[2]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[1]"
+                                            },
+                                            {
+                                                "name": "dac70004/DATA_shift_register[0]"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "probe1",
+                                "id": 1,
+                                "type": "DATA_TRIGGER",
+                                "direction": "IN",
+                                "isVector": true,
+                                "leftIndex": 0,
+                                "rightIndex": 31,
+                                "portIndex": 1,
                                 "nets": [
                                     {
                                         "name": "DAC_DATA",
@@ -139,14 +253,14 @@
                                 ]
                             },
                             {
-                                "name": "probe1",
-                                "id": 1,
+                                "name": "probe2",
+                                "id": 2,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": true,
                                 "leftIndex": 0,
                                 "rightIndex": 1,
-                                "portIndex": 1,
+                                "portIndex": 2,
                                 "nets": [
                                     {
                                         "name": "dac70004/state",
@@ -154,25 +268,25 @@
                                         "subnets": [
                                             {
                                                 "name": "dac70004/state[1]",
-                                                "parentNetId": 32
+                                                "parentNetId": 64
                                             },
                                             {
                                                 "name": "dac70004/state[0]",
-                                                "parentNetId": 33
+                                                "parentNetId": 65
                                             }
                                         ]
                                     }
                                 ]
                             },
                             {
-                                "name": "probe2",
-                                "id": 2,
+                                "name": "probe3",
+                                "id": 3,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": true,
                                 "leftIndex": 0,
                                 "rightIndex": 4,
-                                "portIndex": 2,
+                                "portIndex": 3,
                                 "nets": [
                                     {
                                         "name": "dac70004/BS_cnt",
@@ -192,120 +306,6 @@
                                             },
                                             {
                                                 "name": "dac70004/BS_cnt[0]"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "probe3",
-                                "id": 3,
-                                "type": "DATA_TRIGGER",
-                                "direction": "IN",
-                                "isVector": true,
-                                "leftIndex": 0,
-                                "rightIndex": 31,
-                                "portIndex": 3,
-                                "nets": [
-                                    {
-                                        "name": "dac70004/DATA_shift_register",
-                                        "isBus": true,
-                                        "subnets": [
-                                            {
-                                                "name": "dac70004/DATA_shift_register[31]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[30]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[29]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[28]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[27]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[26]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[25]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[24]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[23]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[22]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[21]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[20]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[19]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[18]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[17]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[16]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[15]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[14]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[13]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[12]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[11]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[10]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[9]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[8]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[7]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[6]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[5]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[4]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[3]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[2]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[1]"
-                                            },
-                                            {
-                                                "name": "dac70004/DATA_shift_register[0]"
                                             }
                                         ]
                                     }
@@ -434,7 +434,7 @@
                             "slave_index": 1,
                             "bscan_switch_index": 0
                         },
-                        "uuid": "3B505A030738513C98471D25F5B1F848",
+                        "uuid": "3b505a030738513c98471d25f5b1f848",
                         "pins": [
                             {
                                 "name": "probe0",
@@ -443,32 +443,21 @@
                                 "direction": "IN",
                                 "isVector": true,
                                 "leftIndex": 0,
-                                "rightIndex": 4,
+                                "rightIndex": 2,
                                 "portIndex": 0,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/state_reg",
+                                        "name": "jadepix_ctrl/cfg_dout",
                                         "isBus": true,
                                         "subnets": [
                                             {
-                                                "name": "jadepix_ctrl/state_reg[4]",
-                                                "parentNetId": 77
+                                                "name": "jadepix_ctrl/cfg_dout[2]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/state_reg[3]",
-                                                "parentNetId": 78
+                                                "name": "jadepix_ctrl/cfg_dout[1]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/state_reg[2]",
-                                                "parentNetId": 79
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/state_reg[1]",
-                                                "parentNetId": 80
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/state_reg[0]",
-                                                "parentNetId": 81
+                                                "name": "jadepix_ctrl/cfg_dout[0]"
                                             }
                                         ]
                                     }
@@ -481,27 +470,39 @@
                                 "direction": "IN",
                                 "isVector": true,
                                 "leftIndex": 0,
-                                "rightIndex": 4,
+                                "rightIndex": 8,
                                 "portIndex": 1,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/state_next",
+                                        "name": "jadepix_ctrl/gs_deassert_cnt",
                                         "isBus": true,
                                         "subnets": [
                                             {
-                                                "name": "jadepix_ctrl/state_next[4]"
+                                                "name": "jadepix_ctrl/gs_deassert_cnt[8]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/state_next[3]"
+                                                "name": "jadepix_ctrl/gs_deassert_cnt[7]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/state_next[2]"
+                                                "name": "jadepix_ctrl/gs_deassert_cnt[6]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/state_next[1]"
+                                                "name": "jadepix_ctrl/gs_deassert_cnt[5]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/state_next[0]"
+                                                "name": "jadepix_ctrl/gs_deassert_cnt[4]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_deassert_cnt[3]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_deassert_cnt[2]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_deassert_cnt[1]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_deassert_cnt[0]"
                                             }
                                         ]
                                     }
@@ -514,8 +515,53 @@
                                 "direction": "IN",
                                 "isVector": true,
                                 "leftIndex": 0,
-                                "rightIndex": 4,
+                                "rightIndex": 8,
                                 "portIndex": 2,
+                                "nets": [
+                                    {
+                                        "name": "jadepix_ctrl/CA",
+                                        "isBus": true,
+                                        "subnets": [
+                                            {
+                                                "name": "jadepix_ctrl/CA[8]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/CA[7]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/CA[6]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/CA[5]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/CA[4]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/CA[3]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/CA[2]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/CA[1]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/CA[0]"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "probe3",
+                                "id": 14,
+                                "type": "DATA_TRIGGER",
+                                "direction": "IN",
+                                "isVector": true,
+                                "leftIndex": 0,
+                                "rightIndex": 4,
+                                "portIndex": 3,
                                 "nets": [
                                     {
                                         "name": "jadepix_ctrl/rs_cnt",
@@ -541,14 +587,14 @@
                                 ]
                             },
                             {
-                                "name": "probe3",
-                                "id": 14,
+                                "name": "probe4",
+                                "id": 15,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": true,
                                 "leftIndex": 0,
                                 "rightIndex": 16,
-                                "portIndex": 3,
+                                "portIndex": 4,
                                 "nets": [
                                     {
                                         "name": "jadepix_ctrl/pix_cnt",
@@ -610,150 +656,38 @@
                                 ]
                             },
                             {
-                                "name": "probe4",
-                                "id": 15,
-                                "type": "DATA_TRIGGER",
-                                "direction": "IN",
-                                "isVector": true,
-                                "leftIndex": 0,
-                                "rightIndex": 3,
-                                "portIndex": 4,
-                                "nets": [
-                                    {
-                                        "name": "jadepix_ctrl/hitmap_num",
-                                        "isBus": true,
-                                        "subnets": [
-                                            {
-                                                "name": "jadepix_ctrl/hitmap_num[3]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/hitmap_num[2]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/hitmap_num[1]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/hitmap_num[0]"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
                                 "name": "probe5",
                                 "id": 16,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": true,
                                 "leftIndex": 0,
-                                "rightIndex": 33,
+                                "rightIndex": 4,
                                 "portIndex": 5,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/gs_width_counter",
+                                        "name": "jadepix_ctrl/state_reg",
                                         "isBus": true,
                                         "subnets": [
                                             {
-                                                "name": "jadepix_ctrl/gs_width_counter[33]"
+                                                "name": "jadepix_ctrl/state_reg[4]",
+                                                "parentNetId": 120
                                             },
                                             {
-                                                "name": "jadepix_ctrl/gs_width_counter[32]"
+                                                "name": "jadepix_ctrl/state_reg[3]",
+                                                "parentNetId": 121
                                             },
                                             {
-                                                "name": "jadepix_ctrl/gs_width_counter[31]"
+                                                "name": "jadepix_ctrl/state_reg[2]",
+                                                "parentNetId": 122
                                             },
                                             {
-                                                "name": "jadepix_ctrl/gs_width_counter[30]"
+                                                "name": "jadepix_ctrl/state_reg[1]",
+                                                "parentNetId": 123
                                             },
                                             {
-                                                "name": "jadepix_ctrl/gs_width_counter[29]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[28]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[27]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[26]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[25]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[24]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[23]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[22]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[21]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[20]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[19]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[18]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[17]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[16]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[15]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[14]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[13]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[12]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[11]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[10]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[9]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[8]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[7]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[6]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[5]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[4]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[3]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[2]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[1]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_width_counter[0]"
+                                                "name": "jadepix_ctrl/state_reg[0]",
+                                                "parentNetId": 124
                                             }
                                         ]
                                     }
@@ -880,32 +814,8 @@
                                 "direction": "IN",
                                 "isVector": true,
                                 "leftIndex": 0,
-                                "rightIndex": 1,
-                                "portIndex": 7,
-                                "nets": [
-                                    {
-                                        "name": "jadepix_ctrl/gs_pulse_width_cnt_high",
-                                        "isBus": true,
-                                        "subnets": [
-                                            {
-                                                "name": "jadepix_ctrl/gs_pulse_width_cnt_high[1]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_pulse_width_cnt_high[0]"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "probe8",
-                                "id": 19,
-                                "type": "DATA_TRIGGER",
-                                "direction": "IN",
-                                "isVector": true,
-                                "leftIndex": 0,
                                 "rightIndex": 8,
-                                "portIndex": 8,
+                                "portIndex": 7,
                                 "nets": [
                                     {
                                         "name": "jadepix_ctrl/gs_pulse_delay_counter",
@@ -943,6 +853,39 @@
                                 ]
                             },
                             {
+                                "name": "probe8",
+                                "id": 19,
+                                "type": "DATA_TRIGGER",
+                                "direction": "IN",
+                                "isVector": true,
+                                "leftIndex": 0,
+                                "rightIndex": 4,
+                                "portIndex": 8,
+                                "nets": [
+                                    {
+                                        "name": "jadepix_ctrl/cfg_cnt",
+                                        "isBus": true,
+                                        "subnets": [
+                                            {
+                                                "name": "jadepix_ctrl/cfg_cnt[4]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/cfg_cnt[3]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/cfg_cnt[2]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/cfg_cnt[1]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/cfg_cnt[0]"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
                                 "name": "probe9",
                                 "id": 20,
                                 "type": "DATA_TRIGGER",
@@ -953,35 +896,35 @@
                                 "portIndex": 9,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/gs_pulse_delay_cnt",
+                                        "name": "ipbus_payload/slave3/hitmap_col_low",
                                         "isBus": true,
                                         "subnets": [
                                             {
-                                                "name": "jadepix_ctrl/gs_pulse_delay_cnt[8]"
+                                                "name": "ipbus_payload/slave3/hitmap_col_low[8]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/gs_pulse_delay_cnt[7]"
+                                                "name": "ipbus_payload/slave3/hitmap_col_low[7]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/gs_pulse_delay_cnt[6]"
+                                                "name": "ipbus_payload/slave3/hitmap_col_low[6]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/gs_pulse_delay_cnt[5]"
+                                                "name": "ipbus_payload/slave3/hitmap_col_low[5]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/gs_pulse_delay_cnt[4]"
+                                                "name": "ipbus_payload/slave3/hitmap_col_low[4]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/gs_pulse_delay_cnt[3]"
+                                                "name": "ipbus_payload/slave3/hitmap_col_low[3]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/gs_pulse_delay_cnt[2]"
+                                                "name": "ipbus_payload/slave3/hitmap_col_low[2]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/gs_pulse_delay_cnt[1]"
+                                                "name": "ipbus_payload/slave3/hitmap_col_low[1]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/gs_pulse_delay_cnt[0]"
+                                                "name": "ipbus_payload/slave3/hitmap_col_low[0]"
                                             }
                                         ]
                                     }
@@ -998,35 +941,35 @@
                                 "portIndex": 10,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/gs_pulse_deassert_counter",
+                                        "name": "ipbus_payload/slave3/hitmap_col_high",
                                         "isBus": true,
                                         "subnets": [
                                             {
-                                                "name": "jadepix_ctrl/gs_pulse_deassert_counter[8]"
+                                                "name": "ipbus_payload/slave3/hitmap_col_high[8]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/gs_pulse_deassert_counter[7]"
+                                                "name": "ipbus_payload/slave3/hitmap_col_high[7]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/gs_pulse_deassert_counter[6]"
+                                                "name": "ipbus_payload/slave3/hitmap_col_high[6]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/gs_pulse_deassert_counter[5]"
+                                                "name": "ipbus_payload/slave3/hitmap_col_high[5]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/gs_pulse_deassert_counter[4]"
+                                                "name": "ipbus_payload/slave3/hitmap_col_high[4]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/gs_pulse_deassert_counter[3]"
+                                                "name": "ipbus_payload/slave3/hitmap_col_high[3]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/gs_pulse_deassert_counter[2]"
+                                                "name": "ipbus_payload/slave3/hitmap_col_high[2]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/gs_pulse_deassert_counter[1]"
+                                                "name": "ipbus_payload/slave3/hitmap_col_high[1]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/gs_pulse_deassert_counter[0]"
+                                                "name": "ipbus_payload/slave3/hitmap_col_high[0]"
                                             }
                                         ]
                                     }
@@ -1039,39 +982,18 @@
                                 "direction": "IN",
                                 "isVector": true,
                                 "leftIndex": 0,
-                                "rightIndex": 8,
+                                "rightIndex": 1,
                                 "portIndex": 11,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/gs_pulse_deassert_cnt",
+                                        "name": "jadepix_ctrl/gs_pulse_width_cnt_high",
                                         "isBus": true,
                                         "subnets": [
                                             {
-                                                "name": "jadepix_ctrl/gs_pulse_deassert_cnt[8]"
+                                                "name": "jadepix_ctrl/gs_pulse_width_cnt_high[1]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/gs_pulse_deassert_cnt[7]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_pulse_deassert_cnt[6]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_pulse_deassert_cnt[5]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_pulse_deassert_cnt[4]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_pulse_deassert_cnt[3]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_pulse_deassert_cnt[2]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_pulse_deassert_cnt[1]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_pulse_deassert_cnt[0]"
+                                                "name": "jadepix_ctrl/gs_pulse_width_cnt_high[0]"
                                             }
                                         ]
                                     }
@@ -1084,170 +1006,8 @@
                                 "direction": "IN",
                                 "isVector": true,
                                 "leftIndex": 0,
-                                "rightIndex": 8,
-                                "portIndex": 12,
-                                "nets": [
-                                    {
-                                        "name": "jadepix_ctrl/gs_deassert_counter",
-                                        "isBus": true,
-                                        "subnets": [
-                                            {
-                                                "name": "jadepix_ctrl/gs_deassert_counter[8]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_deassert_counter[7]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_deassert_counter[6]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_deassert_counter[5]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_deassert_counter[4]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_deassert_counter[3]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_deassert_counter[2]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_deassert_counter[1]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_deassert_counter[0]"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "probe13",
-                                "id": 24,
-                                "type": "DATA_TRIGGER",
-                                "direction": "IN",
-                                "isVector": true,
-                                "leftIndex": 0,
-                                "rightIndex": 8,
-                                "portIndex": 13,
-                                "nets": [
-                                    {
-                                        "name": "jadepix_ctrl/gs_col",
-                                        "isBus": true,
-                                        "subnets": [
-                                            {
-                                                "name": "jadepix_ctrl/gs_col[8]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_col[7]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_col[6]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_col[5]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_col[4]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_col[3]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_col[2]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_col[1]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_col[0]"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "probe14",
-                                "id": 25,
-                                "type": "DATA_TRIGGER",
-                                "direction": "IN",
-                                "isVector": true,
-                                "leftIndex": 0,
-                                "rightIndex": 2,
-                                "portIndex": 14,
-                                "nets": [
-                                    {
-                                        "name": "jadepix_ctrl/cfg_sync[din]",
-                                        "isBus": true,
-                                        "subnets": [
-                                            {
-                                                "name": "jadepix_ctrl/cfg_sync[din][2]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/cfg_sync[din][1]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/cfg_sync[din][0]"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "probe15",
-                                "id": 26,
-                                "type": "DATA_TRIGGER",
-                                "direction": "IN",
-                                "isVector": true,
-                                "leftIndex": 0,
-                                "rightIndex": 8,
-                                "portIndex": 15,
-                                "nets": [
-                                    {
-                                        "name": "jadepix_ctrl/gs_deassert_cnt",
-                                        "isBus": true,
-                                        "subnets": [
-                                            {
-                                                "name": "jadepix_ctrl/gs_deassert_cnt[8]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_deassert_cnt[7]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_deassert_cnt[6]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_deassert_cnt[5]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_deassert_cnt[4]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_deassert_cnt[3]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_deassert_cnt[2]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_deassert_cnt[1]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/gs_deassert_cnt[0]"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "probe16",
-                                "id": 27,
-                                "type": "DATA_TRIGGER",
-                                "direction": "IN",
-                                "isVector": true,
-                                "leftIndex": 0,
                                 "rightIndex": 16,
-                                "portIndex": 16,
+                                "portIndex": 12,
                                 "nets": [
                                     {
                                         "name": "jadepix_ctrl/cfg_fifo_count",
@@ -1309,27 +1069,351 @@
                                 ]
                             },
                             {
+                                "name": "probe13",
+                                "id": 24,
+                                "type": "DATA_TRIGGER",
+                                "direction": "IN",
+                                "isVector": true,
+                                "leftIndex": 0,
+                                "rightIndex": 33,
+                                "portIndex": 13,
+                                "nets": [
+                                    {
+                                        "name": "jadepix_ctrl/gs_width_counter",
+                                        "isBus": true,
+                                        "subnets": [
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[33]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[32]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[31]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[30]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[29]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[28]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[27]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[26]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[25]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[24]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[23]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[22]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[21]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[20]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[19]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[18]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[17]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[16]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[15]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[14]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[13]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[12]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[11]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[10]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[9]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[8]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[7]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[6]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[5]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[4]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[3]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[2]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[1]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_width_counter[0]"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "probe14",
+                                "id": 25,
+                                "type": "DATA_TRIGGER",
+                                "direction": "IN",
+                                "isVector": true,
+                                "leftIndex": 0,
+                                "rightIndex": 2,
+                                "portIndex": 14,
+                                "nets": [
+                                    {
+                                        "name": "jadepix_ctrl/cfg_sync[din]",
+                                        "isBus": true,
+                                        "subnets": [
+                                            {
+                                                "name": "jadepix_ctrl/cfg_sync[din][2]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/cfg_sync[din][1]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/cfg_sync[din][0]"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "probe15",
+                                "id": 26,
+                                "type": "DATA_TRIGGER",
+                                "direction": "IN",
+                                "isVector": true,
+                                "leftIndex": 0,
+                                "rightIndex": 8,
+                                "portIndex": 15,
+                                "nets": [
+                                    {
+                                        "name": "jadepix_ctrl/gs_pulse_deassert_cnt",
+                                        "isBus": true,
+                                        "subnets": [
+                                            {
+                                                "name": "jadepix_ctrl/gs_pulse_deassert_cnt[8]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_pulse_deassert_cnt[7]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_pulse_deassert_cnt[6]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_pulse_deassert_cnt[5]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_pulse_deassert_cnt[4]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_pulse_deassert_cnt[3]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_pulse_deassert_cnt[2]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_pulse_deassert_cnt[1]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_pulse_deassert_cnt[0]"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "probe16",
+                                "id": 27,
+                                "type": "DATA_TRIGGER",
+                                "direction": "IN",
+                                "isVector": true,
+                                "leftIndex": 0,
+                                "rightIndex": 8,
+                                "portIndex": 16,
+                                "nets": [
+                                    {
+                                        "name": "jadepix_ctrl/gs_col",
+                                        "isBus": true,
+                                        "subnets": [
+                                            {
+                                                "name": "jadepix_ctrl/gs_col[8]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_col[7]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_col[6]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_col[5]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_col[4]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_col[3]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_col[2]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_col[1]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_col[0]"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
                                 "name": "probe17",
                                 "id": 28,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": true,
                                 "leftIndex": 0,
-                                "rightIndex": 2,
+                                "rightIndex": 31,
                                 "portIndex": 17,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/cfg_dout",
+                                        "name": "jadepix_ctrl/rs_frame_number",
                                         "isBus": true,
                                         "subnets": [
                                             {
-                                                "name": "jadepix_ctrl/cfg_dout[2]"
+                                                "name": "jadepix_ctrl/rs_frame_number[31]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/cfg_dout[1]"
+                                                "name": "jadepix_ctrl/rs_frame_number[30]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/cfg_dout[0]"
+                                                "name": "jadepix_ctrl/rs_frame_number[29]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[28]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[27]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[26]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[25]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[24]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[23]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[22]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[21]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[20]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[19]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[18]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[17]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[16]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[15]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[14]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[13]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[12]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[11]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[10]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[9]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[8]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[7]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[6]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[5]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[4]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[3]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[2]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[1]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_number[0]"
                                             }
                                         ]
                                     }
@@ -1342,27 +1426,39 @@
                                 "direction": "IN",
                                 "isVector": true,
                                 "leftIndex": 0,
-                                "rightIndex": 4,
+                                "rightIndex": 8,
                                 "portIndex": 18,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/cfg_cnt",
+                                        "name": "jadepix_ctrl/gs_pulse_delay_cnt",
                                         "isBus": true,
                                         "subnets": [
                                             {
-                                                "name": "jadepix_ctrl/cfg_cnt[4]"
+                                                "name": "jadepix_ctrl/gs_pulse_delay_cnt[8]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/cfg_cnt[3]"
+                                                "name": "jadepix_ctrl/gs_pulse_delay_cnt[7]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/cfg_cnt[2]"
+                                                "name": "jadepix_ctrl/gs_pulse_delay_cnt[6]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/cfg_cnt[1]"
+                                                "name": "jadepix_ctrl/gs_pulse_delay_cnt[5]"
                                             },
                                             {
-                                                "name": "jadepix_ctrl/cfg_cnt[0]"
+                                                "name": "jadepix_ctrl/gs_pulse_delay_cnt[4]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_pulse_delay_cnt[3]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_pulse_delay_cnt[2]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_pulse_delay_cnt[1]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_pulse_delay_cnt[0]"
                                             }
                                         ]
                                     }
@@ -1375,8 +1471,38 @@
                                 "direction": "IN",
                                 "isVector": true,
                                 "leftIndex": 0,
-                                "rightIndex": 8,
+                                "rightIndex": 3,
                                 "portIndex": 19,
+                                "nets": [
+                                    {
+                                        "name": "jadepix_ctrl/hitmap_num",
+                                        "isBus": true,
+                                        "subnets": [
+                                            {
+                                                "name": "jadepix_ctrl/hitmap_num[3]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/hitmap_num[2]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/hitmap_num[1]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/hitmap_num[0]"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "probe20",
+                                "id": 31,
+                                "type": "DATA_TRIGGER",
+                                "direction": "IN",
+                                "isVector": true,
+                                "leftIndex": 0,
+                                "rightIndex": 8,
+                                "portIndex": 20,
                                 "nets": [
                                     {
                                         "name": "jadepix_ctrl/RA",
@@ -1414,51 +1540,6 @@
                                 ]
                             },
                             {
-                                "name": "probe20",
-                                "id": 31,
-                                "type": "DATA_TRIGGER",
-                                "direction": "IN",
-                                "isVector": true,
-                                "leftIndex": 0,
-                                "rightIndex": 8,
-                                "portIndex": 20,
-                                "nets": [
-                                    {
-                                        "name": "jadepix_ctrl/CA",
-                                        "isBus": true,
-                                        "subnets": [
-                                            {
-                                                "name": "jadepix_ctrl/CA[8]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/CA[7]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/CA[6]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/CA[5]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/CA[4]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/CA[3]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/CA[2]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/CA[1]"
-                                            },
-                                            {
-                                                "name": "jadepix_ctrl/CA[0]"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
                                 "name": "probe21",
                                 "id": 32,
                                 "type": "DATA_TRIGGER",
@@ -1469,35 +1550,35 @@
                                 "portIndex": 21,
                                 "nets": [
                                     {
-                                        "name": "ipbus_payload/slave3/hitmap_col_low",
+                                        "name": "jadepix_ctrl/gs_pulse_deassert_counter",
                                         "isBus": true,
                                         "subnets": [
                                             {
-                                                "name": "ipbus_payload/slave3/hitmap_col_low[8]"
+                                                "name": "jadepix_ctrl/gs_pulse_deassert_counter[8]"
                                             },
                                             {
-                                                "name": "ipbus_payload/slave3/hitmap_col_low[7]"
+                                                "name": "jadepix_ctrl/gs_pulse_deassert_counter[7]"
                                             },
                                             {
-                                                "name": "ipbus_payload/slave3/hitmap_col_low[6]"
+                                                "name": "jadepix_ctrl/gs_pulse_deassert_counter[6]"
                                             },
                                             {
-                                                "name": "ipbus_payload/slave3/hitmap_col_low[5]"
+                                                "name": "jadepix_ctrl/gs_pulse_deassert_counter[5]"
                                             },
                                             {
-                                                "name": "ipbus_payload/slave3/hitmap_col_low[4]"
+                                                "name": "jadepix_ctrl/gs_pulse_deassert_counter[4]"
                                             },
                                             {
-                                                "name": "ipbus_payload/slave3/hitmap_col_low[3]"
+                                                "name": "jadepix_ctrl/gs_pulse_deassert_counter[3]"
                                             },
                                             {
-                                                "name": "ipbus_payload/slave3/hitmap_col_low[2]"
+                                                "name": "jadepix_ctrl/gs_pulse_deassert_counter[2]"
                                             },
                                             {
-                                                "name": "ipbus_payload/slave3/hitmap_col_low[1]"
+                                                "name": "jadepix_ctrl/gs_pulse_deassert_counter[1]"
                                             },
                                             {
-                                                "name": "ipbus_payload/slave3/hitmap_col_low[0]"
+                                                "name": "jadepix_ctrl/gs_pulse_deassert_counter[0]"
                                             }
                                         ]
                                     }
@@ -1510,39 +1591,27 @@
                                 "direction": "IN",
                                 "isVector": true,
                                 "leftIndex": 0,
-                                "rightIndex": 8,
+                                "rightIndex": 4,
                                 "portIndex": 22,
                                 "nets": [
                                     {
-                                        "name": "ipbus_payload/slave3/hitmap_col_high",
+                                        "name": "jadepix_ctrl/state_next",
                                         "isBus": true,
                                         "subnets": [
                                             {
-                                                "name": "ipbus_payload/slave3/hitmap_col_high[8]"
+                                                "name": "jadepix_ctrl/state_next[4]"
                                             },
                                             {
-                                                "name": "ipbus_payload/slave3/hitmap_col_high[7]"
+                                                "name": "jadepix_ctrl/state_next[3]"
                                             },
                                             {
-                                                "name": "ipbus_payload/slave3/hitmap_col_high[6]"
+                                                "name": "jadepix_ctrl/state_next[2]"
                                             },
                                             {
-                                                "name": "ipbus_payload/slave3/hitmap_col_high[5]"
+                                                "name": "jadepix_ctrl/state_next[1]"
                                             },
                                             {
-                                                "name": "ipbus_payload/slave3/hitmap_col_high[4]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/hitmap_col_high[3]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/hitmap_col_high[2]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/hitmap_col_high[1]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/hitmap_col_high[0]"
+                                                "name": "jadepix_ctrl/state_next[0]"
                                             }
                                         ]
                                     }
@@ -1583,14 +1652,109 @@
                                 "id": 35,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
-                                "isVector": false,
+                                "isVector": true,
                                 "leftIndex": 0,
-                                "rightIndex": 0,
+                                "rightIndex": 30,
                                 "portIndex": 24,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/aplse_gs",
-                                        "isBus": false
+                                        "name": "jadepix_ctrl/rs_frame_cnt",
+                                        "isBus": true,
+                                        "subnets": [
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[30]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[29]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[28]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[27]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[26]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[25]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[24]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[23]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[22]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[21]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[20]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[19]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[18]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[17]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[16]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[15]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[14]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[13]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[12]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[11]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[10]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[9]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[8]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[7]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[6]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[5]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[4]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[3]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[2]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[1]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/rs_frame_cnt[0]"
+                                            }
+                                        ]
                                     }
                                 ]
                             },
@@ -1599,14 +1763,43 @@
                                 "id": 36,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
-                                "isVector": false,
+                                "isVector": true,
                                 "leftIndex": 0,
-                                "rightIndex": 0,
+                                "rightIndex": 8,
                                 "portIndex": 25,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/CA_EN",
-                                        "isBus": false
+                                        "name": "jadepix_ctrl/gs_deassert_counter",
+                                        "isBus": true,
+                                        "subnets": [
+                                            {
+                                                "name": "jadepix_ctrl/gs_deassert_counter[8]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_deassert_counter[7]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_deassert_counter[6]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_deassert_counter[5]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_deassert_counter[4]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_deassert_counter[3]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_deassert_counter[2]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_deassert_counter[1]"
+                                            },
+                                            {
+                                                "name": "jadepix_ctrl/gs_deassert_counter[0]"
+                                            }
+                                        ]
                                     }
                                 ]
                             },
@@ -1621,7 +1814,7 @@
                                 "portIndex": 26,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/cfg_busy",
+                                        "name": "jadepix_ctrl/aplse_gs",
                                         "isBus": false
                                     }
                                 ]
@@ -1637,7 +1830,7 @@
                                 "portIndex": 27,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/cfg_dout_valid",
+                                        "name": "jadepix_ctrl/CA_EN",
                                         "isBus": false
                                     }
                                 ]
@@ -1653,7 +1846,7 @@
                                 "portIndex": 28,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/cfg_fifo_empty",
+                                        "name": "jadepix_ctrl/cfg_busy",
                                         "isBus": false
                                     }
                                 ]
@@ -1669,7 +1862,7 @@
                                 "portIndex": 29,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/cfg_fifo_pfull",
+                                        "name": "jadepix_ctrl/cfg_dout_valid",
                                         "isBus": false
                                     }
                                 ]
@@ -1685,7 +1878,7 @@
                                 "portIndex": 30,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/cfg_rd_en",
+                                        "name": "jadepix_ctrl/cfg_fifo_empty",
                                         "isBus": false
                                     }
                                 ]
@@ -1701,7 +1894,7 @@
                                 "portIndex": 31,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/cfg_start",
+                                        "name": "jadepix_ctrl/cfg_fifo_pfull",
                                         "isBus": false
                                     }
                                 ]
@@ -1717,7 +1910,7 @@
                                 "portIndex": 32,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/cfg_sync[wr_en]",
+                                        "name": "jadepix_ctrl/cfg_rd_en",
                                         "isBus": false
                                     }
                                 ]
@@ -1733,7 +1926,7 @@
                                 "portIndex": 33,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/CON_DATA",
+                                        "name": "jadepix_ctrl/cfg_start",
                                         "isBus": false
                                     }
                                 ]
@@ -1749,7 +1942,7 @@
                                 "portIndex": 34,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/CON_SELM",
+                                        "name": "jadepix_ctrl/cfg_sync[wr_en]",
                                         "isBus": false
                                     }
                                 ]
@@ -1765,7 +1958,7 @@
                                 "portIndex": 35,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/CON_SELP",
+                                        "name": "jadepix_ctrl/CON_DATA",
                                         "isBus": false
                                     }
                                 ]
@@ -1781,7 +1974,7 @@
                                 "portIndex": 36,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/dplse_gs",
+                                        "name": "jadepix_ctrl/CON_SELM",
                                         "isBus": false
                                     }
                                 ]
@@ -1797,7 +1990,7 @@
                                 "portIndex": 37,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/fifo_rst",
+                                        "name": "jadepix_ctrl/CON_SELP",
                                         "isBus": false
                                     }
                                 ]
@@ -1813,7 +2006,7 @@
                                 "portIndex": 38,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/gs_sel_pulse",
+                                        "name": "jadepix_ctrl/dplse_gs",
                                         "isBus": false
                                     }
                                 ]
@@ -1829,7 +2022,7 @@
                                 "portIndex": 39,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/gs_start",
+                                        "name": "jadepix_ctrl/fifo_rst",
                                         "isBus": false
                                     }
                                 ]
@@ -1845,7 +2038,7 @@
                                 "portIndex": 40,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/gshutter_gs",
+                                        "name": "jadepix_ctrl/gs_sel_pulse",
                                         "isBus": false
                                     }
                                 ]
@@ -1861,7 +2054,7 @@
                                 "portIndex": 41,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/HIT_RST",
+                                        "name": "jadepix_ctrl/gs_start",
                                         "isBus": false
                                     }
                                 ]
@@ -1877,7 +2070,7 @@
                                 "portIndex": 42,
                                 "nets": [
                                     {
-                                        "name": "ipbus_payload/slave3/hitmap_en",
+                                        "name": "jadepix_ctrl/gshutter_gs",
                                         "isBus": false
                                     }
                                 ]
@@ -1893,7 +2086,7 @@
                                 "portIndex": 43,
                                 "nets": [
                                     {
-                                        "name": "ipbus_payload/slave3/LOAD",
+                                        "name": "jadepix_ctrl/HIT_RST",
                                         "isBus": false
                                     }
                                 ]
@@ -1909,7 +2102,7 @@
                                 "portIndex": 44,
                                 "nets": [
                                     {
-                                        "name": "ipbus_payload/LOAD",
+                                        "name": "ipbus_payload/slave3/hitmap_en",
                                         "isBus": false
                                     }
                                 ]
@@ -1925,7 +2118,7 @@
                                 "portIndex": 45,
                                 "nets": [
                                     {
-                                        "name": "ipbus_payload/slave3/PDB",
+                                        "name": "ipbus_payload/LOAD",
                                         "isBus": false
                                     }
                                 ]
@@ -1941,7 +2134,7 @@
                                 "portIndex": 46,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/pulse_out",
+                                        "name": "ipbus_payload/slave3/LOAD",
                                         "isBus": false
                                     }
                                 ]
@@ -1957,7 +2150,7 @@
                                 "portIndex": 47,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/RA_EN",
+                                        "name": "ipbus_payload/slave3/PDB",
                                         "isBus": false
                                     }
                                 ]
@@ -1973,7 +2166,7 @@
                                 "portIndex": 48,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/RD_EN",
+                                        "name": "jadepix_ctrl/pulse_out",
                                         "isBus": false
                                     }
                                 ]
@@ -1989,7 +2182,7 @@
                                 "portIndex": 49,
                                 "nets": [
                                     {
-                                        "name": "jadepix_ctrl/rs_busy",
+                                        "name": "jadepix_ctrl/RA_EN",
                                         "isBus": false
                                     }
                                 ]
@@ -2003,6 +2196,38 @@
                                 "leftIndex": 0,
                                 "rightIndex": 0,
                                 "portIndex": 50,
+                                "nets": [
+                                    {
+                                        "name": "jadepix_ctrl/RD_EN",
+                                        "isBus": false
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "probe51",
+                                "id": 62,
+                                "type": "DATA_TRIGGER",
+                                "direction": "IN",
+                                "isVector": false,
+                                "leftIndex": 0,
+                                "rightIndex": 0,
+                                "portIndex": 51,
+                                "nets": [
+                                    {
+                                        "name": "jadepix_ctrl/rs_busy",
+                                        "isBus": false
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "probe52",
+                                "id": 63,
+                                "type": "DATA_TRIGGER",
+                                "direction": "IN",
+                                "isVector": false,
+                                "leftIndex": 0,
+                                "rightIndex": 0,
+                                "portIndex": 52,
                                 "nets": [
                                     {
                                         "name": "jadepix_ctrl/rs_start",
@@ -2021,117 +2246,24 @@
                             "slave_index": 2,
                             "bscan_switch_index": 0
                         },
-                        "uuid": "B13C981AC2D554BFB4FBE0EECEA5CFD7",
+                        "uuid": "b13c981ac2d554bfb4fbe0eecea5cfd7",
                         "pins": [
                             {
                                 "name": "probe0",
-                                "id": 62,
+                                "id": 64,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
-                                "isVector": true,
+                                "isVector": false,
                                 "leftIndex": 0,
-                                "rightIndex": 31,
+                                "rightIndex": 0,
                                 "portIndex": 0,
                                 "nets": [
                                     {
-                                        "name": "ipb_out[ipb_wdata]",
+                                        "name": "ipbus_payload/ss",
                                         "isBus": true,
                                         "subnets": [
                                             {
-                                                "name": "ipb_out[ipb_wdata][31]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][30]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][29]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][28]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][27]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][26]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][25]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][24]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][23]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][22]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][21]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][20]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][19]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][18]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][17]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][16]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][15]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][14]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][13]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][12]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][11]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][10]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][9]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][8]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][7]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][6]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][5]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][4]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][3]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][2]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][1]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_wdata][0]"
+                                                "name": "ipbus_payload/ss[0]"
                                             }
                                         ]
                                     }
@@ -2139,127 +2271,13 @@
                             },
                             {
                                 "name": "probe1",
-                                "id": 63,
+                                "id": 65,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": true,
                                 "leftIndex": 0,
                                 "rightIndex": 31,
                                 "portIndex": 1,
-                                "nets": [
-                                    {
-                                        "name": "ipb_out[ipb_addr]",
-                                        "isBus": true,
-                                        "subnets": [
-                                            {
-                                                "name": "ipb_out[ipb_addr][31]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][30]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][29]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][28]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][27]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][26]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][25]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][24]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][23]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][22]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][21]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][20]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][19]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][18]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][17]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][16]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][15]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][14]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][13]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][12]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][11]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][10]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][9]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][8]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][7]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][6]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][5]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][4]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][3]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][2]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][1]"
-                                            },
-                                            {
-                                                "name": "ipb_out[ipb_addr][0]"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "probe2",
-                                "id": 64,
-                                "type": "DATA_TRIGGER",
-                                "direction": "IN",
-                                "isVector": true,
-                                "leftIndex": 0,
-                                "rightIndex": 31,
-                                "portIndex": 2,
                                 "nets": [
                                     {
                                         "name": "ipb_in[ipb_rdata]",
@@ -2366,21 +2384,228 @@
                                 ]
                             },
                             {
-                                "name": "probe3",
-                                "id": 65,
+                                "name": "probe2",
+                                "id": 66,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
-                                "isVector": false,
+                                "isVector": true,
                                 "leftIndex": 0,
-                                "rightIndex": 0,
-                                "portIndex": 3,
+                                "rightIndex": 31,
+                                "portIndex": 2,
                                 "nets": [
                                     {
-                                        "name": "ipbus_payload/ss",
+                                        "name": "ipb_out[ipb_addr]",
                                         "isBus": true,
                                         "subnets": [
                                             {
-                                                "name": "ipbus_payload/ss[0]"
+                                                "name": "ipb_out[ipb_addr][31]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][30]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][29]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][28]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][27]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][26]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][25]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][24]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][23]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][22]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][21]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][20]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][19]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][18]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][17]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][16]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][15]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][14]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][13]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][12]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][11]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][10]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][9]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][8]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][7]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][6]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][5]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][4]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][3]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][2]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][1]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_addr][0]"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "name": "probe3",
+                                "id": 67,
+                                "type": "DATA_TRIGGER",
+                                "direction": "IN",
+                                "isVector": true,
+                                "leftIndex": 0,
+                                "rightIndex": 31,
+                                "portIndex": 3,
+                                "nets": [
+                                    {
+                                        "name": "ipb_out[ipb_wdata]",
+                                        "isBus": true,
+                                        "subnets": [
+                                            {
+                                                "name": "ipb_out[ipb_wdata][31]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][30]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][29]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][28]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][27]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][26]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][25]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][24]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][23]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][22]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][21]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][20]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][19]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][18]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][17]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][16]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][15]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][14]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][13]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][12]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][11]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][10]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][9]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][8]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][7]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][6]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][5]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][4]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][3]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][2]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][1]"
+                                            },
+                                            {
+                                                "name": "ipb_out[ipb_wdata][0]"
                                             }
                                         ]
                                     }
@@ -2388,124 +2613,13 @@
                             },
                             {
                                 "name": "probe4",
-                                "id": 66,
-                                "type": "DATA_TRIGGER",
-                                "direction": "IN",
-                                "isVector": true,
-                                "leftIndex": 0,
-                                "rightIndex": 30,
-                                "portIndex": 4,
-                                "nets": [
-                                    {
-                                        "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel",
-                                        "isBus": true,
-                                        "subnets": [
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[31]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[30]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[29]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[28]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[27]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[26]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[25]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[24]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[23]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[22]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[21]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[20]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[19]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[18]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[17]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[16]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[15]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[14]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[13]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[12]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[11]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[10]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[9]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[8]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[7]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[6]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[5]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[4]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[3]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[2]"
-                                            },
-                                            {
-                                                "name": "ipbus_payload/slave3/inst_ipbus_slave_reg_ram/inst_device_fabric/sel[1]"
-                                            }
-                                        ]
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "probe5",
-                                "id": 67,
+                                "id": 68,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": false,
                                 "leftIndex": 0,
                                 "rightIndex": 0,
-                                "portIndex": 5,
+                                "portIndex": 4,
                                 "nets": [
                                     {
                                         "name": "ipb_in[ipb_ack]",
@@ -2514,14 +2628,14 @@
                                 ]
                             },
                             {
-                                "name": "probe6",
-                                "id": 68,
+                                "name": "probe5",
+                                "id": 69,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": false,
                                 "leftIndex": 0,
                                 "rightIndex": 0,
-                                "portIndex": 6,
+                                "portIndex": 5,
                                 "nets": [
                                     {
                                         "name": "ipb_in[ipb_err]",
@@ -2530,14 +2644,14 @@
                                 ]
                             },
                             {
-                                "name": "probe7",
-                                "id": 69,
+                                "name": "probe6",
+                                "id": 70,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": false,
                                 "leftIndex": 0,
                                 "rightIndex": 0,
-                                "portIndex": 7,
+                                "portIndex": 6,
                                 "nets": [
                                     {
                                         "name": "ipb_out[ipb_strobe]",
@@ -2546,14 +2660,14 @@
                                 ]
                             },
                             {
-                                "name": "probe8",
-                                "id": 70,
+                                "name": "probe7",
+                                "id": 71,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": false,
                                 "leftIndex": 0,
                                 "rightIndex": 0,
-                                "portIndex": 8,
+                                "portIndex": 7,
                                 "nets": [
                                     {
                                         "name": "ipb_out[ipb_write]",
@@ -2562,14 +2676,14 @@
                                 ]
                             },
                             {
-                                "name": "probe9",
-                                "id": 71,
+                                "name": "probe8",
+                                "id": 72,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": false,
                                 "leftIndex": 0,
                                 "rightIndex": 0,
-                                "portIndex": 9,
+                                "portIndex": 8,
                                 "nets": [
                                     {
                                         "name": "ipbus_payload/miso",
@@ -2578,14 +2692,14 @@
                                 ]
                             },
                             {
-                                "name": "probe10",
-                                "id": 72,
+                                "name": "probe9",
+                                "id": 73,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": false,
                                 "leftIndex": 0,
                                 "rightIndex": 0,
-                                "portIndex": 10,
+                                "portIndex": 9,
                                 "nets": [
                                     {
                                         "name": "ipbus_payload/mosi",
@@ -2594,14 +2708,14 @@
                                 ]
                             },
                             {
-                                "name": "probe11",
-                                "id": 73,
+                                "name": "probe10",
+                                "id": 74,
                                 "type": "DATA_TRIGGER",
                                 "direction": "IN",
                                 "isVector": false,
                                 "leftIndex": 0,
                                 "rightIndex": 0,
-                                "portIndex": 11,
+                                "portIndex": 10,
                                 "nets": [
                                     {
                                         "name": "ipbus_payload/sclk",
@@ -2614,7 +2728,7 @@
                 ],
                 "parent_nets": [
                     {
-                        "id": 32,
+                        "id": 64,
                         "name": "dac70004/state[1]",
                         "state_reg": [
                             {
@@ -2637,7 +2751,7 @@
                         ]
                     },
                     {
-                        "id": 33,
+                        "id": 65,
                         "name": "dac70004/state[0]",
                         "state_reg": [
                             {
@@ -2660,7 +2774,7 @@
                         ]
                     },
                     {
-                        "id": 77,
+                        "id": 120,
                         "name": "jadepix_ctrl/state_reg[4]",
                         "state_reg": [
                             {
@@ -2751,39 +2865,43 @@
                                         "val": "10100"
                                     },
                                     {
-                                        "name": "rs_die",
+                                        "name": "rs_end_frame",
                                         "val": "10101"
                                     },
                                     {
-                                        "name": "gs_go",
+                                        "name": "rs_die",
                                         "val": "10110"
                                     },
                                     {
-                                        "name": "gs_pulse_delay",
+                                        "name": "gs_go",
                                         "val": "10111"
                                     },
                                     {
-                                        "name": "gs_pulse_width",
+                                        "name": "gs_pulse_delay",
                                         "val": "11000"
                                     },
                                     {
-                                        "name": "gs_pulse_deassert",
+                                        "name": "gs_pulse_width",
                                         "val": "11001"
                                     },
                                     {
-                                        "name": "gs_deassert",
+                                        "name": "gs_pulse_deassert",
                                         "val": "11010"
                                     },
                                     {
-                                        "name": "gs_stop",
+                                        "name": "gs_deassert",
                                         "val": "11011"
+                                    },
+                                    {
+                                        "name": "gs_stop",
+                                        "val": "11100"
                                     }
                                 ]
                             }
                         ]
                     },
                     {
-                        "id": 78,
+                        "id": 121,
                         "name": "jadepix_ctrl/state_reg[3]",
                         "state_reg": [
                             {
@@ -2874,39 +2992,43 @@
                                         "val": "10100"
                                     },
                                     {
-                                        "name": "rs_die",
+                                        "name": "rs_end_frame",
                                         "val": "10101"
                                     },
                                     {
-                                        "name": "gs_go",
+                                        "name": "rs_die",
                                         "val": "10110"
                                     },
                                     {
-                                        "name": "gs_pulse_delay",
+                                        "name": "gs_go",
                                         "val": "10111"
                                     },
                                     {
-                                        "name": "gs_pulse_width",
+                                        "name": "gs_pulse_delay",
                                         "val": "11000"
                                     },
                                     {
-                                        "name": "gs_pulse_deassert",
+                                        "name": "gs_pulse_width",
                                         "val": "11001"
                                     },
                                     {
-                                        "name": "gs_deassert",
+                                        "name": "gs_pulse_deassert",
                                         "val": "11010"
                                     },
                                     {
-                                        "name": "gs_stop",
+                                        "name": "gs_deassert",
                                         "val": "11011"
+                                    },
+                                    {
+                                        "name": "gs_stop",
+                                        "val": "11100"
                                     }
                                 ]
                             }
                         ]
                     },
                     {
-                        "id": 79,
+                        "id": 122,
                         "name": "jadepix_ctrl/state_reg[2]",
                         "state_reg": [
                             {
@@ -2997,39 +3119,43 @@
                                         "val": "10100"
                                     },
                                     {
-                                        "name": "rs_die",
+                                        "name": "rs_end_frame",
                                         "val": "10101"
                                     },
                                     {
-                                        "name": "gs_go",
+                                        "name": "rs_die",
                                         "val": "10110"
                                     },
                                     {
-                                        "name": "gs_pulse_delay",
+                                        "name": "gs_go",
                                         "val": "10111"
                                     },
                                     {
-                                        "name": "gs_pulse_width",
+                                        "name": "gs_pulse_delay",
                                         "val": "11000"
                                     },
                                     {
-                                        "name": "gs_pulse_deassert",
+                                        "name": "gs_pulse_width",
                                         "val": "11001"
                                     },
                                     {
-                                        "name": "gs_deassert",
+                                        "name": "gs_pulse_deassert",
                                         "val": "11010"
                                     },
                                     {
-                                        "name": "gs_stop",
+                                        "name": "gs_deassert",
                                         "val": "11011"
+                                    },
+                                    {
+                                        "name": "gs_stop",
+                                        "val": "11100"
                                     }
                                 ]
                             }
                         ]
                     },
                     {
-                        "id": 80,
+                        "id": 123,
                         "name": "jadepix_ctrl/state_reg[1]",
                         "state_reg": [
                             {
@@ -3120,39 +3246,43 @@
                                         "val": "10100"
                                     },
                                     {
-                                        "name": "rs_die",
+                                        "name": "rs_end_frame",
                                         "val": "10101"
                                     },
                                     {
-                                        "name": "gs_go",
+                                        "name": "rs_die",
                                         "val": "10110"
                                     },
                                     {
-                                        "name": "gs_pulse_delay",
+                                        "name": "gs_go",
                                         "val": "10111"
                                     },
                                     {
-                                        "name": "gs_pulse_width",
+                                        "name": "gs_pulse_delay",
                                         "val": "11000"
                                     },
                                     {
-                                        "name": "gs_pulse_deassert",
+                                        "name": "gs_pulse_width",
                                         "val": "11001"
                                     },
                                     {
-                                        "name": "gs_deassert",
+                                        "name": "gs_pulse_deassert",
                                         "val": "11010"
                                     },
                                     {
-                                        "name": "gs_stop",
+                                        "name": "gs_deassert",
                                         "val": "11011"
+                                    },
+                                    {
+                                        "name": "gs_stop",
+                                        "val": "11100"
                                     }
                                 ]
                             }
                         ]
                     },
                     {
-                        "id": 81,
+                        "id": 124,
                         "name": "jadepix_ctrl/state_reg[0]",
                         "state_reg": [
                             {
@@ -3243,32 +3373,36 @@
                                         "val": "10100"
                                     },
                                     {
-                                        "name": "rs_die",
+                                        "name": "rs_end_frame",
                                         "val": "10101"
                                     },
                                     {
-                                        "name": "gs_go",
+                                        "name": "rs_die",
                                         "val": "10110"
                                     },
                                     {
-                                        "name": "gs_pulse_delay",
+                                        "name": "gs_go",
                                         "val": "10111"
                                     },
                                     {
-                                        "name": "gs_pulse_width",
+                                        "name": "gs_pulse_delay",
                                         "val": "11000"
                                     },
                                     {
-                                        "name": "gs_pulse_deassert",
+                                        "name": "gs_pulse_width",
                                         "val": "11001"
                                     },
                                     {
-                                        "name": "gs_deassert",
+                                        "name": "gs_pulse_deassert",
                                         "val": "11010"
                                     },
                                     {
-                                        "name": "gs_stop",
+                                        "name": "gs_deassert",
                                         "val": "11011"
+                                    },
+                                    {
+                                        "name": "gs_stop",
+                                        "val": "11100"
                                     }
                                 ]
                             }

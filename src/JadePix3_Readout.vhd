@@ -268,6 +268,8 @@ begin
 
       rs_start => rs_start,
       rs_busy  => rs_busy,
+      rs_frame_number => rs_frame_number,
+
 
       hitmap_col_low  => hitmap_col_low,
       hitmap_col_high => hitmap_col_high,

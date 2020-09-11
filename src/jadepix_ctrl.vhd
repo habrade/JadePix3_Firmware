@@ -106,7 +106,7 @@ architecture behv of jadepix_ctrl is
                          CFG_GO, CFG_GET_DATA, CFG_EN_DATA, CFG_EN_SEL, CFG_DIS_SEL, CFG_NEXT_PIX, CFG_STOP,
                          RS_GO, RS_SET_ROW, RS_RD_EN, RS_SET_COL, RS_HOLD_COL,
                          RS_HITMAP_START, RS_HITMAP, RS_HITMAP_END_COL, RS_HITMAP_NEXT_COL, RS_HITMAP_STOP,
-                         RS_HIT_RST, RS_END_ROW, RS_NEXT_ROW, RS_DIE,
+                         RS_HIT_RST, RS_END_ROW, RS_NEXT_ROW, RS_END_FRAME, RS_DIE,
                          GS_GO, GS_PULSE_DELAY, GS_PULSE_WIDTH, GS_PULSE_DEASSERT, GS_DEASSERT, GS_STOP);
   signal state_reg, state_next : JADEPIX_STATE;
 
@@ -182,6 +182,8 @@ architecture behv of jadepix_ctrl is
   attribute mark_debug of gs_pulse_width_cnt_high : signal is "true";
   attribute mark_debug of gs_pulse_deassert_cnt   : signal is "true";
   attribute mark_debug of gs_deassert_cnt         : signal is "true";
+  attribute mark_debug of rs_frame_number         : signal is "true";
+  attribute mark_debug of rs_frame_cnt            : signal is "true";
 
 begin
 
@@ -345,16 +347,19 @@ begin
 
       when RS_END_ROW =>
         if RA = "111111111" then
-          if rs_frame_cnt = to_integer(unsigned(rs_frame_number)) or is_gs = '1' then
+          if rs_frame_cnt = (to_integer(unsigned(rs_frame_number)) -1) or is_gs = '1' then
             state_next <= RS_DIE;
           else
-            state_next <= RS_NEXT_ROW;
+            state_next <= RS_END_FRAME;
           end if;
         else
           state_next <= RS_NEXT_ROW;
         end if;
 
       when RS_NEXT_ROW =>
+        state_next <= RS_SET_ROW;
+        
+      when RS_END_FRAME =>
         state_next <= RS_SET_ROW;
 
       when RS_DIE =>
@@ -450,6 +455,8 @@ begin
           gs_pulse_delay_counter    <= (others => '0');
           gs_pulse_deassert_counter <= (others => '0');
           gs_deassert_counter       <= (others => '0');
+          
+          gs_busy <= '0';
 
           is_gs <= '0';
 
@@ -515,7 +522,6 @@ begin
         when RS_SET_ROW =>
           RA_EN        <= '1';
           rs_cnt       <= rs_cnt + 1;
-          rs_frame_cnt <= rs_frame_cnt + 1;
 
         when RS_RD_EN =>
           RD_EN <= '1';
@@ -557,6 +563,12 @@ begin
         when RS_NEXT_ROW =>
           rs_cnt <= 0;
           RA     <= std_logic_vector(unsigned (RA) + 1);
+          
+        when RS_END_FRAME =>
+         rs_frame_cnt <= rs_frame_cnt + 1;
+         RA <= (others=>'0');
+         rs_cnt <= 0;
+
 
         when RS_DIE =>
           rs_cnt       <= 0;
