@@ -78,7 +78,7 @@ module DAC_refresh(
                 SYNC : begin
                     if(~SCLK_reg) begin
                         state <= SHIFT;
-                        DAC_SYNC_reg <= 1'b1;
+                        DAC_SYNC_reg <= 1'b0;
                     end
                 end
                 SHIFT : begin
@@ -89,6 +89,7 @@ module DAC_refresh(
                       if (BS_cnt[4:0] == 5'b11111) begin
                          state <= LOAD;
                          BS_cnt[4:0] <= 5'b0;
+                         DAC_SYNC_reg <= 1'b1;
                          DAC_BUSY_reg <= 1'b1;
                       end
                    end
