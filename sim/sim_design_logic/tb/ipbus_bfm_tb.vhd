@@ -456,37 +456,39 @@ begin
     --               ipbus_transactor_outputs,
     --               clk_ipb);
 
-    ipbus_transact(gs_pulse_delay_transaction,
-                   response_transaction,
-                   ipbus_transactor_inputs,
-                   ipbus_transactor_outputs,
-                   clk_ipb);
-    ipbus_transact(gs_pulse_width_low_transaction,
-                   response_transaction,
-                   ipbus_transactor_inputs,
-                   ipbus_transactor_outputs,
-                   clk_ipb);
-    ipbus_transact(gs_pulse_width_high_transaction,
-                   response_transaction,
-                   ipbus_transactor_inputs,
-                   ipbus_transactor_outputs,
-                   clk_ipb);
-    ipbus_transact(gs_pulse_deassert_transaction,
-                   response_transaction,
-                   ipbus_transactor_inputs,
-                   ipbus_transactor_outputs,
-                   clk_ipb);
-    ipbus_transact(gs_deassert_transaction,
-                   response_transaction,
-                   ipbus_transactor_inputs,
-                   ipbus_transactor_outputs,
-                   clk_ipb);
-    ipbus_transact(start_gs_transaction,
-                   response_transaction,
-                   ipbus_transactor_inputs,
-                   ipbus_transactor_outputs,
-                   clk_ipb);
-    --check_value(ipb_control_regs(0), C_WRITE_DATA(0), FAILURE,
+
+    --ipbus_transact(gs_pulse_delay_transaction,
+    --               response_transaction,
+    --               ipbus_transactor_inputs,
+    --               ipbus_transactor_outputs,
+    --               clk_ipb);
+    --ipbus_transact(gs_pulse_width_low_transaction,
+    --               response_transaction,
+    --               ipbus_transactor_inputs,
+    --               ipbus_transactor_outputs,
+    --               clk_ipb);
+    --ipbus_transact(gs_pulse_width_high_transaction,
+    --               response_transaction,
+    --               ipbus_transactor_inputs,
+    --               ipbus_transactor_outputs,
+    --               clk_ipb);
+    --ipbus_transact(gs_pulse_deassert_transaction,
+    --               response_transaction,
+    --               ipbus_transactor_inputs,
+    --               ipbus_transactor_outputs,
+    --               clk_ipb);
+    --ipbus_transact(gs_deassert_transaction,
+    --               response_transaction,
+    --               ipbus_transactor_inputs,
+    --               ipbus_transactor_outputs,
+    --               clk_ipb);
+    --ipbus_transact(start_gs_transaction,
+    --               response_transaction,
+    --               ipbus_transactor_inputs,
+    --               ipbus_transactor_outputs,
+    --               clk_ipb);
+
+    ----check_value(ipb_control_regs(0), C_WRITE_DATA(0), FAILURE,
     --            "Checking write transaction.");
     --check_value(ipb_control_regs(1), C_WRITE_DATA(1), FAILURE,
     --            "Checking write transaction.");

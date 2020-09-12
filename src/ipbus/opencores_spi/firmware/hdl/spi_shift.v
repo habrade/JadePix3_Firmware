@@ -67,15 +67,16 @@ module spi_shift (clk, rst, latch, byte_sel, len, lsb, go,
   input                          s_in;         // serial in
   output                         s_out;        // serial out
  
-  reg                            s_out;        
-  reg                            tip;
+  (* mark_debug = "true" *) wire                           s_out;        
+  (* mark_debug = "true" *) reg                            s_out_tmp;        
+  (* mark_debug = "true" *) reg                            tip;
  
-  reg     [`SPI_CHAR_LEN_BITS:0] cnt;          // data bit count
-  reg        [`SPI_MAX_CHAR-1:0] data;         // shift register
-  wire    [`SPI_CHAR_LEN_BITS:0] tx_bit_pos;   // next bit position
-  wire    [`SPI_CHAR_LEN_BITS:0] rx_bit_pos;   // next bit position
-  wire                           rx_clk;       // rx clock enable
-  wire                           tx_clk;       // tx clock enable
+  (* mark_debug = "true" *) reg     [`SPI_CHAR_LEN_BITS:0] cnt;          // data bit count
+  (* mark_debug = "true" *) reg        [`SPI_MAX_CHAR-1:0] data;         // shift register
+  (* mark_debug = "true" *) wire    [`SPI_CHAR_LEN_BITS:0] tx_bit_pos;   // next bit position
+  (* mark_debug = "true" *) wire    [`SPI_CHAR_LEN_BITS:0] rx_bit_pos;   // next bit position
+  (* mark_debug = "true" *) wire                           rx_clk;       // rx clock enable
+  (* mark_debug = "true" *) wire                           tx_clk;       // tx clock enable
  
   assign p_out = data;
  
@@ -117,10 +118,17 @@ module spi_shift (clk, rst, latch, byte_sel, len, lsb, go,
   always @(posedge clk or posedge rst)
   begin
     if (rst)
-      s_out   <= #Tp 1'b0;
+      s_out_tmp   <= #Tp 1'b0;
     else
-      s_out <= #Tp (tx_clk || !tip) ? data[tx_bit_pos[`SPI_CHAR_LEN_BITS-1:0]] : s_out;
+    begin
+      if (tip)
+        s_out_tmp <= #Tp (tx_clk) ? data[tx_bit_pos[`SPI_CHAR_LEN_BITS-1:0]] : s_out_tmp;
+      else
+        s_out_tmp <= #Tp 1'b0;
+     end
   end
+  
+  assign s_out = tip & s_out_tmp;
  
   // Receiving bits from the line
   always @(posedge clk or posedge rst)

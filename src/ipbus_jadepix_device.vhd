@@ -46,6 +46,10 @@ entity ipbus_jadepix_device is
     clk : in std_logic;
     rst : in std_logic;
 
+    -- SPI Reset
+    spi_rst  : out std_logic;
+    spi_busy : in  std_logic;
+
     -- chip config fifo
     cfg_start      : out std_logic;
     cfg_sync       : out jadepix_cfg;
@@ -81,12 +85,11 @@ entity ipbus_jadepix_device is
     gs_pulse_deassert_cnt   : out std_logic_vector(8 downto 0);
     gs_deassert_cnt         : out std_logic_vector(8 downto 0);
 
-
     anasel_en_soft : out std_logic;
     digsel_en_soft : out std_logic;
+    load_soft      : out std_logic;
 
-    PDB  : out std_logic;
-    LOAD : out std_logic
+    PDB : out std_logic
     );
 end ipbus_jadepix_device;
 
@@ -115,12 +118,14 @@ architecture behv of ipbus_jadepix_device is
 
   -- DEBUG
   attribute mark_debug                    : string;
-  attribute mark_debug of LOAD            : signal is "true";
+  attribute mark_debug of load_soft       : signal is "true";
   attribute mark_debug of CACHE_BIT_SET   : signal is "true";
   attribute mark_debug of PDB             : signal is "true";
   attribute mark_debug of hitmap_col_low  : signal is "true";
   attribute mark_debug of hitmap_col_high : signal is "true";
   attribute mark_debug of hitmap_en       : signal is "true";
+  attribute mark_debug of spi_rst         : signal is "true";
+  attribute mark_debug of spi_busy        : signal is "true";
 
 begin
 
@@ -158,6 +163,7 @@ begin
       cfg_start_tmp  <= ctrl(1)(0);
       rs_start_tmp   <= ctrl(1)(1);
       gs_start_tmp   <= ctrl(1)(2);
+      spi_rst        <= ctrl(1)(3);
       PDB            <= ctrl(1)(5);
       load_tmp       <= ctrl(1)(6);
       cfg_fifo_rst   <= ctrl(1)(7);
@@ -202,12 +208,12 @@ begin
         cfg_start <= cfg_start_tmp;
         rs_start  <= rs_start_tmp;
         gs_start  <= gs_start_tmp;
-        LOAD      <= load_tmp;
+        load_soft <= load_tmp;
       else
         cfg_start <= '0';
         rs_start  <= '0';
         gs_start  <= '0';
-        LOAD      <= '0';
+        load_soft <= '0';
       end if;
     end if;
   end process;
@@ -219,6 +225,7 @@ begin
       stat(0)(0) <= cfg_busy;
       stat(0)(1) <= rs_busy;
       stat(0)(2) <= gs_busy;
+      stat(0)(3) <= spi_busy;
 
       stat(1)(0)           <= cfg_fifo_empty;
       stat(1)(1)           <= cfg_fifo_pfull;

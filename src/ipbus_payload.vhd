@@ -53,10 +53,10 @@ entity ipbus_payload is
     rs_start        : out std_logic;
     rs_frame_number : out std_logic_vector(31 downto 0);
 
-    gs_start     : out std_logic;
-    gs_sel_pulse : out std_logic;
-    gs_busy      : in  std_logic;
-    gs_col       : out std_logic_vector(COL_WIDTH-1 downto 0);
+    gs_start      : out std_logic;
+    gs_sel_pulse  : out std_logic;
+    gs_busy       : in  std_logic;
+    gs_col        : out std_logic_vector(COL_WIDTH-1 downto 0);
     gshutter_soft : out std_logic;
     aplse_soft    : out std_logic;
     dplse_soft    : out std_logic;
@@ -69,9 +69,11 @@ entity ipbus_payload is
 
     anasel_en_soft : out std_logic;
     digsel_en_soft : out std_logic;
+    load_soft : out std_logic;
+    
+    spi_trans_end      : out std_logic;
 
     PDB  : out std_logic;
-    LOAD : out std_logic;
 
     -- SPI Master
     ss   : out std_logic_vector(N_SS - 1 downto 0);
@@ -87,18 +89,12 @@ architecture rtl of ipbus_payload is
   signal ipbw : ipb_wbus_array(N_SLAVES - 1 downto 0);
   signal ipbr : ipb_rbus_array(N_SLAVES - 1 downto 0);
 
-  --Debug
-  attribute mark_debug         : string;
-  attribute mark_debug of miso : signal is "true";
-  attribute mark_debug of mosi : signal is "true";
-  attribute mark_debug of ss   : signal is "true";
-  attribute mark_debug of sclk : signal is "true";
-  attribute mark_debug of load : signal is "true";
+  signal spi_rst            : std_logic;
+  signal spi_busy           : std_logic;
 
 begin
 
 -- ipbus address decode
-
   fabric : entity work.ipbus_fabric_sel
     generic map(
       NSLV      => N_SLAVES,
@@ -140,14 +136,16 @@ begin
       N_SS => N_SS
       )
     port map(
-      clk     => ipb_clk,
-      rst     => ipb_rst,
-      ipb_in  => ipbw(N_SLV_SPI),
-      ipb_out => ipbr(N_SLV_SPI),
-      ss      => ss,
-      mosi    => mosi,
-      miso    => miso,
-      sclk    => sclk
+      clk           => ipb_clk,
+      rst           => ipb_rst or spi_rst,
+      ipb_in        => ipbw(N_SLV_SPI),
+      ipb_out       => ipbr(N_SLV_SPI),
+      spi_busy      => spi_busy,
+      spi_trans_end => spi_trans_end,
+      ss            => ss,
+      mosi          => mosi,
+      miso          => miso,
+      sclk          => sclk
       );
 
 
@@ -160,6 +158,9 @@ begin
 
       clk => clk,
       rst => rst,
+
+      spi_rst  => spi_rst,
+      spi_busy => spi_busy,
 
       cfg_start      => cfg_start,
       cfg_sync       => cfg_sync,
@@ -184,10 +185,10 @@ begin
       gs_start     => gs_start,
       gs_col       => gs_col,
       gs_busy      => gs_busy,
-      
-      gshutter_soft   => gshutter_soft,
-      aplse_soft      => aplse_soft,
-      dplse_soft      => dplse_soft,
+
+      gshutter_soft => gshutter_soft,
+      aplse_soft    => aplse_soft,
+      dplse_soft    => dplse_soft,
 
 
       gs_pulse_delay_cnt      => gs_pulse_delay_cnt,
@@ -198,9 +199,9 @@ begin
 
       anasel_en_soft => anasel_en_soft,
       digsel_en_soft => digsel_en_soft,
+      load_soft      => load_soft,
 
-      PDB  => PDB,
-      LOAD => LOAD
+      PDB => PDB
 
       );
 

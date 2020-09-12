@@ -167,7 +167,10 @@ architecture rtl of JadePix3_Readout is
   signal aplse_soft    : std_logic;
   signal dplse_soft    : std_logic;
   signal gshutter_soft : std_logic;
-
+  
+  -- SPI 
+  signal load_soft     : std_logic;
+  signal spi_trans_end : std_logic;
 
 begin
 
@@ -293,9 +296,12 @@ begin
 
       anasel_en_soft => anasel_en_soft,
       digsel_en_soft => digsel_en_soft,
+      load_soft      => load_soft,
+
+      spi_trans_end  => spi_trans_end,
+      
 
       PDB  => PDB,
-      LOAD => LOAD,
 
       -- SPI master
       ss   => open,
@@ -377,13 +383,21 @@ begin
       digsel_en_rs => digsel_en_rs,
       anasel_en_gs => anasel_en_gs
       );
-
-
+      
   DIGSEL_EN <= digsel_en_rs and digsel_en_soft;
   ANASEL_EN <= anasel_en_gs and anasel_en_soft;
   GSHUTTER <= gshutter_gs or gshutter_soft;
   APLSE <= aplse_gs and aplse_soft;
   DPLSE <= dplse_gs and dplse_soft;
+  
+  jadepix_load_spi: entity work.jadepix_spi_load
+  port map(
+          clk => clk_ipb,
+          rst => rst_ipb,
+          spi_trans_end => spi_trans_end,
+          load_soft => load_soft,
+          LOAD => LOAD
+    );
   
   CACHE_CLK <= clk_cache;
 

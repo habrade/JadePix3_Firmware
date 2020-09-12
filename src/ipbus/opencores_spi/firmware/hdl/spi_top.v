@@ -49,6 +49,7 @@ module spi_top
   wb_we_i, wb_stb_i, wb_cyc_i, wb_ack_o, wb_err_o, wb_int_o,
  
   // SPI signals
+  spi_busy, spi_trans_end,
   ss_pad_o, sclk_pad_o, mosi_pad_o, miso_pad_i
 );
  
@@ -73,6 +74,9 @@ module spi_top
   output                           sclk_pad_o;       // serial clock
   output                           mosi_pad_o;       // master out slave in
   input                            miso_pad_i;       // master in slave out
+  
+  output                           spi_busy;
+  output                           spi_trans_end;
  
   reg                     [32-1:0] wb_dat_o;
   reg                              wb_ack_o;
@@ -87,7 +91,7 @@ module spi_top
   wire                             rx_negedge;       // miso is sampled on negative edge
   wire                             tx_negedge;       // mosi is driven on negative edge
   wire    [`SPI_CHAR_LEN_BITS-1:0] char_len;         // char len
-  wire                             go;               // go
+  (* mark_debug = "true" *) wire                             go;               // go
   wire                             lsb;              // lsb first on line
   wire                             ie;               // interrupt enable
   wire                             ass;              // automatic slave select
@@ -98,7 +102,7 @@ module spi_top
   wire                             tip;              // transfer in progress
   wire                             pos_edge;         // recognize posedge of sclk
   wire                             neg_edge;         // recognize negedge of sclk
-  wire                             last_bit;         // marks last character bit
+  (* mark_debug = "true" *) wire                             last_bit;         // marks last character bit
  
   // Address decoder
   assign spi_divider_sel = wb_cyc_i & wb_stb_i & (wb_adr_i[`SPI_OFS_BITS] == `SPI_DEVIDE);
@@ -298,4 +302,8 @@ module spi_top
                    .tip(tip), .last(last_bit), 
                    .p_in(wb_dat_i), .p_out(rx), 
                    .s_clk(sclk_pad_o), .s_in(miso_pad_i), .s_out(mosi_pad_o));
+  
+  assign spi_busy = go;
+  assign spi_trans_end = last_bit;  
+  
 endmodule

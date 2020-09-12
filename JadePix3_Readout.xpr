@@ -460,6 +460,12 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
+      <File Path="$PPRDIR/src/jadepix_spi_load.vhd">
+        <FileInfo>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
       <File Path="$PPRDIR/src/JadePix3_Readout.vhd">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>

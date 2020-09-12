@@ -66,7 +66,7 @@ architecture behv of ipbus_fabric_inside_device is
 
   --Debug
   attribute mark_debug        : string;
-  attribute mark_debug of sel : signal is "true";
+  attribute mark_debug of sel : signal is "false";
 
 begin
 
