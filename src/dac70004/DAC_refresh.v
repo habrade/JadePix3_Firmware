@@ -85,7 +85,6 @@ module DAC_refresh(
                    if (~SCLK_reg) begin
                       BS_cnt <= BS_cnt + 1;
                       DATA_shift_register[31:0] <= {DATA_shift_register[30:0],1'b0};
-                      DAC_SYNC_reg <= 1'b1;
                       if (BS_cnt[4:0] == 5'b11111) begin
                          state <= LOAD;
                          BS_cnt[4:0] <= 5'b0;
