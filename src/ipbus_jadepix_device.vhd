@@ -67,9 +67,9 @@ entity ipbus_jadepix_device is
     hitmap_num      : out std_logic_vector(3 downto 0);
 
 
-    rs_busy         : in  std_logic;
-    rs_start        : out std_logic;
-    rs_frame_number : out std_logic_vector(31 downto 0);
+    rs_busy          : in  std_logic;
+    rs_start         : out std_logic;
+    rs_frame_num_set : out std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
 
     gs_start      : out std_logic;
     gshutter_soft : out std_logic;
@@ -176,7 +176,7 @@ begin
       dplse_soft     <= ctrl(1)(26);
       gshutter_soft  <= ctrl(1)(27);
 
-      rs_frame_number <= ctrl(2);
+      rs_frame_num_set <= ctrl(2)(FRAME_CNT_WIDTH-1 downto 0);
 
       hitmap_col_low  <= ctrl(3)(8 downto 0);
       hitmap_col_high <= ctrl(3)(17 downto 9);

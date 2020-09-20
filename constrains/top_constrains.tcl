@@ -191,6 +191,11 @@ set_property PACKAGE_PIN E4 [get_ports DATA_IN[5]]
 set_property PACKAGE_PIN D1 [get_ports DATA_IN[6]]
 set_property PACKAGE_PIN E3 [get_ports DATA_IN[7]]
 
+set_property IOSTANDARD LVDS [get_ports {LVDS_RX_OUT*}]
+set_property PACKAGE_PIN AE5 [get_ports LVDS_RX_OUT_P]
+set_property PACKAGE_PIN AF5 [get_ports LVDS_RX_OUT_N]
+
+
 # IPbus clock
 create_generated_clock -name ipbus_clk -source [get_pins ipbus_infra/clocks/mmcm/CLKIN1] [get_pins ipbus_infra/clocks/mmcm/CLKOUT3]
 

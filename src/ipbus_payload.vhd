@@ -49,9 +49,9 @@ entity ipbus_payload is
     hitmap_en       : out std_logic;
     hitmap_num      : out std_logic_vector(3 downto 0);
 
-    rs_busy         : in  std_logic;
-    rs_start        : out std_logic;
-    rs_frame_number : out std_logic_vector(31 downto 0);
+    rs_busy             : in  std_logic;
+    rs_start            : out std_logic;
+    rs_frame_num_set : out std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
 
     gs_start      : out std_logic;
     gs_sel_pulse  : out std_logic;
@@ -69,11 +69,11 @@ entity ipbus_payload is
 
     anasel_en_soft : out std_logic;
     digsel_en_soft : out std_logic;
-    load_soft : out std_logic;
-    
-    spi_trans_end      : out std_logic;
+    load_soft      : out std_logic;
 
-    PDB  : out std_logic;
+    spi_trans_end : out std_logic;
+
+    PDB : out std_logic;
 
     -- SPI Master
     ss   : out std_logic_vector(N_SS - 1 downto 0);
@@ -89,8 +89,8 @@ architecture rtl of ipbus_payload is
   signal ipbw : ipb_wbus_array(N_SLAVES - 1 downto 0);
   signal ipbr : ipb_rbus_array(N_SLAVES - 1 downto 0);
 
-  signal spi_rst            : std_logic;
-  signal spi_busy           : std_logic;
+  signal spi_rst  : std_logic;
+  signal spi_busy : std_logic;
 
 begin
 
@@ -177,9 +177,9 @@ begin
       hitmap_en       => hitmap_en,
       hitmap_num      => hitmap_num,
 
-      rs_busy         => rs_busy,
-      rs_start        => rs_start,
-      rs_frame_number => rs_frame_number,
+      rs_busy             => rs_busy,
+      rs_start            => rs_start,
+      rs_frame_num_set => rs_frame_num_set,
 
       gs_sel_pulse => gs_sel_pulse,
       gs_start     => gs_start,

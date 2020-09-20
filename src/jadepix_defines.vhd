@@ -45,8 +45,8 @@ package JADEPIX_DEFINES is
   constant JADEPIX_REF_PERIOD   : real := 25.0;   -- unit: ns
   constant JADEPIX_CACHE_PERIOD : real := 192.0;  -- unit: ns
 
-  constant JADEPIX_CFG_PERIOD : real := 192.0;  -- unit: ns
-  constant JADEPIX_RS_PERIOD  : real := 192.0;  -- unit: ns
+  constant JADEPIX_CFG_PERIOD          : real := 192.0;  -- unit: ns
+  constant JADEPIX_RS_NO_HITMAP_PERIOD : real := 192.0;  -- unit: ns
 
   type jadepix_cfg is
   record
@@ -55,13 +55,49 @@ package JADEPIX_DEFINES is
   end record;
 
   constant JADEPIX_CFG_CNT_MAX    : integer                                           := natural(JADEPIX_CFG_PERIOD/JADEPIX_SYS_PERIOD);
-  constant JADEPIX_RS_CNT_MAX     : integer                                           := natural(JADEPIX_RS_PERIOD/JADEPIX_SYS_PERIOD);
-  constant JADEPIX_HITMAP_CNT_MAX : integer                                           := natural((24.0+48.0)/JADEPIX_SYS_PERIOD);
-  constant JADEPIX_HITMAP_CHN_MAX : integer                                           := 12;
+  constant JADEPIX_RS_CNT_MAX     : integer                                           := natural(JADEPIX_RS_NO_HITMAP_PERIOD/JADEPIX_SYS_PERIOD);
+  constant JADEPIX_HITMAP_CNT_MAX : integer                                           := natural(48.0/JADEPIX_SYS_PERIOD);
+  constant JADEPIX_HITMAP_CHN_MAX : integer                                           := 12;  -- COL Address from 340 to 351
   constant JADEPIX_CFG_NULL       : jadepix_cfg                                       := ('0', (others => '0'));
   constant CFG_FIFO_COUNT_WITDH   : integer                                           := 17;
   constant CFG_FIFO_COUNT_ZERO    : std_logic_vector(CFG_FIFO_COUNT_WITDH-1 downto 0) := (others       => '0');
-  
+  constant JADEPIX_SECTOR_NUM     : integer                                           := 4;
+  constant JADEPIX_SUBSECTOR_NUM  : integer                                           := 16;
+
+  -- FIFO in chip
+  constant FIFO_DEPTH         : integer := 48;
+  constant DATA_MAX_PER_VALID : integer := 3;
+  constant VALID_MAX          : integer := FIFO_DEPTH/DATA_MAX_PER_VALID;
+  constant FIFO_OVERFLOW_MAX  : integer := 31;  -- Because the width is set to 5, val = 2**5 - 1, not sure this value should be set like this.
+
+--  type fifo_valid_cnt_v is array(natural range <>) of unsigned(FIFO_DEPTH-1 downto 0);
+--  type fifo_overflow_cnt_v is array(natural range <>) of unsigned(FIFO_OVERFLOW_MAX-1 downto 0);
+
+
+  -- DATA readout
+  constant BLK_SELECT_WIDTH : integer := 2;
+  constant SECTOR_NUM       : integer := 2**BLK_SELECT_WIDTH;
+  constant FRAME_CNT_WIDTH  : integer := 24;
+  constant RBOF_WIDTH       : integer := 8;
+  constant DATA_FRAME_WIDTH : integer := FRAME_CNT_WIDTH + ROW_WIDTH + JADEPIX_SECTOR_NUM + RBOF_WIDTH -1;
+  constant DATA_BUF_DEPTH   : integer := 192;
+
+  type sector_counters is
+  record
+    valid_counter    : std_logic_vector(4 downto 0);
+    overflow_counter : std_logic_vector(4 downto 0);
+  end record;
+
+  type sector_cnt is array(natural range <>) of sector_counters;
+
+  type data_frame is
+  record
+    frame_num : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
+    row       : std_logic_vector(ROW_WIDTH-1 downto 0);
+    sectors   : sector_cnt (JADEPIX_SECTOR_NUM-1 downto 0);
+    rbof      : std_logic_vector(RBOF_WIDTH-1 downto 0);
+  end record;
+
 
 end JADEPIX_DEFINES;
 

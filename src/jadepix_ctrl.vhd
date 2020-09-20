@@ -64,13 +64,15 @@ entity jadepix_ctrl is
     anasel_en_gs : out std_logic;
 
     -- Rolling shutter
-    rs_busy         : out std_logic;
-    rs_frame_number : in  std_logic_vector(31 downto 0);
+    rs_frame_num_set : in  std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
+    rs_busy          : out std_logic;
+    rs_frame_cnt     : out std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
 
     HIT_RST     : out std_logic;
     RD_EN       : out std_logic;
     MATRIX_GRST : out std_logic;
 
+    blk_select : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
 
     clk_cache     : in std_logic;
     clk_cache_rst : in std_logic;
@@ -104,9 +106,9 @@ architecture behv of jadepix_ctrl is
 
   type JADEPIX_STATE is (IDLE,
                          CFG_GO, CFG_GET_DATA, CFG_EN_DATA, CFG_EN_SEL, CFG_DIS_SEL, CFG_NEXT_PIX, CFG_STOP,
-                         RS_GO, RS_SET_ROW, RS_RD_EN, RS_SET_COL, RS_HOLD_COL,
-                         RS_HITMAP_START, RS_HITMAP, RS_HITMAP_END_COL, RS_HITMAP_NEXT_COL, RS_HITMAP_STOP,
-                         RS_HIT_RST, RS_END_ROW, RS_NEXT_ROW, RS_END_FRAME, RS_DIE,
+                         RS_GO, RS_SET_ROW, RS_SET_COL, RS_HOLD_COL,
+                         RS_HITMAP_SET_COL, RS_HITMAP_NEXT_COL,
+                         RS_HIT_RST, RS_END_ROW, RS_NEXT_ROW, RS_END_FRAME, RS_STOP,
                          GS_GO, GS_PULSE_DELAY, GS_PULSE_WIDTH, GS_PULSE_DEASSERT, GS_DEASSERT, GS_STOP);
   signal state_reg, state_next : JADEPIX_STATE;
 
@@ -120,8 +122,7 @@ architecture behv of jadepix_ctrl is
   signal cfg_cnt                    : integer range 0 to JADEPIX_CFG_CNT_MAX := 0;
 
   -- RS
-  signal rs_frame_cnt              : integer range 0 to integer'high                 := 0;
-  signal rs_cnt                    : integer range 0 to JADEPIX_RS_CNT_MAX           := 0;
+  signal rs_cnt                    : integer range 0 to (JADEPIX_RS_CNT_MAX+1)       := 0;
   signal rs_hitmap_cnt             : integer range 0 to JADEPIX_HITMAP_CNT_MAX       := 0;
   signal hitmap_cnt                : integer range 0 to (JADEPIX_HITMAP_CHN_MAX + 1) := 0;
   signal hitmap_num_int            : integer range 0 to JADEPIX_HITMAP_CHN_MAX       := 0;
@@ -164,7 +165,7 @@ architecture behv of jadepix_ctrl is
   attribute mark_debug of gs_start       : signal is "true";
   attribute mark_debug of HIT_RST        : signal is "true";
   attribute mark_debug of RD_EN          : signal is "true";
-  attribute mark_debug of hitmap_num     : signal is "true";
+
 
   attribute mark_debug of pulse_out                 : signal is "true";
   attribute mark_debug of gs_deassert_counter       : signal is "true";
@@ -182,8 +183,27 @@ architecture behv of jadepix_ctrl is
   attribute mark_debug of gs_pulse_width_cnt_high : signal is "true";
   attribute mark_debug of gs_pulse_deassert_cnt   : signal is "true";
   attribute mark_debug of gs_deassert_cnt         : signal is "true";
-  attribute mark_debug of rs_frame_number         : signal is "true";
+  attribute mark_debug of rs_frame_num_set        : signal is "true";
   attribute mark_debug of rs_frame_cnt            : signal is "true";
+  attribute mark_debug of rs_hitmap_cnt           : signal is "true";
+  attribute mark_debug of hitmap_num              : signal is "true";
+  attribute mark_debug of hitmap_cnt              : signal is "true";
+
+  component fifo_generator_0
+    port (
+      clk        : in  std_logic;
+      srst       : in  std_logic;
+      din        : in  std_logic_vector(2 downto 0);
+      wr_en      : in  std_logic;
+      rd_en      : in  std_logic;
+      dout       : out std_logic_vector(2 downto 0);
+      full       : out std_logic;
+      empty      : out std_logic;
+      valid      : out std_logic;
+      data_count : out std_logic_vector(16 downto 0);
+      prog_full  : out std_logic
+      );
+  end component;
 
 begin
 
@@ -288,19 +308,15 @@ begin
 
       when RS_SET_ROW =>
         if rs_cnt = 2 then
-          state_next <= RS_RD_EN;
+          state_next <= RS_SET_COL;
         else
           state_next <= RS_SET_ROW;
         end if;
 
-      when RS_RD_EN =>
-        state_next <= RS_SET_COL;
-
       when RS_SET_COL =>
-        if rs_cnt = 12 then
-          state_next <= RS_HOLD_COL;
+        if rs_cnt = 10 then
           if hitmap_en = '1' then
-            state_next <= RS_HITMAP_START;
+            state_next <= RS_HITMAP_SET_COL;
           else
             state_next <= RS_HOLD_COL;
           end if;
@@ -308,61 +324,64 @@ begin
           state_next <= RS_SET_COL;
         end if;
 
-      when RS_HOLD_COL =>
-        if rs_cnt = 14 then
-          state_next <= RS_HIT_RST;
-        else
-          state_next <= RS_HOLD_COL;
-        end if;
-
-      when RS_HITMAP_START =>
-        state_next <= RS_HITMAP;
-
-      when RS_HITMAP =>
+      when RS_HITMAP_SET_COL =>
         if rs_hitmap_cnt = JADEPIX_HITMAP_CNT_MAX then
-          state_next <= RS_HITMAP_END_COL;
+          if hitmap_cnt = hitmap_num_int then
+            state_next <= RS_HOLD_COL;
+          else
+            state_next <= RS_HITMAP_NEXT_COL;
+          end if;
         else
-          state_next <= RS_HITMAP;
+          state_next <= RS_HITMAP_SET_COL;
         end if;
 
-      when RS_HITMAP_END_COL =>
-        if hitmap_cnt = hitmap_num_int - 1 then
-          state_next <= RS_HITMAP_STOP;
+      when RS_HITMAP_NEXT_COL =>
+        if rs_hitmap_cnt = JADEPIX_HITMAP_CNT_MAX then
+          if hitmap_cnt = hitmap_num_int then
+            state_next <= RS_HOLD_COL;
+          else
+            state_next <= RS_HITMAP_NEXT_COL;
+          end if;
         else
           state_next <= RS_HITMAP_NEXT_COL;
         end if;
 
-      when RS_HITMAP_NEXT_COL =>
-        state_next <= RS_HITMAP;
-
-      when RS_HITMAP_STOP =>
-        state_next <= RS_HIT_RST;
-
+      when RS_HOLD_COL =>
+        if rs_cnt = 12 then
+          state_next <= RS_HIT_RST;
+        else
+          state_next <= RS_HOLD_COL;
+        end if;
+        
       when RS_HIT_RST =>
-        if rs_cnt = JADEPIX_RS_CNT_MAX then
+        if rs_cnt = 14 then
           state_next <= RS_END_ROW;
         else
           state_next <= RS_HIT_RST;
         end if;
 
       when RS_END_ROW =>
-        if RA = "111111111" then
-          if rs_frame_cnt = (to_integer(unsigned(rs_frame_number)) -1) or is_gs = '1' then
-            state_next <= RS_DIE;
+        if rs_cnt = JADEPIX_RS_CNT_MAX then
+          if RA = "111111111" then
+            if rs_frame_cnt = std_logic_vector(unsigned(rs_frame_num_set) - 1) or is_gs = '1' then
+              state_next <= RS_STOP;
+            else
+              state_next <= RS_END_FRAME;
+            end if;
           else
-            state_next <= RS_END_FRAME;
+            state_next <= RS_NEXT_ROW;
           end if;
         else
-          state_next <= RS_NEXT_ROW;
+          state_next <= RS_END_ROW;
         end if;
 
       when RS_NEXT_ROW =>
         state_next <= RS_SET_ROW;
-        
+
       when RS_END_FRAME =>
         state_next <= RS_SET_ROW;
 
-      when RS_DIE =>
+      when RS_STOP =>
         state_next <= IDLE;
 
       when GS_GO =>
@@ -449,13 +468,14 @@ begin
           anasel_en_gs <= '0';
 
           rs_hitmap_cnt <= 0;
-          rs_frame_cnt  <= 0;
+          hitmap_cnt    <= 0;
+          rs_frame_cnt  <= (others => '0');
 
           gs_width_counter          <= (others => '0');
           gs_pulse_delay_counter    <= (others => '0');
           gs_pulse_deassert_counter <= (others => '0');
           gs_deassert_counter       <= (others => '0');
-          
+
           gs_busy <= '0';
 
           is_gs <= '0';
@@ -520,62 +540,67 @@ begin
           digsel_en_rs <= '1';
 
         when RS_SET_ROW =>
-          RA_EN        <= '1';
-          rs_cnt       <= rs_cnt + 1;
-
-        when RS_RD_EN =>
-          RD_EN <= '1';
+          RA_EN  <= '1';
+          rs_cnt <= rs_cnt + 1;
 
         when RS_SET_COL =>
+          RD_EN  <= '1';
           rs_cnt <= rs_cnt + 1;
+
+        when RS_HITMAP_SET_COL =>
+          CA_EN      <= '1';
+          CA         <= hitmap_col_low;
+          hitmap_cnt <= 1;
+          if rs_hitmap_cnt = JADEPIX_HITMAP_CNT_MAX then
+            rs_hitmap_cnt <= 1;
+          else
+            rs_hitmap_cnt <= rs_hitmap_cnt + 1;
+          end if;
+
+        when RS_HITMAP_NEXT_COL =>
+          if rs_hitmap_cnt = JADEPIX_HITMAP_CNT_MAX then
+            rs_hitmap_cnt <= 1;
+            CA            <= std_logic_vector(unsigned (CA) + 1);
+            hitmap_cnt    <= hitmap_cnt + 1;
+          else
+            rs_hitmap_cnt <= rs_hitmap_cnt + 1;
+          end if;
 
         when RS_HOLD_COL =>
           rs_cnt <= rs_cnt + 1;
-
-        when RS_HITMAP_START =>
-          CA_EN <= '1';
-          CA    <= hitmap_col_low;
-
-        when RS_HITMAP =>
-          rs_hitmap_cnt <= rs_hitmap_cnt + 1;
-
-        when RS_HITMAP_END_COL =>
+          -- clear hitmap signals
+          hitmap_cnt    <= 0;
           rs_hitmap_cnt <= 0;
-
-        when RS_HITMAP_NEXT_COL =>
-          CA         <= std_logic_vector(unsigned (CA) + 1);
-          hitmap_cnt <= hitmap_cnt + 1;
-
-        when RS_HITMAP_STOP =>
-          hitmap_cnt <= 0;
-          CA_EN      <= '0';
-          CA         <= (others => '0');
+          CA            <= (others => '0');
+          CA_EN         <= '0';
 
         when RS_HIT_RST =>
-          rs_cnt  <= rs_cnt + 1;
-          RD_EN   <= '0';
-          HIT_RST <= '1';
+          rs_cnt        <= rs_cnt + 1;
+          RD_EN         <= '0';
+          HIT_RST       <= '1';
 
         when RS_END_ROW =>
+          rs_cnt  <= rs_cnt + 1;
           HIT_RST <= '0';
           RA_EN   <= '0';
 
         when RS_NEXT_ROW =>
-          rs_cnt <= 0;
-          RA     <= std_logic_vector(unsigned (RA) + 1);
-          
+          HIT_RST <= '0';
+          rs_cnt  <= 0;
+          RA      <= std_logic_vector(unsigned(RA) + 1);
+
         when RS_END_FRAME =>
-         rs_frame_cnt <= rs_frame_cnt + 1;
-         RA <= (others=>'0');
-         rs_cnt <= 0;
+          HIT_RST      <= '0';
+          rs_frame_cnt <= std_logic_vector(unsigned(rs_frame_cnt) + 1);
+          RA           <= (others => '0');
+          rs_cnt       <= 0;
 
-
-        when RS_DIE =>
+        when RS_STOP =>
           rs_cnt       <= 0;
           rs_busy      <= '0';
           RA           <= (others => '0');
           digsel_en_rs <= '0';
-          rs_frame_cnt <= 0;
+          rs_frame_cnt <= (others => '0');
           is_gs        <= '0';
 
         when GS_GO =>
@@ -630,7 +655,7 @@ begin
     end if;
   end process;
 
-  conf_fifo : entity work.fifo_generator_0
+  conf_fifo : fifo_generator_0
     port map (
       clk        => clk,
       srst       => fifo_rst,
@@ -644,5 +669,6 @@ begin
       data_count => cfg_fifo_count,
       prog_full  => cfg_fifo_pfull
       );
+
 
 end behv;

@@ -4,7 +4,7 @@
 -- You should have received a copy of the license file containing the MIT License (see LICENSE.TXT), if not,
 -- contact Bitvis AS <support@bitvis.no>.
 --========================================================================================================================
--- Copyright (c) 2019 by Michał Kruszewski. All rights reserved.
+-- Copyright (c) 2019 by Micha?? Kruszewski. All rights reserved.
 --
 -- All IPbus Bus Functional Model files are provided with the same MIT License as the rest of the UVVM infrastrucutre.
 --=======================================================================================================================
@@ -194,7 +194,7 @@ architecture behavioral of ipbus_bfm_tb is
   signal rs_start            : std_logic;
   signal gs_start            : std_logic;
 
-  signal rs_frame_number : std_logic_vector(31 downto 0);
+  signal rs_frame_num_set : std_logic_vector(31 downto 0);
 
   signal hitmap_col_low  : std_logic_vector(COL_WIDTH-1 downto 0);
   signal hitmap_col_high : std_logic_vector(COL_WIDTH-1 downto 0);
@@ -377,7 +377,7 @@ begin
 
       rs_busy         => rs_busy,
       rs_start        => rs_start,
-      rs_frame_number => rs_frame_number,
+      rs_frame_num_set => rs_frame_num_set,
 
       HIT_RST => HIT_RST,
       RD_EN   => RD_EN,
