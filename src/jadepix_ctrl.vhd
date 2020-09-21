@@ -248,8 +248,6 @@ begin
   process(all)
   begin
 
-    state_next <= state_reg;
-
     case state_reg is
       when IDLE =>
         if cfg_start = '1' then
