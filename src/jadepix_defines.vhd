@@ -40,11 +40,9 @@ package JADEPIX_DEFINES is
   constant ROW_WIDTH : integer := 9;
   constant COL_WIDTH : integer := 9;
 
-  constant DACCLK_PERIOD        : real := 20.0;   -- unit: ns
-  constant JADEPIX_SYS_PERIOD   : real := 12.0;   -- unit: ns
-  constant JADEPIX_REF_PERIOD   : real := 25.0;   -- unit: ns
-  constant JADEPIX_CACHE_PERIOD : real := 192.0;  -- unit: ns
-
+  constant DACCLK_PERIOD               : real := 20.0;   -- unit: ns
+  constant JADEPIX_SYS_PERIOD          : real := 12.0;   -- unit: ns
+  constant JADEPIX_REF_PERIOD          : real := 25.0;   -- unit: ns
   constant JADEPIX_CFG_PERIOD          : real := 192.0;  -- unit: ns
   constant JADEPIX_RS_NO_HITMAP_PERIOD : real := 192.0;  -- unit: ns
 
@@ -65,22 +63,23 @@ package JADEPIX_DEFINES is
   constant JADEPIX_SUBSECTOR_NUM  : integer                                           := 16;
 
   -- FIFO in chip
-  constant FIFO_DEPTH         : integer := 48;
+  constant FIFO_DEPTH      : integer := 48;
+  constant FIFO_STATUS_TH1 : integer := FIFO_DEPTH*1/4;
+  constant FIFO_STATUS_TH2 : integer := FIFO_DEPTH*2/4;
+  constant FIFO_STATUS_TH3 : integer := FIFO_DEPTH*3/4;
+
   constant DATA_MAX_PER_VALID : integer := 3;
-  constant VALID_MAX          : integer := FIFO_DEPTH/DATA_MAX_PER_VALID;
+  constant VALID_MAX          : integer := 16;
   constant FIFO_OVERFLOW_MAX  : integer := 31;  -- Because the width is set to 5, val = 2**5 - 1, not sure this value should be set like this.
 
---  type fifo_valid_cnt_v is array(natural range <>) of unsigned(FIFO_DEPTH-1 downto 0);
---  type fifo_overflow_cnt_v is array(natural range <>) of unsigned(FIFO_OVERFLOW_MAX-1 downto 0);
-
-
   -- DATA readout
-  constant BLK_SELECT_WIDTH : integer := 2;
-  constant SECTOR_NUM       : integer := 2**BLK_SELECT_WIDTH;
-  constant FRAME_CNT_WIDTH  : integer := 24;
-  constant RBOF_WIDTH       : integer := 8;
-  constant DATA_FRAME_WIDTH : integer := FRAME_CNT_WIDTH + ROW_WIDTH + JADEPIX_SECTOR_NUM + RBOF_WIDTH -1;
-  constant DATA_BUF_DEPTH   : integer := 192;
+  constant BLK_SELECT_WIDTH     : integer := 2;
+  constant SECTOR_NUM           : integer := 2**BLK_SELECT_WIDTH;
+  constant FRAME_CNT_WIDTH      : integer := 24;
+  constant RBOF_WIDTH           : integer := 8;
+  constant DATA_FRAME_WIDTH     : integer := FRAME_CNT_WIDTH + ROW_WIDTH + JADEPIX_SECTOR_NUM + RBOF_WIDTH -1;
+  constant DATA_BUF_DEPTH_WIDTH : integer := 8;
+  constant DATA_BUF_DEPTH       : integer := 192;
 
   type sector_counters is
   record
@@ -89,6 +88,7 @@ package JADEPIX_DEFINES is
   end record;
 
   type sector_cnt is array(natural range <>) of sector_counters;
+  type sector_status is array(natural range <>) of std_logic_vector(1 downto 0);
 
   type data_frame is
   record

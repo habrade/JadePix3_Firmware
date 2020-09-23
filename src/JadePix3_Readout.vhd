@@ -150,8 +150,7 @@ architecture rtl of JadePix3_Readout is
   signal gs_pulse_deassert_cnt   : std_logic_vector(8 downto 0);
   signal gs_deassert_cnt         : std_logic_vector(8 downto 0);
 
-  signal clk_cache     : std_logic;
-  signal clk_cache_rst : std_logic;
+  signal clk_cache : std_logic;
 
   -- config FIFO signals
   signal cfg_sync       : jadepix_cfg;
@@ -206,16 +205,14 @@ begin
 
   jadepix_clocks : entity work.jadepix_clock_gen
     port map(
-      sysclk        => sysclk,
-      clk_ref       => REFCLK,
-      clk_dac       => DACCLK,
-      clk_sys       => clk_sys,
-      clk_cache     => clk_cache,
-      clk_dac_rst   => clk_dac_rst,
-      clk_ref_rst   => clk_ref_rst,
-      clk_sys_rst   => clk_sys_rst,
-      clk_cache_rst => clk_cache_rst,
-      locked        => locked_jadepix_mmcm
+      sysclk      => sysclk,
+      clk_ref     => REFCLK,
+      clk_dac     => DACCLK,
+      clk_sys     => clk_sys,
+      clk_dac_rst => clk_dac_rst,
+      clk_ref_rst => clk_ref_rst,
+      clk_sys_rst => clk_sys_rst,
+      locked      => locked_jadepix_mmcm
       );
 
   ipbus_infra : entity work.ipbus_gmii_infra
@@ -353,8 +350,13 @@ begin
   jadepix_ctrl_wrapper : entity work.jadepix_ctrl_wrapper
     port map(
 
-      clk => clk_sys,
-      rst => clk_sys_rst,
+      clk           => clk_sys,
+      rst           => clk_sys_rst,
+      clk_ipb       => clk_ipb,
+      rst_ipb       => rst_ipb,
+      spi_trans_end => spi_trans_end,
+      load_soft     => load_soft,
+      LOAD          => LOAD,
 
       cfg_sync       => cfg_sync,
       cfg_fifo_rst   => cfg_fifo_rst,
@@ -364,8 +366,7 @@ begin
       cfg_busy       => cfg_busy,
       cfg_start      => cfg_start,
 
-      clk_cache     => clk_cache,
-      clk_cache_rst => clk_cache_rst,
+      clk_cache => clk_cache,
 
       hitmap_col_low  => hitmap_col_low,
       hitmap_col_high => hitmap_col_high,
@@ -414,16 +415,6 @@ begin
   GSHUTTER  <= gshutter_gs or gshutter_soft;
   APLSE     <= aplse_gs and aplse_soft;
   DPLSE     <= dplse_gs and dplse_soft;
-
-  jadepix_load_spi : entity work.jadepix_spi_load
-    port map(
-      clk           => clk_ipb,
-      rst           => rst_ipb,
-      spi_trans_end => spi_trans_end,
-      load_soft     => load_soft,
-      LOAD          => LOAD
-      );
-
 
 --  u_mig_7series_0 : entity work.mig_7series_0_1
 --    port map (

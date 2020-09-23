@@ -74,8 +74,7 @@ entity jadepix_ctrl is
 
     blk_select : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
 
-    clk_cache     : in std_logic;
-    clk_cache_rst : in std_logic;
+    clk_cache     : out std_logic;
 
     hitmap_col_low  : in std_logic_vector(COL_WIDTH-1 downto 0);
     hitmap_col_high : in std_logic_vector(COL_WIDTH-1 downto 0);
@@ -565,6 +564,12 @@ begin
           end if;
 
         when RS_HOLD_COL =>
+          if rs_cnt = 11 then
+          	clk_cache <= '1';
+          else
+          	clk_cache <= '0';
+          end if;
+         	
           rs_cnt <= rs_cnt + 1;
           -- clear hitmap signals
           hitmap_cnt    <= 0;
