@@ -86,15 +86,20 @@ package JADEPIX_DEFINES is
     valid_counter    : std_logic_vector(4 downto 0);
     overflow_counter : std_logic_vector(4 downto 0);
   end record;
+  
+  type sector_status is
+  record
+  	fifo_status : std_logic_vector(1 downto 0);
+  end record;
 
-  type sector_cnt is array(natural range <>) of sector_counters;
-  type sector_status is array(natural range <>) of std_logic_vector(1 downto 0);
+  type sector_counters_v is array(natural range <>) of sector_counters;
+  type sector_status_v is array(natural range <>) of sector_status;
 
   type data_frame is
   record
     frame_num : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
     row       : std_logic_vector(ROW_WIDTH-1 downto 0);
-    sectors   : sector_cnt (JADEPIX_SECTOR_NUM-1 downto 0);
+    sectors   : sector_counters_v (JADEPIX_SECTOR_NUM-1 downto 0);
     rbof      : std_logic_vector(RBOF_WIDTH-1 downto 0);
   end record;
 

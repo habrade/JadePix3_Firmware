@@ -51,7 +51,9 @@ LOGIC_SRC_FILE= \
 	${LOGIC_SRC_DIR}/ipbus_slave_reg_ram.vhd \
 	${LOGIC_SRC_DIR}/ipbus_jadepix_device.vhd \
 	${LOGIC_SRC_DIR}/ipbus_payload.vhd \
-	${LOGIC_SRC_DIR}/jadepix_ctrl.vhd
+	${LOGIC_SRC_DIR}/jadepix_ctrl.vhd \
+	${LOGIC_SRC_DIR}/jadepix_spi_load.vhd \
+	${LOGIC_SRC_DIR}/jadepix_ctrl_wrapper.vhd
 
 all: sim
 

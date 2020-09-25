@@ -194,7 +194,8 @@ architecture behavioral of ipbus_bfm_tb is
   signal rs_start            : std_logic;
   signal gs_start            : std_logic;
 
-  signal rs_frame_num_set : std_logic_vector(31 downto 0);
+  signal rs_frame_num_set : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
+  signal rs_frame_cnt        : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
 
   signal hitmap_col_low  : std_logic_vector(COL_WIDTH-1 downto 0);
   signal hitmap_col_high : std_logic_vector(COL_WIDTH-1 downto 0);
@@ -212,8 +213,7 @@ architecture behavioral of ipbus_bfm_tb is
   signal gs_pulse_deassert_cnt   : std_logic_vector(8 downto 0);
   signal gs_deassert_cnt         : std_logic_vector(8 downto 0);
 
-  signal clk_cache     : std_logic;
-  signal clk_cache_rst : std_logic;
+  signal clk_cache : std_logic;
 
   -- config FIFO signals
   signal cfg_sync       : jadepix_cfg;
@@ -234,6 +234,8 @@ architecture behavioral of ipbus_bfm_tb is
   signal dplse_soft     : std_logic;
   signal gshutter_soft  : std_logic;
 
+  signal load_soft     : std_logic;
+  signal spi_trans_end : std_logic;
 begin
 
   clk_ipb <= not clk_ipb after CLK_IPB_PERIOD/2;
@@ -259,16 +261,14 @@ begin
 
   jadepix_clocks : entity work.jadepix_clock_gen
     port map(
-      sysclk        => sysclk,
-      clk_ref       => REFCLK,
-      clk_dac       => DACCLK,
-      clk_sys       => clk_sys,
-      clk_cache     => clk_cache,
-      clk_dac_rst   => clk_dac_rst,
-      clk_ref_rst   => clk_ref_rst,
-      clk_sys_rst   => clk_sys_rst,
-      clk_cache_rst => clk_cache_rst,
-      locked        => locked_jadepix_mmcm
+      sysclk      => sysclk,
+      clk_ref     => REFCLK,
+      clk_dac     => DACCLK,
+      clk_sys     => clk_sys,
+      clk_dac_rst => clk_dac_rst,
+      clk_ref_rst => clk_ref_rst,
+      clk_sys_rst => clk_sys_rst,
+      locked      => locked_jadepix_mmcm
       );
 
 
@@ -334,8 +334,7 @@ begin
       anasel_en_soft => anasel_en_soft,
       digsel_en_soft => digsel_en_soft,
 
-      PDB  => PDB,
-      LOAD => LOAD,
+      PDB => PDB,
 
       -- SPI master
       ss   => open,
@@ -345,11 +344,16 @@ begin
       );
 
 
-  jadepix_ctrl : entity work.jadepix_ctrl
+  jadepix_ctrl_wrapper : entity work.jadepix_ctrl_wrapper
     port map(
 
-      clk => clk_sys,
-      rst => clk_sys_rst,
+      clk           => clk_sys,
+      rst           => clk_sys_rst,
+      clk_ipb       => clk_ipb,
+      rst_ipb       => rst_ipb,
+      spi_trans_end => spi_trans_end,
+      load_soft     => load_soft,
+      LOAD          => LOAD,
 
       cfg_sync       => cfg_sync,
       cfg_fifo_rst   => cfg_fifo_rst,
@@ -359,8 +363,7 @@ begin
       cfg_busy       => cfg_busy,
       cfg_start      => cfg_start,
 
-      clk_cache     => clk_cache,
-      clk_cache_rst => clk_cache_rst,
+      clk_cache => clk_cache,
 
       hitmap_col_low  => hitmap_col_low,
       hitmap_col_high => hitmap_col_high,
@@ -375,9 +378,10 @@ begin
       CON_SELP => CON_SELP,
       CON_DATA => CON_DATA,
 
-      rs_busy         => rs_busy,
-      rs_start        => rs_start,
+      rs_busy          => rs_busy,
+      rs_start         => rs_start,
       rs_frame_num_set => rs_frame_num_set,
+      rs_frame_cnt     => rs_frame_cnt,
 
       HIT_RST => HIT_RST,
       RD_EN   => RD_EN,
