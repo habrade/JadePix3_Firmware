@@ -396,7 +396,7 @@ begin
         end if;
 
       when GS_PULSE_WIDTH =>
-        if gs_width_counter = unsigned((gs_pulse_width_cnt_high & gs_pulse_width_cnt_low)) then
+        if gs_width_counter = unsigned(std_logic_vector(gs_pulse_width_cnt_high) & std_logic_vector(gs_pulse_width_cnt_low)) then
           if gs_pulse_deassert_cnt = "000000000" then
             if gs_deassert_cnt = "000000000" then
               state_next <= GS_STOP;
