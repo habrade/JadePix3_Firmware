@@ -446,11 +446,11 @@ begin
 
     wait for 5*CLK_IPB_PERIOD;
 
-    --ipbus_transact(start_rs_transaction,
-    --               response_transaction,
-    --               ipbus_transactor_inputs,
-    --               ipbus_transactor_outputs,
-    --               clk_ipb);
+    ipbus_transact(start_rs_transaction,
+                   response_transaction,
+                   ipbus_transactor_inputs,
+                   ipbus_transactor_outputs,
+                   clk_ipb);
 
 
     --wait for 5*CLK_IPB_PERIOD;

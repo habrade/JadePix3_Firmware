@@ -446,6 +446,8 @@ begin
           HIT_RST <= '0';
 
           gshutter_gs <= '0';
+          
+					clk_cache <= '0';
 
           RA_EN <= '0';
           CA_EN <= '0';
@@ -578,6 +580,7 @@ begin
           CA_EN         <= '0';
 
         when RS_HIT_RST =>
+        	clk_cache <= '0';
           rs_cnt        <= rs_cnt + 1;
           RD_EN         <= '0';
           HIT_RST       <= '1';
