@@ -137,7 +137,7 @@ architecture rtl of JadePix3_Readout is
   signal hitmap_col_low  : std_logic_vector(COL_WIDTH-1 downto 0);
   signal hitmap_col_high : std_logic_vector(COL_WIDTH-1 downto 0);
   signal hitmap_en       : std_logic;
-  signal hitmap_num      : std_logic_vector(3 downto 0);
+  signal hitmap_num      : std_logic_vector(HITMAP_NUM_WIDTH-1 downto 0);
 
   signal gs_sel_pulse : std_logic;
 

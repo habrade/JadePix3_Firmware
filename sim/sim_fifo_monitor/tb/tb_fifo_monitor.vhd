@@ -31,11 +31,9 @@ architecture behv of tb_fifo_monitor is
 
   signal fifo_valid_in  : std_logic := '0';
   signal fifo_counters  : sector_counters;
+  signal fifo_status    : sector_status;
   signal fifo_read_en   : std_logic := '0';
-  signal counter_w_sync : std_logic;
-  signal counter_r_sync : std_logic;
   signal fifo_index_out : std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
-  signal fifo_status    : std_logic_vector(1 downto 0);
 
   constant SYS_PERIOD : time := 12 ns;
 
@@ -81,10 +79,8 @@ begin
       FIFO_READ_EN   => fifo_read_en,
       fifo_valid_in  => fifo_valid_in,
       fifo_counters  => fifo_counters,
-      counter_w_sync => counter_w_sync,
-      counter_r_sync => counter_r_sync,
-      fifo_index_out => fifo_index_out,
-      fifo_status    => fifo_status
+      fifo_status    => fifo_status,
+      fifo_index_out => fifo_index_out
       );
 
   main : process

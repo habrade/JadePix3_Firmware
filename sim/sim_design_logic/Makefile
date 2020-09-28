@@ -53,6 +53,7 @@ LOGIC_SRC_FILE= \
 	${LOGIC_SRC_DIR}/ipbus_payload.vhd \
 	${LOGIC_SRC_DIR}/jadepix_ctrl.vhd \
 	${LOGIC_SRC_DIR}/jadepix_spi_load.vhd \
+	${LOGIC_SRC_DIR}/gen_clk_cache.vhd \
 	${LOGIC_SRC_DIR}/jadepix_ctrl_wrapper.vhd
 
 all: sim
@@ -83,7 +84,7 @@ comp_tb: map_uvvm_util comp_logic comp_ipbus_lib
 pre_config: map_unisim map_uvvm_util comp_ipbus_lib ipcores comp_logic comp_tb 
 
 sim: pre_config
-	vsim -fsmdebug -voptargs=+acc -t 1ps -L fifo_generator_v13_2_5 -L unisim work.ipbus_bfm_tb 
+	vsim -fsmdebug -voptargs=+acc -t 1ps -L fifo_generator_v13_2_5  work.ipbus_bfm_tb 
 
 sim_nogui: pre_config
 	vsim -voptargs=+acc -t 1ps -c -L fifo_generator_v13_2_5 -L unisim work.ipbus_bfm_tb 

@@ -94,6 +94,8 @@ architecture behavioral of ipbus_bfm_tb is
 
   constant C_HITMAP : t_ipbus_slv_array(0 to 0)
     := (0 => X"0016ab54");
+  constant C_FRAME_NUM : t_ipbus_slv_array(0 to 0)
+    := (0 => X"00000001");
   constant C_GS_PULSE_DELAY_CNT : t_ipbus_slv_array(0 to 0)
     := (0 => X"00000001");
   constant C_GS_PULSE_WIDTH_CNT_LOW : t_ipbus_slv_array(0 to 0)
@@ -114,6 +116,9 @@ architecture behavioral of ipbus_bfm_tb is
 
   signal start_gs_transaction : t_ipbus_transaction(bodyy(0 to 3))
     := ipbus_non_inc_write_transaction(X"60000011", 3, C_START_GS);
+
+  signal frame_num_transaction : t_ipbus_transaction(bodyy(0 to 1))
+    := ipbus_non_inc_write_transaction(X"60000012", 1, C_FRAME_NUM);
 
   signal hitmap_transaction : t_ipbus_transaction(bodyy(0 to 1))
     := ipbus_non_inc_write_transaction(X"60000013", 1, C_HITMAP);
@@ -195,7 +200,7 @@ architecture behavioral of ipbus_bfm_tb is
   signal gs_start            : std_logic;
 
   signal rs_frame_num_set : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
-  signal rs_frame_cnt        : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
+  signal rs_frame_cnt     : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
 
   signal hitmap_col_low  : std_logic_vector(COL_WIDTH-1 downto 0);
   signal hitmap_col_high : std_logic_vector(COL_WIDTH-1 downto 0);
@@ -308,8 +313,10 @@ begin
 
       CACHE_BIT_SET => CACHE_BIT_SET,
 
-      rs_start => rs_start,
-      rs_busy  => rs_busy,
+      rs_start         => rs_start,
+      rs_busy          => rs_busy,
+      rs_frame_num_set => rs_frame_num_set,
+
 
       hitmap_col_low  => hitmap_col_low,
       hitmap_col_high => hitmap_col_high,
@@ -333,6 +340,10 @@ begin
 
       anasel_en_soft => anasel_en_soft,
       digsel_en_soft => digsel_en_soft,
+      load_soft      => load_soft,
+
+      spi_trans_end => spi_trans_end,
+
 
       PDB => PDB,
 
@@ -342,7 +353,6 @@ begin
       miso => miso,
       sclk => sclk
       );
-
 
   jadepix_ctrl_wrapper : entity work.jadepix_ctrl_wrapper
     port map(
@@ -444,8 +454,22 @@ begin
                    ipbus_transactor_outputs,
                    clk_ipb);
 
-    wait for 5*CLK_IPB_PERIOD;
 
+    wait for 5*CLK_IPB_PERIOD;
+    ipbus_transact(hitmap_transaction,
+                   response_transaction,
+                   ipbus_transactor_inputs,
+                   ipbus_transactor_outputs,
+                   clk_ipb);
+
+    wait for 5*CLK_IPB_PERIOD;
+    ipbus_transact(frame_num_transaction,
+                   response_transaction,
+                   ipbus_transactor_inputs,
+                   ipbus_transactor_outputs,
+                   clk_ipb);
+
+    wait for CLK_IPB_PERIOD;
     ipbus_transact(start_rs_transaction,
                    response_transaction,
                    ipbus_transactor_inputs,
@@ -453,12 +477,6 @@ begin
                    clk_ipb);
 
 
-    --wait for 5*CLK_IPB_PERIOD;
-    --ipbus_transact(hitmap_transaction,
-    --               response_transaction,
-    --               ipbus_transactor_inputs,
-    --               ipbus_transactor_outputs,
-    --               clk_ipb);
 
 
     --ipbus_transact(gs_pulse_delay_transaction,
@@ -534,7 +552,8 @@ begin
     --            "Checking read/modify/write sum transaction.");
 
     wait for 15*CLK_IPB_PERIOD;
-    wait for 10 ms;
+    wait on rs_busy until rs_busy = '0';
+    wait for 15*CLK_IPB_PERIOD;
     std.env.stop;
   end process;
 

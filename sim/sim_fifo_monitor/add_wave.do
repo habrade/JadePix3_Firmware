@@ -6,8 +6,6 @@ sim:/tb_fifo_monitor/fifo_monitor_index/fifo_valid_in \
 sim:/tb_fifo_monitor/fifo_monitor_index/fifo_read_en \
 sim:/tb_fifo_monitor/fifo_monitor_index/valid_cnt \
 sim:/tb_fifo_monitor/fifo_monitor_index/overflow_cnt \
-sim:/tb_fifo_monitor/fifo_monitor_index/counter_w_sync \
-sim:/tb_fifo_monitor/fifo_monitor_index/counter_r_sync \
 sim:/tb_fifo_monitor/fifo_monitor_index/fifo_cnt \
 sim:/tb_fifo_monitor/fifo_monitor_index/fifo_status \
 sim:/tb_fifo_monitor/fifo_monitor_index/state_reg \

@@ -56,6 +56,7 @@ package JADEPIX_DEFINES is
   constant JADEPIX_RS_CNT_MAX     : integer                                           := natural(JADEPIX_RS_NO_HITMAP_PERIOD/JADEPIX_SYS_PERIOD);
   constant JADEPIX_HITMAP_CNT_MAX : integer                                           := natural(48.0/JADEPIX_SYS_PERIOD);
   constant JADEPIX_HITMAP_CHN_MAX : integer                                           := 12;  -- COL Address from 340 to 351
+  constant HITMAP_NUM_WIDTH       : integer                                           := 4;  -- COL Address from 340 to 351
   constant JADEPIX_CFG_NULL       : jadepix_cfg                                       := ('0', (others => '0'));
   constant CFG_FIFO_COUNT_WITDH   : integer                                           := 17;
   constant CFG_FIFO_COUNT_ZERO    : std_logic_vector(CFG_FIFO_COUNT_WITDH-1 downto 0) := (others       => '0');
@@ -86,10 +87,10 @@ package JADEPIX_DEFINES is
     valid_counter    : std_logic_vector(4 downto 0);
     overflow_counter : std_logic_vector(4 downto 0);
   end record;
-  
+
   type sector_status is
   record
-  	fifo_status : std_logic_vector(1 downto 0);
+    fifo_status : std_logic_vector(1 downto 0);
   end record;
 
   type sector_counters_v is array(natural range <>) of sector_counters;
