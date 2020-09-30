@@ -34,7 +34,7 @@ use IEEE.NUMERIC_STD.all;
 use work.jadepix_defines.all;
 
 
-entity gen_clk_cache is
+entity gen_clk_cache_delay is
   port(
 
     clk : in std_logic;
@@ -43,14 +43,14 @@ entity gen_clk_cache is
     hitmap_en  : in std_logic;
     hitmap_num : in std_logic_vector(HITMAP_NUM_WIDTH-1 downto 0);
 
-    clk_cache_tmp : in std_logic;
+    clk_cache : in std_logic;
 
-    clk_cache : out std_logic
+    clk_cache_delay : out std_logic
     );
 
-end gen_clk_cache;
+end gen_clk_cache_delay;
 
-architecture behv of gen_clk_cache is
+architecture behv of gen_clk_cache_delay is
 
 
   constant n_rs_period : integer := natural(JADEPIX_RS_NO_HITMAP_PERIOD/JADEPIX_SYS_PERIOD);
@@ -75,16 +75,16 @@ begin
       for i in 0 to (tmp'length-2) loop
         tmp(i+1) <= tmp(i);
       end loop;
-      tmp(0) <= clk_cache_tmp;
+      tmp(0) <= clk_cache;
     end if;
   end process;
 
   process(all)
   begin
     if rst = '1' then
-      clk_cache <= '0';
+      clk_cache_delay <= '0';
     else
-      clk_cache <= tmp(n_delay_unit-1);
+      clk_cache_delay <= tmp(n_delay_unit-1);
     end if;
   end process;
 

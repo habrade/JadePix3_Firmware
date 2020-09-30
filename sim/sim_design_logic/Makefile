@@ -53,7 +53,7 @@ LOGIC_SRC_FILE= \
 	${LOGIC_SRC_DIR}/ipbus_payload.vhd \
 	${LOGIC_SRC_DIR}/jadepix_ctrl.vhd \
 	${LOGIC_SRC_DIR}/jadepix_spi_load.vhd \
-	${LOGIC_SRC_DIR}/gen_clk_cache.vhd \
+	${LOGIC_SRC_DIR}/gen_clk_cache_delay.vhd \
 	${LOGIC_SRC_DIR}/jadepix_ctrl_wrapper.vhd
 
 all: sim

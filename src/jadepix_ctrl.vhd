@@ -72,9 +72,7 @@ entity jadepix_ctrl is
     RD_EN       : out std_logic;
     MATRIX_GRST : out std_logic;
 
-    blk_select : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
-
-    clk_cache_tmp : out std_logic;
+    clk_cache : out std_logic;
 
     hitmap_col_low  : in std_logic_vector(COL_WIDTH-1 downto 0);
     hitmap_col_high : in std_logic_vector(COL_WIDTH-1 downto 0);
@@ -107,7 +105,7 @@ architecture behv of jadepix_ctrl is
                          CFG_GO, CFG_GET_DATA, CFG_EN_DATA, CFG_EN_SEL, CFG_DIS_SEL, CFG_NEXT_PIX, CFG_STOP,
                          RS_GO, RS_SET_ROW, RS_SET_COL, RS_HOLD_COL,
                          RS_HITMAP_SET_COL, RS_HITMAP_NEXT_COL,
-                         RS_HIT_RST, RS_END_ROW, RS_NEXT_ROW, RS_END_FRAME, RS_STOP,
+                         RS_HIT_RST, RS_END_ROW, RS_NEXT_STEP, RS_END_FRAME, RS_STOP,
                          GS_GO, GS_PULSE_DELAY, GS_PULSE_WIDTH, GS_PULSE_DEASSERT, GS_DEASSERT, GS_STOP);
   signal state_reg, state_next : JADEPIX_STATE;
 
@@ -358,10 +356,12 @@ begin
         end if;
 
       when RS_END_ROW =>
-        state_next <= RS_NEXT_ROW;
+        state_next <= RS_NEXT_STEP;
 
-      when RS_NEXT_ROW =>
-        if RA = "111111111" then
+      when RS_NEXT_STEP =>
+      if rs_cnt = JADEPIX_RS_CNT_MAX then
+--        if RA = "111111111" then
+        if RA = "000000000" then
           if rs_frame_cnt = std_logic_vector(unsigned(rs_frame_num_set) - 1) or is_gs = '1' then
             state_next <= RS_STOP;
           else
@@ -370,7 +370,7 @@ begin
         else
           state_next <= RS_SET_ROW;
         end if;
-
+      end if;
 
       when RS_END_FRAME =>
         state_next <= RS_SET_ROW;
@@ -444,7 +444,7 @@ begin
 
           gshutter_gs <= '0';
 
-          clk_cache_tmp <= '0';
+          clk_cache <= '0';
 
           RA_EN <= '0';
           CA_EN <= '0';
@@ -568,9 +568,9 @@ begin
 
         when RS_HOLD_COL =>
           if rs_cnt = 11 then
-            clk_cache_tmp <= '1';
+            clk_cache <= '1';
           else
-            clk_cache_tmp <= '0';
+            clk_cache <= '0';
           end if;
 
           rs_cnt        <= rs_cnt + 1;
@@ -581,7 +581,7 @@ begin
           CA_EN         <= '0';
 
         when RS_HIT_RST =>
-          clk_cache_tmp <= '0';
+          clk_cache <= '0';
           rs_cnt        <= rs_cnt + 1;
           RD_EN         <= '0';
           HIT_RST       <= '1';
@@ -591,7 +591,7 @@ begin
           HIT_RST <= '0';
           RA_EN   <= '0';
 
-        when RS_NEXT_ROW =>
+        when RS_NEXT_STEP =>
           rs_cnt <= rs_cnt + 1;
           RA     <= std_logic_vector(unsigned(RA) + 1);
 

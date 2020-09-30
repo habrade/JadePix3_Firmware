@@ -95,7 +95,7 @@ architecture behavioral of ipbus_bfm_tb is
   constant C_HITMAP : t_ipbus_slv_array(0 to 0)
     := (0 => X"0016ab54");
   constant C_FRAME_NUM : t_ipbus_slv_array(0 to 0)
-    := (0 => X"00000001");
+    := (0 => X"00000002");
   constant C_GS_PULSE_DELAY_CNT : t_ipbus_slv_array(0 to 0)
     := (0 => X"00000001");
   constant C_GS_PULSE_WIDTH_CNT_LOW : t_ipbus_slv_array(0 to 0)

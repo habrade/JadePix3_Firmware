@@ -79,7 +79,8 @@ entity jadepix_ctrl_wrapper is
     RD_EN       : out std_logic;
     MATRIX_GRST : out std_logic;
 
-    clk_cache : out std_logic;
+    clk_cache       : out std_logic;
+    clk_cache_delay : out std_logic;
 
     hitmap_col_low  : in std_logic_vector(COL_WIDTH-1 downto 0);
     hitmap_col_high : in std_logic_vector(COL_WIDTH-1 downto 0);
@@ -108,8 +109,6 @@ end jadepix_ctrl_wrapper;
 
 architecture behv of jadepix_ctrl_wrapper is
 
-signal clk_cache_tmp: std_logic;
-	
 begin
 
   jadepix_ctrl : entity work.jadepix_ctrl
@@ -126,7 +125,7 @@ begin
       cfg_busy       => cfg_busy,
       cfg_start      => cfg_start,
 
-      clk_cache_tmp => clk_cache_tmp,
+      clk_cache => clk_cache,
 
       hitmap_col_low  => hitmap_col_low,
       hitmap_col_high => hitmap_col_high,
@@ -178,8 +177,8 @@ begin
       load_soft     => load_soft,
       LOAD          => LOAD
       );
-      
-  gen_clk_cache : entity work.gen_clk_cache
+
+  gen_clk_cache_delay : entity work.gen_clk_cache_delay
     port map(
       clk => clk,
       rst => rst,
@@ -187,8 +186,8 @@ begin
       hitmap_en  => hitmap_en,
       hitmap_num => hitmap_num,
 
-      clk_cache_tmp => clk_cache_tmp,
-      clk_cache     => clk_cache
+      clk_cache       => clk_cache,
+      clk_cache_delay => clk_cache_delay
       );
 
 end behv;

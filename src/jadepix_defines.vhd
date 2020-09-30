@@ -60,7 +60,6 @@ package JADEPIX_DEFINES is
   constant JADEPIX_CFG_NULL       : jadepix_cfg                                       := ('0', (others => '0'));
   constant CFG_FIFO_COUNT_WITDH   : integer                                           := 17;
   constant CFG_FIFO_COUNT_ZERO    : std_logic_vector(CFG_FIFO_COUNT_WITDH-1 downto 0) := (others       => '0');
-  constant JADEPIX_SECTOR_NUM     : integer                                           := 4;
   constant JADEPIX_SUBSECTOR_NUM  : integer                                           := 16;
 
   -- FIFO in chip
@@ -76,16 +75,19 @@ package JADEPIX_DEFINES is
   -- DATA readout
   constant BLK_SELECT_WIDTH     : integer := 2;
   constant SECTOR_NUM           : integer := 2**BLK_SELECT_WIDTH;
+  constant VC_WIDTH             : integer := 5;
+  constant OC_WIDTH             : integer := 5;
   constant FRAME_CNT_WIDTH      : integer := 24;
   constant RBOF_WIDTH           : integer := 8;
-  constant DATA_FRAME_WIDTH     : integer := FRAME_CNT_WIDTH + ROW_WIDTH + JADEPIX_SECTOR_NUM + RBOF_WIDTH -1;
+  constant DATA_FRAME_WIDTH     : integer := FRAME_CNT_WIDTH + ROW_WIDTH + (SECTOR_NUM*(VC_WIDTH+OC_WIDTH)) + RBOF_WIDTH;
   constant DATA_BUF_DEPTH_WIDTH : integer := 8;
   constant DATA_BUF_DEPTH       : integer := 192;
 
+
   type sector_counters is
   record
-    valid_counter    : std_logic_vector(4 downto 0);
-    overflow_counter : std_logic_vector(4 downto 0);
+    valid_counter    : std_logic_vector(VC_WIDTH-1 downto 0);
+    overflow_counter : std_logic_vector(OC_WIDTH-1 downto 0);
   end record;
 
   type sector_status is
@@ -96,14 +98,18 @@ package JADEPIX_DEFINES is
   type sector_counters_v is array(natural range <>) of sector_counters;
   type sector_status_v is array(natural range <>) of sector_status;
 
-  type data_frame is
+  type buffer_data_frame is
   record
     frame_num : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
     row       : std_logic_vector(ROW_WIDTH-1 downto 0);
-    sectors   : sector_counters_v (JADEPIX_SECTOR_NUM-1 downto 0);
+    sectors   : sector_counters_v (SECTOR_NUM-1 downto 0);
     rbof      : std_logic_vector(RBOF_WIDTH-1 downto 0);
   end record;
 
+  constant DATA_FRAME_NULL : buffer_data_frame := ((others  => '0'),
+                                                   (others  => '0'),
+                                                   (others => ((others => '0'), (others => '0'))),
+                                                   (others  => '0'));
 
 end JADEPIX_DEFINES;
 
