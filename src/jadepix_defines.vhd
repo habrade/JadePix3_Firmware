@@ -77,7 +77,7 @@ package JADEPIX_DEFINES is
   constant SECTOR_NUM           : integer := 2**BLK_SELECT_WIDTH;
   constant VC_WIDTH             : integer := 5;
   constant OC_WIDTH             : integer := 5;
-  constant FRAME_CNT_WIDTH      : integer := 24;
+  constant FRAME_CNT_WIDTH      : integer := 22;
   constant RBOF_WIDTH           : integer := 8;
   constant DATA_FRAME_WIDTH     : integer := FRAME_CNT_WIDTH + ROW_WIDTH + (SECTOR_NUM*(VC_WIDTH+OC_WIDTH)) + RBOF_WIDTH;
   constant DATA_BUF_DEPTH_WIDTH : integer := 8;
@@ -97,6 +97,7 @@ package JADEPIX_DEFINES is
 
   type sector_counters_v is array(natural range <>) of sector_counters;
   type sector_status_v is array(natural range <>) of sector_status;
+  type sector_readout_num_v is array(natural range <>) of integer range 0 to 16;
 
   type buffer_data_frame is
   record
@@ -110,6 +111,7 @@ package JADEPIX_DEFINES is
                                                    (others  => '0'),
                                                    (others => ((others => '0'), (others => '0'))),
                                                    (others  => '0'));
-
+                                                   
+                                                   
 end JADEPIX_DEFINES;
 

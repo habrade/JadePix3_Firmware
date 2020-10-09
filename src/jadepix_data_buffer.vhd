@@ -35,11 +35,11 @@ use work.jadepix_defines.all;
 
 entity jadepix_data_buffer is
   port(
-    clk       : in std_logic;
-    rst       : in std_logic;
+    clk : in std_logic;
+    rst : in std_logic;
 
     -- Buffer write
-		buff_w_en        : in std_logic;
+    buffer_w_en      : in std_logic;
     frame_num        : in std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
     row              : in std_logic_vector(ROW_WIDTH-1 downto 0);
     sectors_counters : in sector_counters_v (SECTOR_NUM-1 downto 0);
@@ -55,14 +55,14 @@ entity jadepix_data_buffer is
     buffer_full       : out std_logic;
     buffer_full_next  : out std_logic;
     -- The number of elements in the FIFO
-    buffer_fill_count : out integer range DATA_BUF_DEPTH_WIDTH - 1 downto 0
+    buffer_fill_count : out integer range DATA_BUF_DEPTH - 1 downto 0
 
     );
 end jadepix_data_buffer;
 
 architecture behv of jadepix_data_buffer is
 
-  type BUF_STATE is (IDLE, W_RECORD, R_RECORD);
+  type BUF_STATE is (IDLE, W_RECORD);
 
   signal state_reg, state_next : BUF_STATE;
 
@@ -70,9 +70,8 @@ architecture behv of jadepix_data_buffer is
   signal wr_data : std_logic_vector(DATA_FRAME_WIDTH-1 downto 0);
   signal rd_en   : std_logic;
 
-
-  signal rbof    : std_logic_vector(RBOF_WIDTH-1 downto 0);
-  signal buf_cnt : integer range 0 to DATA_BUF_DEPTH := 0;
+  signal rbof    : std_logic_vector(RBOF_WIDTH-1 downto 0) := (others => '0');
+  signal buf_cnt : integer range 0 to DATA_BUF_DEPTH       := 0;
 
 begin
 
@@ -89,10 +88,8 @@ begin
   begin
     case state_reg is
       when IDLE =>
-        if buff_w_en = '1' then
+        if buffer_w_en = '1' then
           state_next <= W_RECORD;
-        elsif buffer_read_en = '1' then
-          state_next <= R_RECORD;
         end if;
       when others =>
         state_next <= IDLE;
@@ -107,15 +104,14 @@ begin
         when IDLE =>
           wr_en   <= '0';
           wr_data <= (others => '0');
-          rd_en   <= '0';
-
+          
         when W_RECORD =>
           if buffer_full = '1' then
             rbof <= std_logic_vector(unsigned(rbof) + 1);
           else
             wr_en   <= '1';
             wr_data <= frame_num &
-                       row &
+                       std_logic_vector(unsigned(row)-1) &
                        sectors_counters(0).valid_counter & sectors_counters(0).overflow_counter &
                        sectors_counters(1).valid_counter & sectors_counters(1).overflow_counter &
                        sectors_counters(2).valid_counter & sectors_counters(2).overflow_counter &
@@ -123,18 +119,27 @@ begin
                        rbof;
           end if;
 
-        when R_RECORD =>
-          rd_en <= '1';
-
         when others => null;
       end case;
     end if;
   end process;
 
+  process(all)
+  begin
+    if rising_edge(clk) then
+      if buffer_read_en = '1' then
+        rd_en <= '1';
+      else
+        rd_en <= '0';
+      end if;
+    end if;
+  end process;
+
+
   ring_buffer : entity work.ring_buffer
     generic map (
       RAM_WIDTH => DATA_FRAME_WIDTH,
-      RAM_DEPTH => DATA_BUF_DEPTH_WIDTH
+      RAM_DEPTH => DATA_BUF_DEPTH
       )
     port map (
       clk => clk,

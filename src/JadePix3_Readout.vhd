@@ -171,6 +171,9 @@ architecture rtl of JadePix3_Readout is
   signal dplse_soft     : std_logic;
   signal gshutter_soft  : std_logic;
 
+  -- Readout
+  signal clk_cache_delay : std_logic;
+
   -- SPI 
   signal load_soft     : std_logic;
   signal spi_trans_end : std_logic;
@@ -415,6 +418,29 @@ begin
   GSHUTTER  <= gshutter_gs or gshutter_soft;
   APLSE     <= aplse_gs and aplse_soft;
   DPLSE     <= dplse_gs and dplse_soft;
+
+
+
+  jadepix_read_data : entity work.jadepix_read_data
+    port map(
+
+      clk => clk_sys,
+      rst => clk_sys_rst,
+
+      clk_cache       => clk_cache,
+      clk_cache_delay => clk_cache_delay,
+
+      frame_num => rs_frame_cnt,
+      row       => RA,
+
+      VALID_IN => VALID_IN,
+      DATA_IN  => DATA_IN,
+
+      FIFO_READ_EN => FIFO_READ_EN,
+      BLK_SELECT   => BLK_SELECT,
+      INQUIRY      => INQUIRY
+      );
+
 
 --  u_mig_7series_0 : entity work.mig_7series_0_1
 --    port map (
