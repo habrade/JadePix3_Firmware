@@ -4,7 +4,7 @@
 -- 
 -- Create Date: 09/17/2020 01:37:44 PM
 -- Design Name: 
--- Module Name: jadepix_data_buffer - behv
+-- Module Name: jadepix_status_buffer - behv
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
@@ -33,7 +33,7 @@ use IEEE.NUMERIC_STD.all;
 
 use work.jadepix_defines.all;
 
-entity jadepix_data_buffer is
+entity jadepix_status_buffer is
   port(
     clk : in std_logic;
     rst : in std_logic;
@@ -58,9 +58,9 @@ entity jadepix_data_buffer is
     buffer_fill_count : out integer range DATA_BUF_DEPTH - 1 downto 0
 
     );
-end jadepix_data_buffer;
+end jadepix_status_buffer;
 
-architecture behv of jadepix_data_buffer is
+architecture behv of jadepix_status_buffer is
 
   type BUF_STATE is (IDLE, W_RECORD);
 

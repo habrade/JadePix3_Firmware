@@ -208,7 +208,6 @@ create_generated_clock -name dac_clk -source [get_pins jadepix_clocks/mmcm/CLKIN
 ## Jadepix clocks
 create_generated_clock -name ref_clk -source [get_pins jadepix_clocks/mmcm/CLKIN1] [get_pins jadepix_clocks/mmcm/CLKOUT2]
 create_generated_clock -name clk_sys -source [get_pins jadepix_clocks/mmcm/CLKIN1] [get_pins jadepix_clocks/mmcm/CLKOUT0]
-create_generated_clock -name clk_cache -source [get_pins jadepix_clocks/mmcm/CLKIN1] [get_pins jadepix_clocks/mmcm/CLKOUT4]
 
 
 set_clock_groups -asynchronous -group [get_clocks ipbus_clk] -group [get_clocks -include_generated_clocks [get_clocks clk_aux]]

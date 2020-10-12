@@ -7,11 +7,12 @@ FIRMWARE_SRC_DIR=../../src
 
 SRCS=\
 	${FIRMWARE_SRC_DIR}/jadepix_defines.vhd \
+	${FIRMWARE_SRC_DIR}/fabric_sector.vhd \
 	${FIRMWARE_SRC_DIR}/jadepix_fifo_monitor.vhd \
 	${FIRMWARE_SRC_DIR}/fifo_monitor_wrapper.vhd \
 	${FIRMWARE_SRC_DIR}/ring_buffer.vhd \
 	${FIRMWARE_SRC_DIR}/gen_clk_cache_delay.vhd \
-	${FIRMWARE_SRC_DIR}/jadepix_data_buffer.vhd \
+	${FIRMWARE_SRC_DIR}/jadepix_status_buffer.vhd \
 	${FIRMWARE_SRC_DIR}/jadepix_fifo_read.vhd \
 	${FIRMWARE_SRC_DIR}/jadepix_read_data.vhd
 

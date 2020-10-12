@@ -120,7 +120,6 @@ begin
     gen_valid(clk_cache, 0.0, 0, 0, VALID_IN);
     gen_valid(clk_cache, 0.0, 30, 0, VALID_IN);
     gen_valid(clk_cache, 1.0, 14, 0, VALID_IN);
-    gen_valid(clk_cache, 1.0, 18, 0, VALID_IN);
 
     -- channel 1
     gen_valid(clk_cache, 1.0, 14, 1, VALID_IN);

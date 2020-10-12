@@ -65,7 +65,7 @@ architecture behv of jadepix_fifo_monitor is
 
   procedure GET_NEXT_STATE (signal fifo_valid_in : in  std_logic;
                             signal fifo_read_en  : in  std_logic;
-                            signal state_next    : out COUNTER_STATE) is
+                            signal state_next    : inout COUNTER_STATE) is
   begin
     if fifo_valid_in = '1' and fifo_read_en = '0' then
       if fifo_cnt = FIFO_DEPTH then
@@ -183,14 +183,10 @@ begin
 
   get_valid_cnt_max : process(all)
   begin
-    if rst = '1' then
-      valid_num <= 0;
-    else
-      if falling_edge(clk_cache) then
-        valid_num <= maximum(0, valid_cnt);
-      else
-        valid_num <= maximum(valid_num, valid_cnt);
-      end if;
+		valid_num <= maximum(valid_num, valid_cnt);
+		/* update valid number */
+    if falling_edge(clk_cache) then
+			valid_num <= maximum(0, valid_cnt);
     end if;
   end process;
 

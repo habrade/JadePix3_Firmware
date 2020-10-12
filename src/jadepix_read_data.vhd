@@ -84,10 +84,15 @@ architecture behv of jadepix_read_data is
 
 
 begin
-  FIFO_READ_EN <= fifo_read_en_reg;
   BLK_SELECT   <= blk_select_reg;
   buffer_w_en  <= clk_cache_delay;
-
+    
+  fabric_sector: entity  work.fabric_sector
+  port map(
+    fifo_read_en_v  => fifo_read_en_v,
+    blk_select    =>   blk_select_reg,
+    FIFO_READ_EN   =>  FIFO_READ_EN
+    );
 
   fifo_monitor_wrapper : entity work.fifo_monitor_wrapper
     port map(
@@ -118,7 +123,7 @@ begin
       DATA_IN => DATA_IN,
 
       fifo_read_en_v => fifo_read_en_v,
-      BLK_SELECT     => BLK_SELECT,
+      blk_select     => blk_select_reg,
 
       INQUIRY => INQUIRY,
 
@@ -126,7 +131,7 @@ begin
 
       );
 
-  data_buffer : entity work.jadepix_data_buffer
+  fifo_status_buffer : entity work.jadepix_status_buffer
     port map(
       clk => clk,
       rst => rst,
