@@ -42,4 +42,4 @@ sim_nogui: map_uvvm_util comp_logic comp_tb
 clean:
 	rm -rf work 
 realclean:
-	rm -rf work transcript _Alert.txt _Log.txt
+	rm -rf work transcript _Alert.txt _Log.txt modelsim.ini vsim.wlf

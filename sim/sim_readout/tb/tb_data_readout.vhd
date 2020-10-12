@@ -27,7 +27,7 @@ architecture behv of tb_data_readout is
   signal clk_cache_delay : std_logic := '0';
 
   signal frame_num : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0) := (others => '0');
-  signal row       : std_logic_vector(ROW_WIDTH-1 downto 0)       := (others => '0');
+  signal row       : std_logic_vector(ROW_WIDTH-1 downto 0)       := "000000001";
 
   signal VALID_IN : std_logic_vector(SECTOR_NUM-1 downto 0) := (others => '0');
   signal DATA_IN  : std_logic_vector(7 downto 0)            := (others => '0');
@@ -118,8 +118,9 @@ begin
     -- channel 0
     gen_valid(clk_cache, 2.0, 6, 0, VALID_IN);
     gen_valid(clk_cache, 0.0, 0, 0, VALID_IN);
-    gen_valid(clk_cache, 0.0, 32, 0, VALID_IN);
+    gen_valid(clk_cache, 0.0, 30, 0, VALID_IN);
     gen_valid(clk_cache, 1.0, 14, 0, VALID_IN);
+    gen_valid(clk_cache, 1.0, 18, 0, VALID_IN);
 
     -- channel 1
     gen_valid(clk_cache, 1.0, 14, 1, VALID_IN);

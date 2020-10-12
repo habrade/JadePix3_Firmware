@@ -56,11 +56,13 @@ end jadepix_read_data;
 
 architecture behv of jadepix_read_data is
   signal fifo_read_en_reg : std_logic;
+  signal fifo_read_en_v   : std_logic_vector(SECTOR_NUM-1 downto 0);
+  signal blk_select_reg   : std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
 
-  signal sectors_readout_num : sector_readout_num_v(SECTOR_NUM-1 downto 0);
-  signal sectors_row_read_end : std_logic_vector(SECTOR_NUM-1 downto 0);
+--  signal sectors_readout_num : sector_readout_num_v(SECTOR_NUM-1 downto 0);
+  signal sectors_row_read_end : std_logic;
 
-	signal is_fifo_writing_v  : boolean_vector(SECTOR_NUM-1 downto 0);
+--      signal is_fifo_writing_v  : boolean_vector(SECTOR_NUM-1 downto 0);
 
   signal sectors_counters : sector_counters_v (SECTOR_NUM-1 downto 0);
   signal fifo_status      : sector_status_v (SECTOR_NUM-1 downto 0);
@@ -83,21 +85,20 @@ architecture behv of jadepix_read_data is
 
 begin
   FIFO_READ_EN <= fifo_read_en_reg;
+  BLK_SELECT   <= blk_select_reg;
   buffer_w_en  <= clk_cache_delay;
+
 
   fifo_monitor_wrapper : entity work.fifo_monitor_wrapper
     port map(
-      clk                 => clk,
-      rst                 => rst,
-      clk_cache           => clk_cache,
-      sectors_readout_num => sectors_readout_num,
-      sectors_row_read_end => sectors_row_read_end,
-      VALID_IN            => VALID_IN,
-      is_fifo_writing_v   => is_fifo_writing_v,
-      sectors_counters    => sectors_counters,
-      fifo_status         => fifo_status
+      clk                  => clk,
+      rst                  => rst,
+      clk_cache            => clk_cache,
+      fifo_read_en_v       => fifo_read_en_v,
+      VALID_IN             => VALID_IN,
+      sectors_counters     => sectors_counters,
+      fifo_status          => fifo_status
       );
-
 
   fifo_read : entity work.jadepix_fifo_read
     port map(
@@ -116,15 +117,12 @@ begin
 
       DATA_IN => DATA_IN,
 
-      FIFO_READ_EN => fifo_read_en_reg,
-      BLK_SELECT   => BLK_SELECT,
+      fifo_read_en_v => fifo_read_en_v,
+      BLK_SELECT     => BLK_SELECT,
 
       INQUIRY => INQUIRY,
-      
-      is_fifo_writing_v => is_fifo_writing_v,
 
-      sectors_row_read_end => sectors_row_read_end,
-      sectors_readout_num => sectors_readout_num
+      sectors_row_read_end => sectors_row_read_end
 
       );
 

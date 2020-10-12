@@ -24,7 +24,7 @@ use IEEE.STD_LOGIC_1164.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+use IEEE.NUMERIC_STD.all;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx leaf cells in this code.
@@ -41,12 +41,10 @@ entity fifo_monitor_wrapper is
 
     clk_cache : in std_logic;
 
---    fifo_read_en : in std_logic;
-    sectors_readout_num : in sector_readout_num_v(SECTOR_NUM-1 downto 0);
-    sectors_row_read_end : in std_logic_vector(SECTOR_NUM-1 downto 0);
-    VALID_IN            : in std_logic_vector(SECTOR_NUM-1 downto 0);
+    fifo_read_en_v : in std_logic_vector(SECTOR_NUM-1 downto 0);
 
-		is_fifo_writing_v  : out boolean_vector(SECTOR_NUM-1 downto 0);
+    VALID_IN             : in std_logic_vector(SECTOR_NUM-1 downto 0);
+
     sectors_counters : out sector_counters_v(SECTOR_NUM-1 downto 0);
     fifo_status      : out sector_status_v(SECTOR_NUM-1 downto 0)
 
@@ -54,22 +52,18 @@ entity fifo_monitor_wrapper is
 end fifo_monitor_wrapper;
 
 architecture behv of fifo_monitor_wrapper is
-
 begin
 
   fifo_monitor : for index in SECTOR_NUM-1 downto 0 generate
     fifo_monitor_index : entity work.jadepix_fifo_monitor
       port map(
-        clk              => clk,
-        rst              => rst,
-        clk_cache        => clk_cache,
---        fifo_read_en   => fifo_read_en,
-        fifo_readout_num => sectors_readout_num(index),
-        fifo_row_read_end => sectors_row_read_end(index),
-        fifo_valid_in    => VALID_IN(index),
-        is_fifo_writing  => is_fifo_writing_v(index),
-        fifo_counters    => sectors_counters(index),
-        fifo_status      => fifo_status(index)
+        clk               => clk,
+        rst               => rst,
+        clk_cache         => clk_cache,
+        fifo_read_en      => fifo_read_en_v(index),
+        fifo_valid_in     => VALID_IN(index),
+        fifo_counters     => sectors_counters(index),
+        fifo_status       => fifo_status(index)
         );
   end generate;
 

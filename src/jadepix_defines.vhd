@@ -97,7 +97,7 @@ package JADEPIX_DEFINES is
 
   type sector_counters_v is array(natural range <>) of sector_counters;
   type sector_status_v is array(natural range <>) of sector_status;
-  type sector_readout_num_v is array(natural range <>) of integer range 0 to 16;
+  type sector_readout_num_v is array(natural range <>) of integer range 0 to (2*VALID_MAX);  -- 1 input, 2 outputs
 
   type buffer_data_frame is
   record

@@ -40,13 +40,9 @@ entity jadepix_fifo_monitor is
 
     clk_cache : in std_logic;
 
-    -- VALID IN
-    fifo_valid_in     : in std_logic;
-    -- How many data have been readed out
-    fifo_readout_num  : in integer range 0 to 16;
-    fifo_row_read_end : in std_logic;
+    fifo_valid_in : in std_logic;
+    fifo_read_en  :    std_logic;
 
-		is_fifo_writing : out boolean;
     fifo_counters : out sector_counters;
     fifo_status   : out sector_status
     );
@@ -55,22 +51,36 @@ end jadepix_fifo_monitor;
 
 architecture behv of jadepix_fifo_monitor is
 
-  signal valid_cnt     : integer range 0 to 16 := 0;
-  signal valid_num     : integer range 0 to 16 := 0;
-  signal valid_cnt_out : integer range 0 to 16 := 0;
-  signal fifo_read_cnt : integer range 0 to 16 := 0;
-  signal fifo_cnt      : integer               := 0;
-  signal fifo_cnt_reg1 : integer               := 0;
-  signal fifo_cnt_reg2 : integer               := 0;
-  signal overflow_cnt  : integer               := 0;
-  signal overflow_num  : integer               := 0;
-
---  signal is_fifo_writing : std_logic := '0';
+  signal valid_cnt     : integer range 0 to VALID_MAX         := 0;
+  signal valid_num     : integer range 0 to VALID_MAX         := 0;
+  signal fifo_read_cnt : integer range 0 to 1                 := 0;
+  signal fifo_cnt      : integer range 0 to FIFO_DEPTH        := 0;
+  signal overflow_cnt  : integer range 0 to FIFO_DEPTH        := 0;
+  signal overflow_num  : integer range 0 to FIFO_OVERFLOW_MAX := 0;
 
 
-  type COUNTER_STATE is (INITIAL, IDLE, START_CACHE, WRITE_FIFO, FIFO_OVERFLOW, READ_FIFO);
+  type COUNTER_STATE is (INITIAL, IDLE, W_FIFO, WR_FIFO, FIFO_OVERFLOW, R_FIFO);
 
-  signal state_reg, state_next : COUNTER_STATE := INITIAL;
+  signal state_reg, state_next : COUNTER_STATE := IDLE;
+
+  procedure GET_NEXT_STATE (signal fifo_valid_in : in  std_logic;
+                            signal fifo_read_en  : in  std_logic;
+                            signal state_next    : out COUNTER_STATE) is
+  begin
+    if fifo_valid_in = '1' and fifo_read_en = '0' then
+      if fifo_cnt = FIFO_DEPTH then
+        state_next <= FIFO_OVERFLOW;
+      else
+        state_next <= W_FIFO;
+      end if;
+    elsif fifo_valid_in = '1' and fifo_read_en = '1' then
+      state_next <= WR_FIFO;
+    elsif fifo_valid_in = '0' and fifo_read_en = '1' then
+      state_next <= R_FIFO;
+    else
+      state_next <= IDLE;
+    end if;
+  end procedure;
 
 begin
 
@@ -83,48 +93,31 @@ begin
     end if;
   end process;
 
+
   process(all)
   begin
     case state_reg is
+
       when INITIAL =>
         state_next <= IDLE;
 
       when IDLE =>
-        if rising_edge(clk_cache) then
-          state_next <= START_CACHE;
---        elsif fifo_read_en = '1' then
---          state_next <= READ_FIFO;
-        end if;
+        GET_NEXT_STATE(fifo_valid_in, fifo_read_en, state_next);
 
-      when START_CACHE =>
-        if fifo_valid_in = '1' then
-          state_next <= WRITE_FIFO;
---        elsif fifo_read_en = '1' then
---          state_next <= READ_FIFO;
-        end if;
+      when W_FIFO =>
+        GET_NEXT_STATE(fifo_valid_in, fifo_read_en, state_next);
 
-      when WRITE_FIFO =>
-        if fifo_valid_in = '1' then
-          if fifo_cnt = FIFO_DEPTH then
-            state_next <= FIFO_OVERFLOW;
-          else
-            state_next <= WRITE_FIFO;
-          end if;
-        elsif rising_edge(clk_cache) then
-          state_next <= START_CACHE;
-        else
-          state_next <= IDLE;
-        end if;
+      when WR_FIFO =>
+        GET_NEXT_STATE(fifo_valid_in, fifo_read_en, state_next);
+
+      when R_FIFO =>
+        GET_NEXT_STATE(fifo_valid_in, fifo_read_en, state_next);
 
       when FIFO_OVERFLOW =>
-        if fifo_valid_in = '1' then
-          state_next <= FIFO_OVERFLOW;
-        else
-          state_next <= IDLE;
-        end if;
+        GET_NEXT_STATE(fifo_valid_in, fifo_read_en, state_next);
 
-      when others =>
-        state_next <= INITIAL;
+      when others => null;
+
     end case;
   end process;
 
@@ -134,84 +127,38 @@ begin
     if rising_edge(clk) then
       case(state_next) is
         when INITIAL =>
-          valid_cnt       <= 0;
-          valid_num       <= 0;
-          fifo_cnt        <= 0;
-          overflow_cnt    <= 0;
-          is_fifo_writing <= false;
+          valid_cnt    <= 0;
+          fifo_cnt     <= 0;
+          overflow_cnt <= 0;
 
         when IDLE =>
-          valid_cnt       <= 0;
-          valid_num       <= 0;
-          is_fifo_writing <= false;
+          valid_cnt <= 0;
 
-        when START_CACHE =>
-          if fifo_valid_in = '1' then  -- In case the valid happend at first clock
-            if valid_cnt < VALID_MAX then
-              valid_cnt <= valid_cnt + 1;
-            else
-              valid_cnt <= VALID_MAX;
-            end if;
+        when W_FIFO =>
 
-            if fifo_cnt = FIFO_DEPTH then
-              fifo_cnt <= FIFO_DEPTH;
-              if overflow_cnt = FIFO_OVERFLOW_MAX then
-                overflow_cnt <= FIFO_OVERFLOW_MAX;
-              else
-                overflow_cnt <= overflow_cnt + 1;
-              end if;
-            else
-              fifo_cnt <= fifo_cnt + 1;
-            end if;
-            is_fifo_writing <= true;
-          else
-						is_fifo_writing <= false;
-          end if;
+          valid_cnt <= (valid_cnt rem VALID_MAX) + 1;
 
-          valid_num <= maximum(0, valid_cnt);
-
-        when WRITE_FIFO =>
-          if valid_cnt < VALID_MAX then
-            valid_cnt <= valid_cnt + 1;
-          else
-            valid_cnt <= VALID_MAX;
-          end if;
-
-          if fifo_cnt = FIFO_DEPTH then
-            fifo_cnt <= FIFO_DEPTH;
-            if overflow_cnt = FIFO_OVERFLOW_MAX then
-              overflow_cnt <= FIFO_OVERFLOW_MAX;
-            else
-              overflow_cnt <= overflow_cnt + 1;
-            end if;
-          else
+          if fifo_cnt < FIFO_DEPTH then
             fifo_cnt <= fifo_cnt + 1;
           end if;
 
-          is_fifo_writing <= true;
-          valid_num       <= maximum(valid_num, valid_cnt);
+        when WR_FIFO =>
+          valid_cnt <= (valid_cnt rem VALID_MAX) + 1;
+
+        when R_FIFO =>
+          valid_cnt    <= 0;
+          overflow_cnt <= 0;
+
+          fifo_read_cnt <= (fifo_read_cnt + 1) rem 2;
+
+          if fifo_cnt > 0 and fifo_read_cnt = 1 then
+            fifo_cnt <= fifo_cnt - 1;
+          end if;
 
         when FIFO_OVERFLOW =>
-          if valid_cnt < VALID_MAX then
-            valid_cnt <= valid_cnt + 1;
-          else
-            valid_cnt <= VALID_MAX;
-          end if;
-
+          valid_cnt <= 0;
           if overflow_cnt < FIFO_OVERFLOW_MAX then
             overflow_cnt <= overflow_cnt + 1;
-          else
-            overflow_cnt <= FIFO_OVERFLOW_MAX;
-          end if;
-
-          is_fifo_writing <= true;
-          fifo_cnt        <= FIFO_DEPTH;
-
-        when READ_FIFO =>
-          if fifo_cnt > 0 then
-            fifo_cnt <= fifo_cnt - 1;
-          else
-            fifo_cnt <= 0;
           end if;
 
         when others => null;
@@ -224,24 +171,30 @@ begin
     if rst = '1' then
       fifo_status.fifo_status <= "00";
     else
-      fifo_status.fifo_status <= "00" when fifo_cnt <= FIFO_STATUS_TH1 else
-"01" when fifo_cnt > FIFO_STATUS_TH1 and fifo_cnt <= FIFO_STATUS_TH2 else
-"10" when fifo_cnt > FIFO_STATUS_TH2 and fifo_cnt <= FIFO_STATUS_TH3 else
-"11" when fifo_cnt > FIFO_STATUS_TH3 and fifo_cnt <= FIFO_DEPTH else
-                                 "ZZ";
+      fifo_status.fifo_status <=
+        "00" when fifo_cnt                                <= FIFO_STATUS_TH1 else
+        "01" when fifo_cnt > FIFO_STATUS_TH1 and fifo_cnt <= FIFO_STATUS_TH2 else
+        "10" when fifo_cnt > FIFO_STATUS_TH2 and fifo_cnt <= FIFO_STATUS_TH3 else
+        "11" when fifo_cnt > FIFO_STATUS_TH3 and fifo_cnt <= FIFO_DEPTH else
+        "ZZ";
     end if;
   end process;
 
-  reg_fifo_cnt : process(all)
+
+  get_valid_cnt_max : process(all)
   begin
-    if rising_edge(clk_cache) then
-      fifo_cnt_reg1 <= fifo_cnt;
-      fifo_cnt_reg2 <= fifo_cnt_reg1;
+    if rst = '1' then
+      valid_num <= 0;
+    else
+      if falling_edge(clk_cache) then
+        valid_num <= maximum(0, valid_cnt);
+      else
+        valid_num <= maximum(valid_num, valid_cnt);
+      end if;
     end if;
   end process;
 
-
-  fifo_counters.valid_counter    <= std_logic_vector(to_unsigned(fifo_cnt_reg1-fifo_cnt_reg2+overflow_cnt, fifo_counters.valid_counter'length));
+  fifo_counters.valid_counter    <= std_logic_vector(to_unsigned(valid_num, fifo_counters.valid_counter'length));
   fifo_counters.overflow_counter <= std_logic_vector(to_unsigned(overflow_cnt, fifo_counters.overflow_counter'length));
 
 end behv;
