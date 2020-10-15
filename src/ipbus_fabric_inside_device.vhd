@@ -36,15 +36,16 @@ use work.ipbus_reg_types_new.all;
 
 entity ipbus_fabric_inside_device is
   generic(
-    N_CTRL : integer := 1;              --the control register number ;
-    N_STAT : integer := 1;              --the status register number
-    N_FIFO : integer := 1
+    N_CTRL  : integer := 1;             --the control register number ;
+    N_STAT  : integer := 1;             --the status register number
+    N_WFIFO : integer := 1;
+    N_RFIFO : integer := 1
     );
   port(
     ipb_in          : in  ipb_wbus;
     ipb_out         : out ipb_rbus;
-    ipb_to_slaves   : out ipb_wbus_array(reg_slave_num(N_CTRL, N_STAT)+N_FIFO-1 downto 0);
-    ipb_from_slaves : in  ipb_rbus_array(reg_slave_num(N_CTRL, N_STAT)+N_FIFO-1 downto 0);
+    ipb_to_slaves   : out ipb_wbus_array(reg_slave_num(N_CTRL, N_STAT)+N_WFIFO+N_RFIFO-1 downto 0);
+    ipb_from_slaves : in  ipb_rbus_array(reg_slave_num(N_CTRL, N_STAT)+N_WFIFO+N_RFIFO-1 downto 0);
     debug           : out std_logic_vector(7 downto 0)
     );
 
@@ -53,12 +54,14 @@ end ipbus_fabric_inside_device;
 architecture behv of ipbus_fabric_inside_device is
 
   constant REG_SLV_NUM : integer := reg_slave_num(N_CTRL, N_STAT);
-  constant NSLV        : integer := REG_SLV_NUM+N_FIFO;
+  constant NSLV        : integer := REG_SLV_NUM+N_WFIFO+N_RFIFO;
 
-  constant MAX_ADDR_NUM : integer := max_port_addr_width(N_CTRL, N_STAT, N_FIFO);
+  constant MAX_ADDR_NUM : integer := max_port_addr_width(N_CTRL, N_STAT, N_WFIFO, N_RFIFO);
 
-  signal ipb_reg_strobe : std_logic;
-  signal ipb_drp_strobe : std_logic_vector(N_FIFO-1 downto 0);
+  signal ipb_reg_strobe   : std_logic;
+  signal ipb_wfifo_strobe : std_logic_vector(N_WFIFO-1 downto 0);
+  signal ipb_rfifo_strobe : std_logic_vector(N_RFIFO-1 downto 0);
+
 
   signal sel                : integer := 99;
   signal ored_ack, ored_err : std_logic_vector(NSLV downto 0);
@@ -97,7 +100,7 @@ begin
       sel <= 0;
     elsif REG_SLV_NUM = 0 then
       sel <= to_integer(unsigned(ipb_in.ipb_addr(MAX_ADDR_NUM-1 downto 2)));
-    elsif ipb_in.ipb_addr(MAX_ADDR_NUM-1) = '1' and (N_FIFO > 0) then
+    elsif ipb_in.ipb_addr(MAX_ADDR_NUM-1) = '1' and (N_WFIFO > 0 or N_RFIFO > 0) then
       sel <= to_integer(unsigned(ipb_in.ipb_addr(MAX_ADDR_NUM-2 downto 2))) + REG_SLV_NUM;
     else
       sel <= 99;

@@ -74,6 +74,19 @@ entity ipbus_payload is
     spi_trans_end : out std_logic;
 
     PDB : out std_logic;
+    
+		-- FIFO
+		ctrl_fifo_rst               : in  std_logic;
+		slow_ctrl_fifo_rd_clk       : in  std_logic;
+		slow_ctrl_fifo_rd_en        : in  std_logic;
+		slow_ctrl_fifo_valid        : out std_logic;
+		slow_ctrl_fifo_empty        : out std_logic;
+		slow_ctrl_fifo_rd_dout      : out std_logic_vector(31 downto 0);
+		data_fifo_rst               : in  std_logic;
+		data_fifo_wr_clk            : in  std_logic;
+		data_fifo_wr_en             : in  std_logic;
+		data_fifo_full              : out std_logic;
+		data_fifo_wr_din            : in  std_logic_vector(31 downto 0);
 
     -- SPI Master
     ss   : out std_logic_vector(N_SS - 1 downto 0);
@@ -201,7 +214,20 @@ begin
       digsel_en_soft => digsel_en_soft,
       load_soft      => load_soft,
 
-      PDB => PDB
+      PDB => PDB,
+      
+			--fifos
+			ctrl_fifo_rst               => ctrl_fifo_rst,
+			slow_ctrl_fifo_rd_clk       => slow_ctrl_fifo_rd_clk,
+			slow_ctrl_fifo_rd_en        => slow_ctrl_fifo_rd_en,
+			slow_ctrl_fifo_valid        => slow_ctrl_fifo_valid,
+			slow_ctrl_fifo_empty        => slow_ctrl_fifo_empty,
+			slow_ctrl_fifo_rd_dout      => slow_ctrl_fifo_rd_dout,
+			data_fifo_rst               => data_fifo_rst,
+			data_fifo_wr_clk            => data_fifo_wr_clk,
+			data_fifo_wr_en             => data_fifo_wr_en,
+			data_fifo_full              => data_fifo_full,
+			data_fifo_wr_din            => data_fifo_wr_din
 
       );
 

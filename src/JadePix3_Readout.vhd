@@ -171,6 +171,19 @@ architecture rtl of JadePix3_Readout is
   signal dplse_soft     : std_logic;
   signal gshutter_soft  : std_logic;
 
+  -- FIFOs
+  signal ctrl_fifo_rst, data_fifo_rst : std_logic;
+  signal slow_ctrl_fifo_rd_clk        : std_logic;
+  signal slow_ctrl_fifo_rd_en         : std_logic;
+  signal slow_ctrl_fifo_valid         : std_logic;
+  signal slow_ctrl_fifo_empty         : std_logic;
+  signal slow_ctrl_fifo_rd_dout       : std_logic_vector(31 downto 0);
+
+  signal data_fifo_wr_clk : std_logic;
+  signal data_fifo_wr_en  : std_logic;
+  signal data_fifo_full   : std_logic;
+  signal data_fifo_wr_din : std_logic_vector(31 downto 0);
+
   -- Readout
   signal clk_cache_delay : std_logic;
 
@@ -324,8 +337,20 @@ begin
 
       spi_trans_end => spi_trans_end,
 
-
       PDB => PDB,
+
+      -- FIFOs
+      ctrl_fifo_rst          => ctrl_fifo_rst,
+      slow_ctrl_fifo_rd_clk  => slow_ctrl_fifo_rd_clk,
+      slow_ctrl_fifo_rd_en   => slow_ctrl_fifo_rd_en,
+      slow_ctrl_fifo_valid   => slow_ctrl_fifo_valid,
+      slow_ctrl_fifo_empty   => slow_ctrl_fifo_empty,
+      slow_ctrl_fifo_rd_dout => slow_ctrl_fifo_rd_dout,
+      data_fifo_rst          => data_fifo_rst,
+      data_fifo_wr_clk       => data_fifo_wr_clk,
+      data_fifo_wr_en        => data_fifo_wr_en,
+      data_fifo_full         => data_fifo_full,
+      data_fifo_wr_din       => data_fifo_wr_din,
 
       -- SPI master
       ss   => open,

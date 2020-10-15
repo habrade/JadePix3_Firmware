@@ -41,7 +41,8 @@ entity ipbus_slave_reg_fifo is
     SYNC_REG_ENA : boolean := false;
     N_STAT       : integer := 1;
     N_CTRL       : integer := 1;
-    N_FIFO       : integer := 1
+    N_WFIFO      : integer := 1;
+    N_RFIFO      : integer := 1
     );
   port(
     ipb_clk : in  std_logic;
@@ -55,37 +56,60 @@ entity ipbus_slave_reg_fifo is
     ctrl         : out ipb_reg_v(integer_max(N_CTRL, 1)-1 downto 0);
     ctrl_reg_stb : out std_logic_vector(integer_max(N_CTRL, 1)-1 downto 0);
     stat         : in  ipb_reg_v(integer_max(N_STAT, 1)-1 downto 0);
-    stat_reg_stb : out std_logic_vector(integer_max(N_STAT, 1)-1 downto 0)
+    stat_reg_stb : out std_logic_vector(integer_max(N_STAT, 1)-1 downto 0);
+
+    -- for write FIFO
+    wfifo_rst     : in  std_logic                                               := '0';
+    wfifo_rd_clk  : in  std_logic_vector(integer_max(N_WFIFO, 1)-1 downto 0)    := (others => '0');
+    wfifo_rd_en   : in  std_logic_vector(integer_max(N_WFIFO, 1)-1 downto 0)    := (others => '0');
+    wfifo_valid   : out std_logic_vector(integer_max(N_WFIFO, 1)-1 downto 0)    := (others => '0');
+    wfifo_empty   : out std_logic_vector(integer_max(N_WFIFO, 1)-1 downto 0)    := (others => '0');
+    wfifo_rd_dout : out std_logic_vector(32*integer_max(N_WFIFO, 1)-1 downto 0) := (others => '0');
+
+    --for read  FIFO
+    rfifo_rst    : in  std_logic                                               := '0';
+    rfifo_wr_clk : in  std_logic_vector(integer_max(N_RFIFO, 1)-1 downto 0)    := (others => '0');
+    rfifo_wr_en  : in  std_logic_vector(integer_max(N_RFIFO, 1)-1 downto 0)    := (others => '0');
+    rfifo_full   : out std_logic_vector(integer_max(N_RFIFO, 1)-1 downto 0)    := (others => '0');
+    rfifo_wr_din : in  std_logic_vector(32*integer_max(N_RFIFO, 1)-1 downto 0) := (others => '0');
+
+    debug : out std_logic_vector(N_WFIFO+N_RFIFO+7 downto 0)
     );
 end ipbus_slave_reg_fifo;
 
 architecture behv of ipbus_slave_reg_fifo is
 
   constant REG_NSLV : integer  := reg_slave_num(N_STAT, N_CTRL);
-  constant NSLV     : positive := REG_NSLV+N_FIFO;
+  constant NSLV     : positive := REG_NSLV+N_WFIFO+N_RFIFO;
 
   signal ipbw : ipb_wbus_array(NSLV-1 downto 0);
   signal ipbr : ipb_rbus_array(NSLV-1 downto 0);
 
-  signal rst_r    : std_logic;
-  signal rst_fifo : std_logic_vector(N_FIFO-1 downto 0);
+  signal wfifo_dout : ipb_reg_v(N_WFIFO - 1 downto 0);
+  signal rfifo_din  : ipb_reg_v(N_RFIFO - 1 downto 0);
+
+  signal rst_r                : std_logic;
+  signal rst_wfifo, rst_rfifo : std_logic;
 
 begin
 
-  rst_r <= ipb_rst or rst;
+  rst_r     <= ipb_rst or rst;
+  rst_wfifo <= ipb_rst or wfifo_rst;
+  rst_rfifo <= ipb_rst or rfifo_rst;
 
   inst_device_fabric : entity work.ipbus_fabric_inside_device
     generic map(
-      N_CTRL => N_CTRL,                 --the control register number
-      N_STAT => N_STAT,                 --the status register number
-      N_FIFO => N_FIFO
+      N_CTRL  => N_CTRL,                --the control register number
+      N_STAT  => N_STAT,                --the status register number
+      N_WFIFO => N_WFIFO,
+      N_RFIFO => N_RFIFO
       )
     port map(
       ipb_in          => ipb_in,
       ipb_out         => ipb_out,
       ipb_to_slaves   => ipbw,
       ipb_from_slaves => ipbr,
-      debug           => open
+      debug           => debug(7 downto 0)
       );
 
 
@@ -128,6 +152,44 @@ begin
           );
     end generate;
   end generate;
+
+  wfifo : if N_WFIFO > 0 generate
+    wfifo_gen : for i in N_WFIFO-1 downto 0 generate
+      wfifo_i : entity work.ipbus_write_fifo
+        port map(
+          clk       => ipb_clk,
+          reset     => rst_wfifo,
+          ipbus_in  => ipbw(REG_NSLV+i),
+          ipbus_out => ipbr(REG_NSLV+i),
+
+          wfifo_rd_clk  => wfifo_rd_clk(i),
+          wfifo_rd_en   => wfifo_rd_en(i),
+          wfifo_valid   => wfifo_valid(i),
+          wfifo_empty   => wfifo_empty(i),
+          wfifo_rd_dout => wfifo_rd_dout(32*(i+1)-1 downto 32*i),
+          debug         => debug(i+8)
+          );
+    end generate;
+  end generate;
+
+  rfifo : if N_RFIFO > 0 generate
+    rfifo_gen : for i in N_RFIFO-1 downto 0 generate
+      rfifo_i : entity work.ipbus_read_fifo
+        port map(
+          clk       => ipb_clk,
+          reset     => rst_rfifo,
+          ipbus_in  => ipbw(REG_NSLV+N_WFIFO+i),
+          ipbus_out => ipbr(REG_NSLV+N_WFIFO+i),
+
+          rfifo_wr_clk => rfifo_wr_clk(i),
+          rfifo_wr_en  => rfifo_wr_en(i),
+          rfifo_full   => rfifo_full(i),
+          rfifo_wr_din => rfifo_wr_din(32*(i+1)-1 downto 32*i),
+          debug        => debug(i+N_WFIFO+8)
+          );
+    end generate;
+  end generate;
+
 
 
 end behv;

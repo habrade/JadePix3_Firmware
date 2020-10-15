@@ -89,8 +89,21 @@ entity ipbus_jadepix_device is
     digsel_en_soft : out std_logic;
     load_soft      : out std_logic;
 
-    PDB : out std_logic
-    );
+    PDB : out std_logic;
+    
+				-- fifo
+		ctrl_fifo_rst               : in  std_logic;
+		slow_ctrl_fifo_rd_clk       : in  std_logic;
+		slow_ctrl_fifo_rd_en        : in  std_logic;
+		slow_ctrl_fifo_valid        : out std_logic;
+		slow_ctrl_fifo_empty        : out std_logic;
+		slow_ctrl_fifo_rd_dout      : out std_logic_vector(31 downto 0);
+		data_fifo_rst               : in  std_logic;
+		data_fifo_wr_clk            : in  std_logic;
+		data_fifo_wr_en             : in  std_logic;
+		data_fifo_full              : out std_logic;
+		data_fifo_wr_din            : in  std_logic_vector(31 downto 0)
+);
 end ipbus_jadepix_device;
 
 architecture behv of ipbus_jadepix_device is
@@ -98,11 +111,19 @@ architecture behv of ipbus_jadepix_device is
   constant SYNC_REG_ENA               : boolean := false;
   constant N_STAT                     : integer := 2;
   constant N_CTRL                     : integer := 9;
-  constant N_FIFO                     : integer := 0;
+  constant N_WFIFO                    : integer := 0;
+  constant N_RFIFO                    : integer := 0;
   signal stat                         : ipb_reg_v(N_STAT-1 downto 0);
   signal ctrl                         : ipb_reg_v(N_CTRL-1 downto 0);
   signal ctrl_reg_stb, ctrl_reg_stb_r : std_logic_vector(N_CTRL-1 downto 0);
   signal stat_reg_stb, stat_reg_stb_r : std_logic_vector(N_STAT-1 downto 0);
+  
+  --IPbus slave fifo
+	signal rfifo_wr_din                                                     :std_logic_vector(32*N_RFIFO-1 downto 0);
+	signal rfifo_wr_clk,  rfifo_wr_en, rfifo_full                           :std_logic_vector(N_RFIFO-1 downto 0);
+	
+	signal wfifo_rd_clk,  wfifo_rd_en, wfifo_valid, wfifo_empty             :std_logic_vector(N_WFIFO-1 downto 0);
+	signal wfifo_rd_dout                                                    :std_logic_vector(32*N_WFIFO-1 downto 0);
 
   signal cfg_start_tmp     : std_logic;
   signal rs_start_tmp      : std_logic;
@@ -134,7 +155,8 @@ begin
       SYNC_REG_ENA => SYNC_REG_ENA,
       N_STAT       => N_STAT,
       N_CTRL       => N_CTRL,
-      N_FIFO       => N_FIFO
+      N_WFIFO      => N_WFIFO,
+      N_RFIFO      => N_RFIFO
       )
     port map(
 
@@ -150,7 +172,19 @@ begin
       ctrl         => ctrl,
       ctrl_reg_stb => ctrl_reg_stb,
       stat         => stat,
-      stat_reg_stb => open
+      stat_reg_stb => open,
+      
+			wfifo_rst         => ctrl_fifo_rst,
+			wfifo_rd_clk      => wfifo_rd_clk,
+			wfifo_rd_en       => wfifo_rd_en,
+			wfifo_valid       => wfifo_valid,
+			wfifo_empty       => wfifo_empty,
+			wfifo_rd_dout     => wfifo_rd_dout,
+			rfifo_rst         => data_fifo_rst,
+			rfifo_wr_clk      => rfifo_wr_clk,
+			rfifo_wr_en       => rfifo_wr_en,
+			rfifo_full        => rfifo_full,
+			rfifo_wr_din      => rfifo_wr_din 
       );
 
   -- control
