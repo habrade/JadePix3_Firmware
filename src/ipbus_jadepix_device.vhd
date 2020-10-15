@@ -98,7 +98,7 @@ architecture behv of ipbus_jadepix_device is
   constant SYNC_REG_ENA               : boolean := false;
   constant N_STAT                     : integer := 2;
   constant N_CTRL                     : integer := 9;
-  constant N_RAM                      : integer := 0;
+  constant N_FIFO                     : integer := 0;
   signal stat                         : ipb_reg_v(N_STAT-1 downto 0);
   signal ctrl                         : ipb_reg_v(N_CTRL-1 downto 0);
   signal ctrl_reg_stb, ctrl_reg_stb_r : std_logic_vector(N_CTRL-1 downto 0);
@@ -112,7 +112,7 @@ architecture behv of ipbus_jadepix_device is
   signal load_tmp          : std_logic;
 
   -- IPbus drp
---  signal ram_rst : std_logic_vector(N_RAM-1 downto 0);
+--  signal ram_rst : std_logic_vector(N_FIFO-1 downto 0);
 
   signal cfg : jadepix_cfg;
 
@@ -129,12 +129,12 @@ architecture behv of ipbus_jadepix_device is
 
 begin
 
-  inst_ipbus_slave_reg_ram : entity work.ipbus_slave_reg_ram
+  ipbus_slave_reg_fifo : entity work.ipbus_slave_reg_fifo
     generic map(
       SYNC_REG_ENA => SYNC_REG_ENA,
       N_STAT       => N_STAT,
       N_CTRL       => N_CTRL,
-      N_RAM        => N_RAM
+      N_FIFO       => N_FIFO
       )
     port map(
 

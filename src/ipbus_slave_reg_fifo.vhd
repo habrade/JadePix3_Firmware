@@ -4,7 +4,7 @@
 -- 
 -- Create Date: 08/16/2020 10:56:40 PM
 -- Design Name: 
--- Module Name: ipbus_slave_reg_ram - behv
+-- Module Name: ipbus_slave_reg_fifo - behv
 -- Project Name: 
 -- Target Devices: 
 -- Tool Versions: 
@@ -20,7 +20,7 @@
 
 
 library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_1164.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
@@ -36,12 +36,12 @@ use work.ipbus_reg_types.all;
 use work.ipbus_reg_types_new.all;
 
 
-entity ipbus_slave_reg_ram is
+entity ipbus_slave_reg_fifo is
   generic(
     SYNC_REG_ENA : boolean := false;
     N_STAT       : integer := 1;
     N_CTRL       : integer := 1;
-    N_RAM        : integer := 1
+    N_FIFO       : integer := 1
     );
   port(
     ipb_clk : in  std_logic;
@@ -57,18 +57,18 @@ entity ipbus_slave_reg_ram is
     stat         : in  ipb_reg_v(integer_max(N_STAT, 1)-1 downto 0);
     stat_reg_stb : out std_logic_vector(integer_max(N_STAT, 1)-1 downto 0)
     );
-end ipbus_slave_reg_ram;
+end ipbus_slave_reg_fifo;
 
-architecture behv of ipbus_slave_reg_ram is
+architecture behv of ipbus_slave_reg_fifo is
 
   constant REG_NSLV : integer  := reg_slave_num(N_STAT, N_CTRL);
-  constant NSLV     : positive := REG_NSLV+N_RAM;
+  constant NSLV     : positive := REG_NSLV+N_FIFO;
 
   signal ipbw : ipb_wbus_array(NSLV-1 downto 0);
   signal ipbr : ipb_rbus_array(NSLV-1 downto 0);
 
-  signal rst_r   : std_logic;
-  signal rst_ram : std_logic_vector(N_RAM-1 downto 0);
+  signal rst_r    : std_logic;
+  signal rst_fifo : std_logic_vector(N_FIFO-1 downto 0);
 
 begin
 
@@ -78,7 +78,7 @@ begin
     generic map(
       N_CTRL => N_CTRL,                 --the control register number
       N_STAT => N_STAT,                 --the status register number
-      N_RAM  => N_RAM
+      N_FIFO => N_FIFO
       )
     port map(
       ipb_in          => ipb_in,
