@@ -78,7 +78,7 @@ package JADEPIX_DEFINES is
   constant VC_WIDTH             : integer := 5;
   constant OC_WIDTH             : integer := 5;
   constant FRAME_CNT_WIDTH      : integer := 22;
-  constant RBOF_WIDTH           : integer := 8;
+  constant RBOF_WIDTH           : integer := 14;
   constant DATA_FRAME_WIDTH     : integer := FRAME_CNT_WIDTH + ROW_WIDTH + (SECTOR_NUM*(VC_WIDTH+OC_WIDTH)) + RBOF_WIDTH;
   constant DATA_BUF_DEPTH_WIDTH : integer := 8;
   constant DATA_BUF_DEPTH       : integer := 192;
