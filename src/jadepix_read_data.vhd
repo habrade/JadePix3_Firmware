@@ -82,30 +82,31 @@ architecture behv of jadepix_read_data is
 
   signal buffer_w_en : std_logic;
 
+  signal rbof : std_logic_vector(RBOF_WIDTH-1 downto 0);
 
 begin
-  BLK_SELECT   <= blk_select_reg;
-  buffer_w_en  <= clk_cache_delay;
-    
-  fabric_sector: entity  work.fabric_sector
-  port map(
-    fifo_read_en_v  => fifo_read_en_v,
-    blk_select    =>   blk_select_reg,
-    FIFO_READ_EN   =>  FIFO_READ_EN
-    );
+  BLK_SELECT  <= blk_select_reg;
+  buffer_w_en <= clk_cache_delay;
+
+  fabric_sector : entity work.fabric_sector
+    port map(
+      fifo_read_en_v => fifo_read_en_v,
+      blk_select     => blk_select_reg,
+      FIFO_READ_EN   => FIFO_READ_EN
+      );
 
   fifo_monitor_wrapper : entity work.fifo_monitor_wrapper
     port map(
-      clk                  => clk,
-      rst                  => rst,
-      clk_cache            => clk_cache,
-      fifo_read_en_v       => fifo_read_en_v,
-      VALID_IN             => VALID_IN,
-      sectors_counters     => sectors_counters,
-      fifo_status          => fifo_status
+      clk              => clk,
+      rst              => rst,
+      clk_cache        => clk_cache,
+      fifo_read_en_v   => fifo_read_en_v,
+      VALID_IN         => VALID_IN,
+      sectors_counters => sectors_counters,
+      fifo_status      => fifo_status
       );
 
-  fifo_read : entity work.jadepix_fifo_read
+  fifo_ctrl : entity work.jadepix_fifo_ctrl
     port map(
       clk => clk,
       rst => rst,

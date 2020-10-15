@@ -33,7 +33,7 @@ use IEEE.NUMERIC_STD.all;
 
 use work.jadepix_defines.all;
 
-entity jadepix_fifo_read is
+entity jadepix_fifo_ctrl is
   port(
     clk : in std_logic;
     rst : in std_logic;
@@ -66,10 +66,10 @@ entity jadepix_fifo_read is
     ipbus_data_payload       : out std_logic_vector(71 downto 0)
     );
 
-end jadepix_fifo_read;
+end jadepix_fifo_ctrl;
 
 
-architecture behv of jadepix_fifo_read is
+architecture behv of jadepix_fifo_ctrl is
 
   type READ_FIFO_STATE is (IDLE, READ_BUFFER, READ_ROW,
                            READ_FIFO0_HALF1, READ_FIFO0_HALF2,
