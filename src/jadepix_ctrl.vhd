@@ -244,7 +244,7 @@ begin
 
   process(all)
   begin
-
+		state_next <= state_reg;
     case state_reg is
       when IDLE =>
         if cfg_start = '1' then
@@ -263,29 +263,21 @@ begin
       when CFG_GET_DATA =>
         if cfg_dout_valid = '1' then
           state_next <= CFG_EN_DATA;
-        else
-          state_next <= CFG_GET_DATA;
         end if;
 
       when CFG_EN_DATA =>
         if cfg_cnt = 2 then
           state_next <= CFG_EN_SEL;
-        else
-          state_next <= CFG_EN_DATA;
         end if;
 
       when CFG_EN_SEL =>
         if cfg_cnt = 14 then
           state_next <= CFG_DIS_SEL;
-        else
-          state_next <= CFG_EN_SEL;
         end if;
 
       when CFG_DIS_SEL =>
         if cfg_cnt = (JADEPIX_CFG_CNT_MAX) then
           state_next <= CFG_NEXT_PIX;
-        else
-          state_next <= CFG_DIS_SEL;
         end if;
 
       when CFG_NEXT_PIX =>
@@ -304,8 +296,6 @@ begin
       when RS_SET_ROW =>
         if rs_cnt = 2 then
           state_next <= RS_SET_COL;
-        else
-          state_next <= RS_SET_ROW;
         end if;
 
       when RS_SET_COL =>
@@ -315,8 +305,6 @@ begin
           else
             state_next <= RS_HOLD_COL;
           end if;
-        else
-          state_next <= RS_SET_COL;
         end if;
 
       when RS_HITMAP_SET_COL =>
@@ -326,33 +314,23 @@ begin
           else
             state_next <= RS_HITMAP_NEXT_COL;
           end if;
-        else
-          state_next <= RS_HITMAP_SET_COL;
         end if;
 
       when RS_HITMAP_NEXT_COL =>
         if rs_hitmap_cnt = JADEPIX_HITMAP_CNT_MAX then
           if hitmap_cnt = hitmap_num_int then
             state_next <= RS_HOLD_COL;
-          else
-            state_next <= RS_HITMAP_NEXT_COL;
           end if;
-        else
-          state_next <= RS_HITMAP_NEXT_COL;
         end if;
 
       when RS_HOLD_COL =>
         if rs_cnt = 12 then
           state_next <= RS_HIT_RST;
-        else
-          state_next <= RS_HOLD_COL;
         end if;
 
       when RS_HIT_RST =>
         if rs_cnt = 14 then
           state_next <= RS_END_ROW;
-        else
-          state_next <= RS_HIT_RST;
         end if;
 
       when RS_END_ROW =>
@@ -388,12 +366,10 @@ begin
       when GS_PULSE_DELAY =>
         if gs_pulse_delay_counter = unsigned(gs_pulse_delay_cnt) then
           state_next <= GS_PULSE_WIDTH;
-        else
-          state_next <= GS_PULSE_DELAY;
         end if;
 
       when GS_PULSE_WIDTH =>
-        if gs_width_counter = unsigned(std_logic_vector(gs_pulse_width_cnt_high) & std_logic_vector(gs_pulse_width_cnt_low)) then
+        if gs_width_counter = unsigned(gs_pulse_width_cnt_high) & unsigned(gs_pulse_width_cnt_low) then
           if gs_pulse_deassert_cnt = "000000000" then
             if gs_deassert_cnt = "000000000" then
               state_next <= GS_STOP;
@@ -403,8 +379,6 @@ begin
           else
             state_next <= GS_PULSE_DEASSERT;
           end if;
-        else
-          state_next <= GS_PULSE_WIDTH;
         end if;
 
       when GS_PULSE_DEASSERT =>
@@ -413,16 +387,12 @@ begin
         else
           if gs_pulse_deassert_counter = unsigned(gs_pulse_deassert_cnt) then
             state_next <= GS_DEASSERT;
-          else
-            state_next <= GS_PULSE_DEASSERT;
           end if;
         end if;
 
       when GS_DEASSERT =>
         if gs_deassert_counter = unsigned(gs_deassert_cnt) then
           state_next <= GS_STOP;
-        else
-          state_next <= GS_DEASSERT;
         end if;
 
       when GS_STOP =>

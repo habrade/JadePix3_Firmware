@@ -60,8 +60,8 @@ entity ipbus_read_fifo is
     --read  FIFO
     rfifo_wr_clk : in  std_logic;
     rfifo_wr_en  : in  std_logic;
+		rfifo_wr_din : in  std_logic_vector(31 downto 0);
     rfifo_full   : out std_logic;
-    rfifo_wr_din : in  std_logic_vector(31 downto 0);
     debug        : out std_logic
     );
 

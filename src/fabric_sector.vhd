@@ -24,7 +24,7 @@ use IEEE.STD_LOGIC_1164.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+use IEEE.NUMERIC_STD.all;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx leaf cells in this code.
@@ -33,27 +33,43 @@ use IEEE.STD_LOGIC_1164.all;
 
 use work.jadepix_defines.all;
 
-
 entity fabric_sector is
   port(
-    fifo_read_en_v : in  std_logic_vector(SECTOR_NUM-1 downto 0);
-    blk_select     : in  std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
-    FIFO_READ_EN   : out std_logic
+    clk : in std_logic;
+    rst : in std_logic;
+
+    fifo_read_en_v    : in  std_logic_vector(SECTOR_NUM-1 downto 0);
+    sector_counters_v : in  sector_counters_v (SECTOR_NUM-1 downto 0);
+    blk_select        : in  std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
+    fifo_read_en      : out std_logic;
+    fifo_data_valid   : out std_logic;
+    fifo_oc           : out std_logic_vector(OC_WIDTH-1 downto 0)
     );
 end fabric_sector;
 
 architecture behv of fabric_sector is
+  signal fifo_index : integer := 0;
+
+--  signal fifo_read_en_reg : std_logic;
+
 begin
+
+  fifo_index   <= 0 when blk_select = "ZZ" else to_integer(unsigned(blk_select));
+  fifo_read_en <= fifo_read_en_v(fifo_index);
+  fifo_oc      <= sector_counters_v(fifo_index).overflow_counter;
+
 
   process(all)
   begin
-    case blk_select is
-      when "00"   => FIFO_READ_EN <= fifo_read_en_v(0);
-      when "01"   => FIFO_READ_EN <= fifo_read_en_v(1);
-      when "10"   => FIFO_READ_EN <= fifo_read_en_v(2);
-      when "11"   => FIFO_READ_EN <= fifo_read_en_v(3);
-      when others => FIFO_READ_EN <= '0';
-    end case;
+    if rising_edge(clk) then
+      if ?? rst then
+--        fifo_read_en_reg <= '0';
+        fifo_data_valid  <= '0';
+      else
+--        fifo_read_en_reg <= fifo_read_en;
+        fifo_data_valid  <= fifo_read_en;
+      end if;
+    end if;
   end process;
 
 end behv;

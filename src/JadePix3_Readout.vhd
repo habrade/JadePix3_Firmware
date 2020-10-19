@@ -101,7 +101,8 @@ architecture rtl of JadePix3_Readout is
 
   signal sysclk                                : std_logic;
   signal clk_sys                               : std_logic;
-  signal clk_ref_rst, clk_dac_rst, clk_sys_rst : std_logic;
+  signal clk_wfifo                             : std_logic;
+  signal clk_ref_rst, clk_dac_rst, clk_sys_rst, clk_wfifo_rst: std_logic;
 
   -- IPbus
   signal clk_ipb, rst_ipb, clk_125M, clk_aux, rst_aux, locked_ipbus_mmcm, nuke, soft_rst, phy_rst_e, userled : std_logic;
@@ -181,8 +182,8 @@ architecture rtl of JadePix3_Readout is
 
   signal data_fifo_wr_clk : std_logic;
   signal data_fifo_wr_en  : std_logic;
+	signal data_fifo_wr_din : std_logic_vector(31 downto 0);
   signal data_fifo_full   : std_logic;
-  signal data_fifo_wr_din : std_logic_vector(31 downto 0);
 
   -- Readout
   signal clk_cache_delay : std_logic;
@@ -448,9 +449,11 @@ begin
 
   jadepix_read_data : entity work.jadepix_read_data
     port map(
-
       clk => clk_sys,
       rst => clk_sys_rst,
+      
+      clk_wfifo => clk_wfifo,
+      clk_wfifo_rst => clk_wfifo_rst,
 
       clk_cache       => clk_cache,
       clk_cache_delay => clk_cache_delay,
@@ -463,7 +466,14 @@ begin
 
       FIFO_READ_EN => FIFO_READ_EN,
       BLK_SELECT   => BLK_SELECT,
-      INQUIRY      => INQUIRY
+      INQUIRY      => INQUIRY,
+      
+      -- DATA FIFO
+			data_fifo_rst          => data_fifo_rst,
+      data_fifo_wr_clk       => data_fifo_wr_clk,
+      data_fifo_wr_en        => data_fifo_wr_en,
+			data_fifo_wr_din       => data_fifo_wr_din,
+      data_fifo_full         => data_fifo_full
       );
 
 

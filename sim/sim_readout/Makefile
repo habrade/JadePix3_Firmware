@@ -14,6 +14,7 @@ SRCS=\
 	${FIRMWARE_SRC_DIR}/gen_clk_cache_delay.vhd \
 	${FIRMWARE_SRC_DIR}/jadepix_status_buffer.vhd \
 	${FIRMWARE_SRC_DIR}/jadepix_fifo_ctrl.vhd \
+	${FIRMWARE_SRC_DIR}/jadepix_fifo_data.vhd \
 	${FIRMWARE_SRC_DIR}/jadepix_read_data.vhd
 
 TB_DIR= tb

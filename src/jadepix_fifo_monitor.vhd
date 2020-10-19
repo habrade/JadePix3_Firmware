@@ -44,7 +44,7 @@ entity jadepix_fifo_monitor is
     fifo_read_en  :    std_logic;
 
     fifo_counters : out sector_counters;
-    fifo_status   : out sector_status
+    fifo_status   : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0)
     );
 
 end jadepix_fifo_monitor;
@@ -63,8 +63,8 @@ architecture behv of jadepix_fifo_monitor is
 
   signal state_reg, state_next : COUNTER_STATE := IDLE;
 
-  procedure GET_NEXT_STATE (signal fifo_valid_in : in  std_logic;
-                            signal fifo_read_en  : in  std_logic;
+  procedure GET_NEXT_STATE (signal fifo_valid_in : in    std_logic;
+                            signal fifo_read_en  : in    std_logic;
                             signal state_next    : inout COUNTER_STATE) is
   begin
     if fifo_valid_in = '1' and fifo_read_en = '0' then
@@ -169,9 +169,9 @@ begin
   get_fifo_status : process(all)
   begin
     if rst = '1' then
-      fifo_status.fifo_status <= "00";
+      fifo_status <= "00";
     else
-      fifo_status.fifo_status <=
+      fifo_status <=
         "00" when fifo_cnt                                <= FIFO_STATUS_TH1 else
         "01" when fifo_cnt > FIFO_STATUS_TH1 and fifo_cnt <= FIFO_STATUS_TH2 else
         "10" when fifo_cnt > FIFO_STATUS_TH2 and fifo_cnt <= FIFO_STATUS_TH3 else
@@ -183,10 +183,10 @@ begin
 
   get_valid_cnt_max : process(all)
   begin
-		valid_num <= maximum(valid_num, valid_cnt);
-		/* update valid number */
+    valid_num <= maximum(valid_num, valid_cnt);
+    /* update valid number */
     if falling_edge(clk_cache) then
-			valid_num <= maximum(0, valid_cnt);
+      valid_num <= maximum(0, valid_cnt);
     end if;
   end process;
 

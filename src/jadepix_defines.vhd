@@ -42,6 +42,7 @@ package JADEPIX_DEFINES is
 
   constant DACCLK_PERIOD               : real := 20.0;   -- unit: ns
   constant JADEPIX_SYS_PERIOD          : real := 12.0;   -- unit: ns
+  constant JADEPIX_WFIFO_PERIOD        : real := 6.0;    -- unit: ns
   constant JADEPIX_REF_PERIOD          : real := 25.0;   -- unit: ns
   constant JADEPIX_CFG_PERIOD          : real := 192.0;  -- unit: ns
   constant JADEPIX_RS_NO_HITMAP_PERIOD : real := 192.0;  -- unit: ns
@@ -78,7 +79,7 @@ package JADEPIX_DEFINES is
   constant VC_WIDTH             : integer := 5;
   constant OC_WIDTH             : integer := 5;
   constant FRAME_CNT_WIDTH      : integer := 22;
-  constant RBOF_WIDTH           : integer := 14;
+  constant RBOF_WIDTH           : integer := 15;
   constant DATA_FRAME_WIDTH     : integer := FRAME_CNT_WIDTH + ROW_WIDTH + (SECTOR_NUM*(VC_WIDTH+OC_WIDTH)) + RBOF_WIDTH;
   constant DATA_BUF_DEPTH_WIDTH : integer := 8;
   constant DATA_BUF_DEPTH       : integer := 192;
@@ -90,14 +91,8 @@ package JADEPIX_DEFINES is
     overflow_counter : std_logic_vector(OC_WIDTH-1 downto 0);
   end record;
 
-  type sector_status is
-  record
-    fifo_status : std_logic_vector(1 downto 0);
-  end record;
-
   type sector_counters_v is array(natural range <>) of sector_counters;
-  type sector_status_v is array(natural range <>) of sector_status;
-  type sector_readout_num_v is array(natural range <>) of integer range 0 to (2*VALID_MAX);  -- 1 input, 2 outputs
+  type sector_status_v is array(natural range <>) of std_logic_vector;
 
   type buffer_data_frame is
   record
@@ -107,11 +102,11 @@ package JADEPIX_DEFINES is
     rbof      : std_logic_vector(RBOF_WIDTH-1 downto 0);
   end record;
 
-  constant DATA_FRAME_NULL : buffer_data_frame := ((others  => '0'),
-                                                   (others  => '0'),
+  constant DATA_FRAME_NULL : buffer_data_frame := ((others => '0'),
+                                                   (others => '0'),
                                                    (others => ((others => '0'), (others => '0'))),
-                                                   (others  => '0'));
-                                                   
-                                                   
+                                                   (others => '0'));
+
+
 end JADEPIX_DEFINES;
 

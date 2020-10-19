@@ -51,19 +51,14 @@ entity jadepix_fifo_ctrl is
     -- The number of elements in the FIFO
     buffer_fill_count : in integer range DATA_BUF_DEPTH - 1 downto 0;
 
-    -- Jadepix FIFO
-    DATA_IN : in std_logic_vector(7 downto 0);
-
+    -- To Jadepix FIFO
     fifo_read_en_v : out std_logic_vector(SECTOR_NUM-1 downto 0);
     blk_select     : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
 
     INQUIRY : out std_logic_vector(1 downto 0);
+    
+    data_frame : out buffer_data_frame := DATA_FRAME_NULL
 
-    sectors_row_read_end : out std_logic;
-
-    -- IPBUS readout
-    ipbus_data_payload_valid : out std_logic;
-    ipbus_data_payload       : out std_logic_vector(71 downto 0)
     );
 
 end jadepix_fifo_ctrl;
@@ -78,9 +73,9 @@ architecture behv of jadepix_fifo_ctrl is
                            READ_FIFO3_HALF1, READ_FIFO3_HALF2,
                            READ_ROW_END);
 
-  signal state_reg, state_next, state_temp : READ_FIFO_STATE := IDLE;
+  signal state_reg, state_next : READ_FIFO_STATE := IDLE;
 
-  signal data_frame : buffer_data_frame := DATA_FRAME_NULL;
+--  signal data_frame : buffer_data_frame := DATA_FRAME_NULL;
 
   signal cnt_sec0, cnt_sec1, cnt_sec2, cnt_sec3 : integer range 0 to 16 := 0;
 
@@ -189,10 +184,10 @@ begin
     if rising_edge(clk) then
       case(state_next) is
         when IDLE =>
-          sectors_row_read_end <= '0';
-          buffer_read_en       <= '0';
-          blk_select           <= "ZZ";
-          fifo_read_en_v       <= (others => '0');
+          buffer_read_en <= '0';
+          blk_select     <= "ZZ";
+          fifo_read_en_v <= (others => '0');
+          data_frame <= DATA_FRAME_NULL;
 
         when READ_BUFFER =>
           buffer_read_en <= '1';
@@ -224,11 +219,12 @@ begin
             cnt_sec0 <= cnt_sec0 - 1;
           end if;
         when READ_FIFO0_HALF2 => null;
-        
+
         -- Read FIFO 1
         when READ_FIFO1_HALF1 =>
           blk_select     <= "01";
           fifo_read_en_v <= "0010";
+
           if cnt_sec1 > 0 then
             cnt_sec1 <= cnt_sec1 - 1;
           end if;
@@ -238,6 +234,7 @@ begin
         when READ_FIFO2_HALF1 =>
           blk_select     <= "10";
           fifo_read_en_v <= "0100";
+
           if cnt_sec2 > 0 then
             cnt_sec2 <= cnt_sec2 - 1;
           end if;
@@ -247,20 +244,20 @@ begin
         when READ_FIFO3_HALF1 =>
           blk_select     <= "11";
           fifo_read_en_v <= "1000";
+
           if cnt_sec3 > 0 then
             cnt_sec3 <= cnt_sec3 - 1;
           end if;
         when READ_FIFO3_HALF2 => null;
 
         when READ_ROW_END =>
-          blk_select           <= "ZZ";
-          fifo_read_en_v       <= (others => '0');
-          sectors_row_read_end <= '1';
+          blk_select     <= "ZZ";
+          fifo_read_en_v <= (others => '0');
 
         when others =>
           null;
-
       end case;
+
     end if;
   end process;
 

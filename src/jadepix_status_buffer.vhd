@@ -24,7 +24,8 @@ use IEEE.STD_LOGIC_1164.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
-use IEEE.NUMERIC_STD.all;
+--use IEEE.NUMERIC_STD.all;
+use IEEE.NUMERIC_STD_unsigned.all;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx leaf cells in this code.
@@ -39,10 +40,10 @@ entity jadepix_status_buffer is
     rst : in std_logic;
 
     -- Buffer write
-    buffer_w_en      : in std_logic;
-    frame_num        : in std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
-    row              : in std_logic_vector(ROW_WIDTH-1 downto 0);
-    sectors_counters : in sector_counters_v (SECTOR_NUM-1 downto 0);
+    buffer_w_en       : in std_logic;
+    frame_num         : in std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
+    row               : in std_logic_vector(ROW_WIDTH-1 downto 0);
+    sector_counters_v : in sector_counters_v (SECTOR_NUM-1 downto 0);
 
     -- Buffer read
     buffer_read_en    : in  std_logic;
@@ -55,16 +56,15 @@ entity jadepix_status_buffer is
     buffer_full       : out std_logic;
     buffer_full_next  : out std_logic;
     -- The number of elements in the FIFO
-    buffer_fill_count : out integer range DATA_BUF_DEPTH - 1 downto 0;
-    
-    rbof : out std_logic_vector(RBOF_WIDTH-1 downto 0)
+    buffer_fill_count : out integer range DATA_BUF_DEPTH - 1 downto 0
 
+--    rbof : out std_logic_vector(RBOF_WIDTH-1 downto 0)
     );
 end jadepix_status_buffer;
 
 architecture behv of jadepix_status_buffer is
 
-  type BUF_STATE is (IDLE, W_RECORD);
+  type BUF_STATE is (INITIAL, IDLE, W_RECORD);
 
   signal state_reg, state_next : BUF_STATE;
 
@@ -72,14 +72,20 @@ architecture behv of jadepix_status_buffer is
   signal wr_data : std_logic_vector(DATA_FRAME_WIDTH-1 downto 0);
   signal rd_en   : std_logic;
 
-  signal buf_cnt : integer range 0 to DATA_BUF_DEPTH       := 0;
+  signal buf_cnt : integer range 0 to DATA_BUF_DEPTH := 0;
+
+--  signal rbof_reg : std_logic_vector(RBOF_WIDTH-1 downto 0) := (others => '0');
+  signal rbof : std_logic_vector(RBOF_WIDTH-1 downto 0) := (others => '0');
+
 
 begin
+
+--  rbof <= rbof_reg;
 
   process(clk, rst)
   begin
     if rst = '1' then
-      state_reg <= IDLE;
+      state_reg <= INITIAL;
     elsif rising_edge(clk) then
       state_reg <= state_next;
     end if;
@@ -88,6 +94,8 @@ begin
   process(all)
   begin
     case state_reg is
+--      when INITIAL =>
+--        state_next <= IDLE;
       when IDLE =>
         if buffer_w_en = '1' then
           state_next <= W_RECORD;
@@ -102,21 +110,24 @@ begin
     if rising_edge(clk) then
 
       case(state_next) is
+        when INITIAL =>
+          rbof <= (others => '0');
+
         when IDLE =>
           wr_en   <= '0';
           wr_data <= (others => '0');
-          
+
         when W_RECORD =>
           if buffer_full = '1' then
-            rbof <= std_logic_vector(unsigned(rbof) + 1);
+            rbof <= rbof + 1;
           else
             wr_en   <= '1';
             wr_data <= frame_num &
-                       std_logic_vector(unsigned(row)-1) &
-                       sectors_counters(0).valid_counter & sectors_counters(0).overflow_counter &
-                       sectors_counters(1).valid_counter & sectors_counters(1).overflow_counter &
-                       sectors_counters(2).valid_counter & sectors_counters(2).overflow_counter &
-                       sectors_counters(3).valid_counter & sectors_counters(3).overflow_counter &
+                       row-1 &
+                       sector_counters_v(0).valid_counter & sector_counters_v(0).overflow_counter &
+                       sector_counters_v(1).valid_counter & sector_counters_v(1).overflow_counter &
+                       sector_counters_v(2).valid_counter & sector_counters_v(2).overflow_counter &
+                       sector_counters_v(3).valid_counter & sector_counters_v(3).overflow_counter &
                        rbof;
           end if;
 

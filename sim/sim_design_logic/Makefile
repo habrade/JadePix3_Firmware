@@ -48,7 +48,9 @@ LOGIC_SRC_FILE= \
 	${LOGIC_SRC_DIR}/jadepix_defines.vhd \
 	${LOGIC_SRC_DIR}/jadepix_clock_gen.vhd \
 	${LOGIC_SRC_DIR}/ipbus_fabric_inside_device.vhd \
-	${LOGIC_SRC_DIR}/ipbus_slave_reg_ram.vhd \
+	${LOGIC_SRC_DIR}/ipbus_write_fifo.vhd \
+	${LOGIC_SRC_DIR}/ipbus_read_fifo.vhd \
+	${LOGIC_SRC_DIR}/ipbus_slave_reg_fifo.vhd \
 	${LOGIC_SRC_DIR}/ipbus_jadepix_device.vhd \
 	${LOGIC_SRC_DIR}/ipbus_payload.vhd \
 	${LOGIC_SRC_DIR}/jadepix_ctrl.vhd \

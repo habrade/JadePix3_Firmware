@@ -43,11 +43,10 @@ entity fifo_monitor_wrapper is
 
     fifo_read_en_v : in std_logic_vector(SECTOR_NUM-1 downto 0);
 
-    VALID_IN             : in std_logic_vector(SECTOR_NUM-1 downto 0);
+    VALID_IN : in std_logic_vector(SECTOR_NUM-1 downto 0);
 
-    sectors_counters : out sector_counters_v(SECTOR_NUM-1 downto 0);
-    fifo_status      : out sector_status_v(SECTOR_NUM-1 downto 0)
-
+    sector_counters_v : out sector_counters_v(SECTOR_NUM-1 downto 0);
+    fifo_status_v     : out sector_status_v(SECTOR_NUM-1 downto 0)(BLK_SELECT_WIDTH-1 downto 0)
     );
 end fifo_monitor_wrapper;
 
@@ -57,13 +56,13 @@ begin
   fifo_monitor : for index in SECTOR_NUM-1 downto 0 generate
     fifo_monitor_index : entity work.jadepix_fifo_monitor
       port map(
-        clk               => clk,
-        rst               => rst,
-        clk_cache         => clk_cache,
-        fifo_read_en      => fifo_read_en_v(index),
-        fifo_valid_in     => VALID_IN(index),
-        fifo_counters     => sectors_counters(index),
-        fifo_status       => fifo_status(index)
+        clk           => clk,
+        rst           => rst,
+        clk_cache     => clk_cache,
+        fifo_read_en  => fifo_read_en_v(index),
+        fifo_valid_in => VALID_IN(index),
+        fifo_counters => sector_counters_v(index),
+        fifo_status   => fifo_status_v(index)
         );
   end generate;
 

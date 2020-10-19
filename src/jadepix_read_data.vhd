@@ -39,6 +39,9 @@ entity jadepix_read_data is
     clk : in std_logic;
     rst : in std_logic;
 
+    clk_wfifo     : in std_logic;
+    clk_wfifo_rst : in std_logic;
+
     clk_cache       : in std_logic;
     clk_cache_delay : in std_logic;
     frame_num       : in std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
@@ -49,25 +52,25 @@ entity jadepix_read_data is
 
     FIFO_READ_EN : out std_logic;
     BLK_SELECT   : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
-    INQUIRY      : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0)
+    INQUIRY      : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
+
+    -- DATA FIFO
+    data_fifo_rst    : out std_logic;
+    data_fifo_wr_clk : out std_logic;
+    data_fifo_wr_en  : out std_logic;
+    data_fifo_wr_din : out std_logic_vector(31 downto 0);
+    data_fifo_full   : in  std_logic
     );
 
 end jadepix_read_data;
 
 architecture behv of jadepix_read_data is
-  signal fifo_read_en_reg : std_logic;
-  signal fifo_read_en_v   : std_logic_vector(SECTOR_NUM-1 downto 0);
-  signal blk_select_reg   : std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
+--  signal fifo_read_en_reg : std_logic;
+  signal fifo_read_en_v : std_logic_vector(SECTOR_NUM-1 downto 0);
+  signal blk_select_reg : std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
 
---  signal sectors_readout_num : sector_readout_num_v(SECTOR_NUM-1 downto 0);
-  signal sectors_row_read_end : std_logic;
-
---      signal is_fifo_writing_v  : boolean_vector(SECTOR_NUM-1 downto 0);
-
-  signal sectors_counters : sector_counters_v (SECTOR_NUM-1 downto 0);
-  signal fifo_status      : sector_status_v (SECTOR_NUM-1 downto 0);
-
---  signal blk_index : std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
+  signal sector_counters_v : sector_counters_v (SECTOR_NUM-1 downto 0);
+  signal fifo_status_v     : sector_status_v (SECTOR_NUM-1 downto 0)(BLK_SELECT_WIDTH-1 downto 0);
 
   signal buffer_read_en    : std_logic;
   signal buffer_data_valid : std_logic;
@@ -82,28 +85,68 @@ architecture behv of jadepix_read_data is
 
   signal buffer_w_en : std_logic;
 
-  signal rbof : std_logic_vector(RBOF_WIDTH-1 downto 0);
+  signal fifo_data_valid : std_logic;
+  
+  signal data_frame : buffer_data_frame;
+
+
+  signal fifo_oc : std_logic_vector(OC_WIDTH-1 downto 0);
+--  signal rbof    : std_logic_vector(RBOF_WIDTH-1 downto 0);
 
 begin
   BLK_SELECT  <= blk_select_reg;
+--  FIFO_READ_EN <= fifo_read_en_reg;
   buffer_w_en <= clk_cache_delay;
 
   fabric_sector : entity work.fabric_sector
     port map(
-      fifo_read_en_v => fifo_read_en_v,
-      blk_select     => blk_select_reg,
-      FIFO_READ_EN   => FIFO_READ_EN
+      clk => clk,
+      rst => rst,
+
+      fifo_read_en_v    => fifo_read_en_v,
+      sector_counters_v => sector_counters_v,
+      blk_select        => blk_select_reg,
+      fifo_read_en      => FIFO_READ_EN,
+      fifo_data_valid   => fifo_data_valid,
+      fifo_oc           => fifo_oc
       );
 
   fifo_monitor_wrapper : entity work.fifo_monitor_wrapper
     port map(
-      clk              => clk,
-      rst              => rst,
-      clk_cache        => clk_cache,
-      fifo_read_en_v   => fifo_read_en_v,
-      VALID_IN         => VALID_IN,
-      sectors_counters => sectors_counters,
-      fifo_status      => fifo_status
+      clk => clk,
+      rst => rst,
+
+      clk_cache         => clk_cache,
+      fifo_read_en_v    => fifo_read_en_v,
+      VALID_IN          => VALID_IN,
+      sector_counters_v => sector_counters_v,
+      fifo_status_v     => fifo_status_v
+      );
+
+  fifo_status_buffer : entity work.jadepix_status_buffer
+    port map(
+      clk => clk,
+      rst => rst,
+
+      -- Buffer write
+      buffer_w_en       => buffer_w_en,
+      sector_counters_v => sector_counters_v,
+      frame_num         => frame_num,
+      row               => row,
+
+      -- Buffer read
+      buffer_read_en    => buffer_read_en,
+      buffer_data_valid => buffer_data_valid,
+      buffer_data       => buffer_data,
+
+      -- Buffer status
+      buffer_empty      => buffer_empty,
+      buffer_empty_next => buffer_empty_next,
+      buffer_full       => buffer_full,
+      buffer_full_next  => buffer_full_next,
+      buffer_fill_count => buffer_fill_count
+      
+--      rbof => rbof
       );
 
   fifo_ctrl : entity work.jadepix_fifo_ctrl
@@ -121,39 +164,38 @@ begin
       buffer_full_next  => buffer_full_next,
       buffer_fill_count => buffer_fill_count,
 
-      DATA_IN => DATA_IN,
-
       fifo_read_en_v => fifo_read_en_v,
       blk_select     => blk_select_reg,
 
       INQUIRY => INQUIRY,
-
-      sectors_row_read_end => sectors_row_read_end
+      
+			data_frame        => data_frame
 
       );
 
-  fifo_status_buffer : entity work.jadepix_status_buffer
+  fifo_data : entity work.jadepix_fifo_data
     port map(
-      clk => clk,
-      rst => rst,
+      clk        => clk_wfifo,
+      rst        => clk_wfifo_rst,
+      blk_select => blk_select,
 
-      -- Buffer write
-      buffer_w_en      => buffer_w_en,
-      sectors_counters => sectors_counters,
-      frame_num        => frame_num,
-      row              => row,
+      data_frame        => data_frame,
 
-      -- Buffer read
-      buffer_read_en    => buffer_read_en,
-      buffer_data_valid => buffer_data_valid,
-      buffer_data       => buffer_data,
+--      frame_num     => frame_num,
+--      row           => row,
+      fifo_status_v => fifo_status_v,
+      fifo_oc       => fifo_oc,
+--      rbof          => rbof,
 
-      -- Buffer status
-      buffer_empty      => buffer_empty,
-      buffer_empty_next => buffer_empty_next,
-      buffer_full       => buffer_full,
-      buffer_full_next  => buffer_full_next,
-      buffer_fill_count => buffer_fill_count
+      fifo_data_valid => fifo_data_valid,
+      DATA_IN         => DATA_IN,
+
+      data_fifo_rst    => data_fifo_rst,
+      data_fifo_wr_clk => data_fifo_wr_clk,
+      data_fifo_wr_en  => data_fifo_wr_en,
+      data_fifo_wr_din => data_fifo_wr_din,
+      data_fifo_full   => data_fifo_full
       );
+
 
 end behv;

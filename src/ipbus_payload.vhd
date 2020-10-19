@@ -85,8 +85,8 @@ entity ipbus_payload is
 		data_fifo_rst               : in  std_logic;
 		data_fifo_wr_clk            : in  std_logic;
 		data_fifo_wr_en             : in  std_logic;
-		data_fifo_full              : out std_logic;
 		data_fifo_wr_din            : in  std_logic_vector(31 downto 0);
+		data_fifo_full              : out std_logic;
 
     -- SPI Master
     ss   : out std_logic_vector(N_SS - 1 downto 0);
@@ -102,7 +102,8 @@ architecture rtl of ipbus_payload is
   signal ipbw : ipb_wbus_array(N_SLAVES - 1 downto 0);
   signal ipbr : ipb_rbus_array(N_SLAVES - 1 downto 0);
 
-  signal spi_rst  : std_logic;
+  signal spi_rst  : std_logic;  -- from ipbus control module
+  signal rst_spi  : std_logic;  -- to SPI module
   signal spi_busy : std_logic;
 
 begin
@@ -144,13 +145,15 @@ begin
       DAC_DATA   => DAC_DATA
       );
 
+
+	rst_spi <= spi_rst or ipb_rst;
   slave2 : entity work.ipbus_spi
     generic map(
       N_SS => N_SS
       )
     port map(
       clk           => ipb_clk,
-      rst           => ipb_rst or spi_rst,
+      rst           => rst_spi,
       ipb_in        => ipbw(N_SLV_SPI),
       ipb_out       => ipbr(N_SLV_SPI),
       spi_busy      => spi_busy,
@@ -216,7 +219,7 @@ begin
 
       PDB => PDB,
       
-			--fifos
+			--FIFO
 			ctrl_fifo_rst               => ctrl_fifo_rst,
 			slow_ctrl_fifo_rd_clk       => slow_ctrl_fifo_rd_clk,
 			slow_ctrl_fifo_rd_en        => slow_ctrl_fifo_rd_en,

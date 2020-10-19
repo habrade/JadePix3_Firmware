@@ -70,8 +70,8 @@ entity ipbus_slave_reg_fifo is
     rfifo_rst    : in  std_logic                                               := '0';
     rfifo_wr_clk : in  std_logic_vector(integer_max(N_RFIFO, 1)-1 downto 0)    := (others => '0');
     rfifo_wr_en  : in  std_logic_vector(integer_max(N_RFIFO, 1)-1 downto 0)    := (others => '0');
+		rfifo_wr_din : in  std_logic_vector(32*integer_max(N_RFIFO, 1)-1 downto 0) := (others => '0');
     rfifo_full   : out std_logic_vector(integer_max(N_RFIFO, 1)-1 downto 0)    := (others => '0');
-    rfifo_wr_din : in  std_logic_vector(32*integer_max(N_RFIFO, 1)-1 downto 0) := (others => '0');
 
     debug : out std_logic_vector(N_WFIFO+N_RFIFO+7 downto 0)
     );
