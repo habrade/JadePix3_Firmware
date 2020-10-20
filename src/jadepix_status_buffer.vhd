@@ -58,7 +58,6 @@ entity jadepix_status_buffer is
     -- The number of elements in the FIFO
     buffer_fill_count : out integer range DATA_BUF_DEPTH - 1 downto 0
 
---    rbof : out std_logic_vector(RBOF_WIDTH-1 downto 0)
     );
 end jadepix_status_buffer;
 
@@ -74,13 +73,10 @@ architecture behv of jadepix_status_buffer is
 
   signal buf_cnt : integer range 0 to DATA_BUF_DEPTH := 0;
 
---  signal rbof_reg : std_logic_vector(RBOF_WIDTH-1 downto 0) := (others => '0');
   signal rbof : std_logic_vector(RBOF_WIDTH-1 downto 0) := (others => '0');
 
 
 begin
-
---  rbof <= rbof_reg;
 
   process(clk, rst)
   begin
@@ -123,7 +119,7 @@ begin
           else
             wr_en   <= '1';
             wr_data <= frame_num &
-                       row-1 &
+                       row &
                        sector_counters_v(0).valid_counter & sector_counters_v(0).overflow_counter &
                        sector_counters_v(1).valid_counter & sector_counters_v(1).overflow_counter &
                        sector_counters_v(2).valid_counter & sector_counters_v(2).overflow_counter &

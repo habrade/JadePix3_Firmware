@@ -50,8 +50,6 @@ end fabric_sector;
 architecture behv of fabric_sector is
   signal fifo_index : integer := 0;
 
---  signal fifo_read_en_reg : std_logic;
-
 begin
 
   fifo_index   <= 0 when blk_select = "ZZ" else to_integer(unsigned(blk_select));
@@ -63,10 +61,8 @@ begin
   begin
     if rising_edge(clk) then
       if ?? rst then
---        fifo_read_en_reg <= '0';
         fifo_data_valid  <= '0';
       else
---        fifo_read_en_reg <= fifo_read_en;
         fifo_data_valid  <= fifo_read_en;
       end if;
     end if;

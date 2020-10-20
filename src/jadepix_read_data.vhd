@@ -180,12 +180,8 @@ begin
       blk_select => blk_select,
 
       data_frame        => data_frame,
-
---      frame_num     => frame_num,
---      row           => row,
       fifo_status_v => fifo_status_v,
       fifo_oc       => fifo_oc,
---      rbof          => rbof,
 
       fifo_data_valid => fifo_data_valid,
       DATA_IN         => DATA_IN,

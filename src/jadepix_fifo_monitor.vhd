@@ -41,7 +41,7 @@ entity jadepix_fifo_monitor is
     clk_cache : in std_logic;
 
     fifo_valid_in : in std_logic;
-    fifo_read_en  :    std_logic;
+    fifo_read_en  : in std_logic;
 
     fifo_counters : out sector_counters;
     fifo_status   : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0)
@@ -97,7 +97,6 @@ begin
   process(all)
   begin
     case state_reg is
-
       when INITIAL =>
         state_next <= IDLE;
 

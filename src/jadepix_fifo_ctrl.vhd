@@ -75,9 +75,7 @@ architecture behv of jadepix_fifo_ctrl is
 
   signal state_reg, state_next : READ_FIFO_STATE := IDLE;
 
---  signal data_frame : buffer_data_frame := DATA_FRAME_NULL;
-
-  signal cnt_sec0, cnt_sec1, cnt_sec2, cnt_sec3 : integer range 0 to 16 := 0;
+  signal cnt_sec0, cnt_sec1, cnt_sec2, cnt_sec3 : integer range 0 to VALID_MAX := 0;
 
 
 begin
