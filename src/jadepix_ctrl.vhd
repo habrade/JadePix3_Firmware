@@ -136,7 +136,6 @@ architecture behv of jadepix_ctrl is
   signal is_gs                     : std_logic;
 
   -- for test
-  signal rs_frame_start : std_logic := '0';
   signal rs_frame_stop  : std_logic := '0';
 
   -- DEBUG
@@ -442,7 +441,6 @@ begin
           rs_row_cnt     <= 0;
           hitmap_cnt     <= 0;
           rs_frame_cnt   <= (others => '0');
-          rs_frame_start <= '0';
           rs_frame_stop  <= '0';
 
           gs_width_counter          <= (others => '0');
@@ -516,7 +514,6 @@ begin
         when RS_SET_ROW =>
           RA_EN          <= '1';
           rs_cnt         <= (rs_cnt rem JADEPIX_RS_CNT_MAX) + 1;
-          rs_frame_start <= '1' when rs_row_cnt = 0 and rs_cnt = 0 else '0';
           rs_frame_stop  <= '0';
 
         when RS_SET_COL =>

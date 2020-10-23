@@ -47,11 +47,15 @@ architecture behavioral of ipbus_bfm_tb is
   signal clk_ipb : std_logic := '0';
   signal rst_ipb : std_logic := '0';
 
-  signal sysclk : std_logic := '0';
+  signal sysclk    : std_logic := '0';
+  signal clk_wfifo : std_logic := '0';
 
-  signal clk_sys     : std_logic := '0';
-  signal clk_sys_rst : std_logic := '0';
-  signal clk_dac_rst : std_logic := '0';
+  signal clk_sys       : std_logic := '0';
+  signal clk_sys_rst   : std_logic := '0';
+  signal clk_dac_rst   : std_logic := '0';
+  signal clk_wfifo_rst : std_logic := '0';
+
+  signal clk_cache_delay : std_logic := '0';
 
   -- IPbus
   signal nuke, soft_rst : std_logic;
@@ -254,6 +258,38 @@ architecture behavioral of ipbus_bfm_tb is
 
   signal load_soft     : std_logic;
   signal spi_trans_end : std_logic;
+
+  -- data readout
+  signal frame_num      : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0) := (others => '0');
+  signal row_num        : std_logic_vector(ROW_WIDTH-1 downto 0)       := (others => '0');
+
+  signal VALID_IN : std_logic_vector(SECTOR_NUM-1 downto 0) := (others => '0');
+  signal DATA_IN  : std_logic_vector(7 downto 0)            := (others => '0');
+
+  signal FIFO_READ_EN : std_logic;
+  signal BLK_SELECT   : std_logic_vector(BLK_SELECT_WIDTH-1 downto 0) := "00";
+  signal INQUIRY      : std_logic_vector(BLK_SELECT_WIDTH-1 downto 0) := "00";
+
+  constant SYS_PERIOD : time := 12 ns;
+  procedure gen_valid(
+    signal clk_cache     : in  std_logic;
+    constant delay_num   : in  real;
+    constant valid_num   : in  integer;
+    constant channel     : in  integer;
+    signal fifo_valid_in : out std_logic_vector(SECTOR_NUM-1 downto 0)) is
+  begin
+    fifo_valid_in(channel) <= '0';
+    wait on clk_cache until clk_cache = '1';
+    wait for delay_num*SYS_PERIOD;
+
+    if valid_num > 0 then
+      fifo_valid_in(channel) <= '1';
+    end if;
+
+    wait for valid_num*SYS_PERIOD;
+    fifo_valid_in(channel) <= '0';
+  end procedure;
+
 begin
 
   clk_ipb <= not clk_ipb after CLK_IPB_PERIOD/2;
@@ -279,14 +315,16 @@ begin
 
   jadepix_clocks : entity work.jadepix_clock_gen
     port map(
-      sysclk      => sysclk,
-      clk_ref     => REFCLK,
-      clk_dac     => DACCLK,
-      clk_sys     => clk_sys,
-      clk_dac_rst => clk_dac_rst,
-      clk_ref_rst => clk_ref_rst,
-      clk_sys_rst => clk_sys_rst,
-      locked      => locked_jadepix_mmcm
+      sysclk        => sysclk,
+      clk_ref       => REFCLK,
+      clk_dac       => DACCLK,
+      clk_sys       => clk_sys,
+      clk_wfifo     => clk_wfifo,
+      clk_dac_rst   => clk_dac_rst,
+      clk_ref_rst   => clk_ref_rst,
+      clk_sys_rst   => clk_sys_rst,
+      clk_wfifo_rst => clk_wfifo_rst,
+      locked        => locked_jadepix_mmcm
       );
 
 
@@ -399,14 +437,15 @@ begin
       cfg_busy       => cfg_busy,
       cfg_start      => cfg_start,
 
-      clk_cache => clk_cache,
+      clk_cache       => clk_cache,
+      clk_cache_delay => clk_cache_delay,
 
       hitmap_col_low  => hitmap_col_low,
       hitmap_col_high => hitmap_col_high,
       hitmap_en       => hitmap_en,
       hitmap_num      => hitmap_num,
 
-      RA       => RA,
+      RA       => row_num,
       RA_EN    => RA_EN,
       CA       => CA,
       CA_EN    => CA_EN,
@@ -449,6 +488,36 @@ begin
   APLSE     <= aplse_gs and aplse_soft;
   DPLSE     <= dplse_gs and dplse_soft;
 
+  RA <= row_num;
+
+  jadepix_read_data : entity work.jadepix_read_data
+    port map(
+
+      clk => clk_sys,
+      rst => clk_sys_rst,
+
+      clk_wfifo     => clk_wfifo,
+      clk_wfifo_rst => clk_wfifo_rst,
+
+      clk_cache       => clk_cache,
+      clk_cache_delay => clk_cache_delay,
+
+      frame_num      => rs_frame_cnt,
+      row            => row_num,
+
+      VALID_IN => VALID_IN,
+      DATA_IN  => DATA_IN,
+
+      FIFO_READ_EN     => FIFO_READ_EN,
+      BLK_SELECT       => BLK_SELECT,
+      INQUIRY          => INQUIRY,
+      -- DATA FIFO
+      data_fifo_rst    => data_fifo_rst,
+      data_fifo_wr_clk => data_fifo_wr_clk,
+      data_fifo_wr_en  => data_fifo_wr_en,
+      data_fifo_wr_din => data_fifo_wr_din,
+      data_fifo_full   => data_fifo_full
+      );
 
   -- Instantiate the IPbus transactor wrapper. It is necessary.
   ipbus_transactor_wrapper_0 : entity work.ipbus_transactor_wrapper
@@ -465,6 +534,7 @@ begin
 
     gen_pulse(rst_ipb, 2 * CLK_IPB_PERIOD, "Reset ipbus pulse");
     wait for 2*CLK_IPB_PERIOD;
+    gen_pulse(clk_wfifo_rst, 2 * SYS_CLK_PERIOD, "Reset wfifo_clock  pulse");
 
     --ipbus_transact(read_request_transaction,
     --               response_transaction,
@@ -576,6 +646,16 @@ begin
     --               clk_ipb);
     --check_value(ipb_control_regs(3), X"00000003", FAILURE,
     --            "Checking read/modify/write sum transaction.");
+
+    wait for 15*SYS_CLK_PERIOD;
+    -- channel 0
+    gen_valid(clk_cache, 2.0, 6, 0, VALID_IN);
+    gen_valid(clk_cache, 0.0, 0, 0, VALID_IN);
+    gen_valid(clk_cache, 0.0, 30, 0, VALID_IN);
+    gen_valid(clk_cache, 1.0, 14, 0, VALID_IN);
+
+    -- channel 1
+    gen_valid(clk_cache, 1.0, 14, 1, VALID_IN);
 
     wait for 15*CLK_IPB_PERIOD;
     wait on rs_busy until rs_busy = '0';

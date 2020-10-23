@@ -43,12 +43,15 @@ entity fabric_sector is
     blk_select        : in  std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
     fifo_read_en      : out std_logic;
     fifo_data_valid   : out std_logic;
-    fifo_oc           : out std_logic_vector(OC_WIDTH-1 downto 0)
+    fifo_oc           : out std_logic_vector(OC_WIDTH-1 downto 0);
+		blk_select_delay  : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0)
     );
 end fabric_sector;
 
 architecture behv of fabric_sector is
   signal fifo_index : integer := 0;
+  
+  signal blk_select_delay_reg : std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
 
 begin
 
@@ -57,15 +60,19 @@ begin
   fifo_oc      <= sector_counters_v(fifo_index).overflow_counter;
 
 
-  process(all)
+  delay_signals: process(all)
   begin
     if rising_edge(clk) then
       if ?? rst then
         fifo_data_valid  <= '0';
+        blk_select_delay_reg <= (others=>'0');
+        blk_select_delay <= (others=>'0');
       else
         fifo_data_valid  <= fifo_read_en;
-      end if;
-    end if;
+        blk_select_delay_reg <= blk_select;
+        blk_select_delay <= blk_select_delay_reg;
+    	end if;
+		end if;
   end process;
 
 end behv;

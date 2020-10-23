@@ -48,7 +48,7 @@ entity jadepix_status_buffer is
     -- Buffer read
     buffer_read_en    : in  std_logic;
     buffer_data_valid : out std_logic;
-    buffer_data       : out std_logic_vector(DATA_FRAME_WIDTH-1 downto 0);
+    buffer_data_flat  : out std_logic_vector(BUFFER_DATA_FRAME_WIDTH-1 downto 0);
 
     -- Buffer status
     buffer_empty      : out std_logic;
@@ -56,7 +56,7 @@ entity jadepix_status_buffer is
     buffer_full       : out std_logic;
     buffer_full_next  : out std_logic;
     -- The number of elements in the FIFO
-    buffer_fill_count : out integer range DATA_BUF_DEPTH - 1 downto 0
+    buffer_fill_count : out integer range BUFFER_DATA_DEPTH - 1 downto 0
 
     );
 end jadepix_status_buffer;
@@ -68,10 +68,10 @@ architecture behv of jadepix_status_buffer is
   signal state_reg, state_next : BUF_STATE;
 
   signal wr_en   : std_logic;
-  signal wr_data : std_logic_vector(DATA_FRAME_WIDTH-1 downto 0);
+  signal wr_data : std_logic_vector(BUFFER_DATA_FRAME_WIDTH-1 downto 0);
   signal rd_en   : std_logic;
 
-  signal buf_cnt : integer range 0 to DATA_BUF_DEPTH := 0;
+  signal buf_cnt : integer range 0 to BUFFER_DATA_DEPTH := 0;
 
   signal rbof : std_logic_vector(RBOF_WIDTH-1 downto 0) := (others => '0');
 
@@ -119,7 +119,7 @@ begin
           else
             wr_en   <= '1';
             wr_data <= frame_num &
-                       row &
+                       row-1 &
                        sector_counters_v(0).valid_counter & sector_counters_v(0).overflow_counter &
                        sector_counters_v(1).valid_counter & sector_counters_v(1).overflow_counter &
                        sector_counters_v(2).valid_counter & sector_counters_v(2).overflow_counter &
@@ -146,8 +146,8 @@ begin
 
   ring_buffer : entity work.ring_buffer
     generic map (
-      RAM_WIDTH => DATA_FRAME_WIDTH,
-      RAM_DEPTH => DATA_BUF_DEPTH
+      RAM_WIDTH => BUFFER_DATA_FRAME_WIDTH,
+      RAM_DEPTH => BUFFER_DATA_DEPTH
       )
     port map (
       clk => clk,
@@ -160,7 +160,7 @@ begin
       -- Read port
       rd_en    => rd_en,
       rd_valid => buffer_data_valid,
-      rd_data  => buffer_data,
+      rd_data  => buffer_data_flat,
 
       -- Flags
       empty      => buffer_empty,

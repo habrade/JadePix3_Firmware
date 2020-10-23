@@ -74,15 +74,15 @@ package JADEPIX_DEFINES is
   constant FIFO_OVERFLOW_MAX  : integer := 31;  -- Because the width is set to 5, val = 2**5 - 1, not sure this value should be set like this.
 
   -- DATA readout
-  constant BLK_SELECT_WIDTH     : integer := 2;
-  constant SECTOR_NUM           : integer := 2**BLK_SELECT_WIDTH;
-  constant VC_WIDTH             : integer := 5;
-  constant OC_WIDTH             : integer := 5;
-  constant FRAME_CNT_WIDTH      : integer := 22;
-  constant RBOF_WIDTH           : integer := 15;
-  constant DATA_FRAME_WIDTH     : integer := FRAME_CNT_WIDTH + ROW_WIDTH + (SECTOR_NUM*(VC_WIDTH+OC_WIDTH)) + RBOF_WIDTH;
-  constant DATA_BUF_DEPTH_WIDTH : integer := 8;
-  constant DATA_BUF_DEPTH       : integer := 192;
+  constant BLK_SELECT_WIDTH        : integer := 2;
+  constant SECTOR_NUM              : integer := 2**BLK_SELECT_WIDTH;
+  constant VC_WIDTH                : integer := 5;
+  constant OC_WIDTH                : integer := 5;
+  constant FRAME_CNT_WIDTH         : integer := 22;
+  constant RBOF_WIDTH              : integer := 15;
+  constant BUFFER_DATA_FRAME_WIDTH : integer := FRAME_CNT_WIDTH + ROW_WIDTH + (SECTOR_NUM*(VC_WIDTH+OC_WIDTH)) + RBOF_WIDTH;
+  constant BUFFER_DATA_DEPTH_WIDTH : integer := 8;
+  constant BUFFER_DATA_DEPTH       : integer := 192;
 
 
   type sector_counters is
@@ -101,12 +101,6 @@ package JADEPIX_DEFINES is
     sectors   : sector_counters_v (SECTOR_NUM-1 downto 0);
     rbof      : std_logic_vector(RBOF_WIDTH-1 downto 0);
   end record;
-
-  constant DATA_FRAME_NULL : buffer_data_frame := ((others => '0'),
-                                                   (others => '0'),
-                                                   (others => ((others => '0'), (others => '0'))),
-                                                   (others => '0'));
-
 
 end JADEPIX_DEFINES;
 

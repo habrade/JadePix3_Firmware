@@ -58,6 +58,16 @@ LOGIC_SRC_FILE= \
 	${LOGIC_SRC_DIR}/gen_clk_cache_delay.vhd \
 	${LOGIC_SRC_DIR}/jadepix_ctrl_wrapper.vhd
 
+READOUT_SRCS=\
+	${FIRMWARE_SRC_DIR}/fabric_sector.vhd \
+	${FIRMWARE_SRC_DIR}/jadepix_fifo_monitor.vhd \
+	${FIRMWARE_SRC_DIR}/fifo_monitor_wrapper.vhd \
+	${FIRMWARE_SRC_DIR}/ring_buffer.vhd \
+	${FIRMWARE_SRC_DIR}/jadepix_status_buffer.vhd \
+	${FIRMWARE_SRC_DIR}/jadepix_fifo_ctrl.vhd \
+	${FIRMWARE_SRC_DIR}/jadepix_fifo_data.vhd \
+	${FIRMWARE_SRC_DIR}/jadepix_read_data.vhd
+
 all: sim
 
 ipcores:
@@ -79,6 +89,7 @@ map_unisim:
 comp_logic: map_unisim comp_ipbus_lib ipcores
 	vlog -work work ${LOGIC_SRC_DIR}/dac70004/DAC_refresh.v
 	vcom -work work ${VSTD} ${LOGIC_SRC_FILE}
+	vcom -work work ${VSTD} ${READOUT_SRCS}
 
 comp_tb: map_uvvm_util comp_logic comp_ipbus_lib
 	vcom -work work ${VSTD} ${TB_SRCS}
@@ -86,10 +97,10 @@ comp_tb: map_uvvm_util comp_logic comp_ipbus_lib
 pre_config: map_unisim map_uvvm_util comp_ipbus_lib ipcores comp_logic comp_tb 
 
 sim: pre_config
-	vsim -fsmdebug -voptargs=+acc -t 1ps -L fifo_generator_v13_2_5  work.ipbus_bfm_tb 
+	vsim -fsmdebug -voptargs=+acc -t 1ps -L fifo_generator_v13_2_5  work.ipbus_bfm_tb  -do add_wave.do
 
 sim_nogui: pre_config
-	vsim -voptargs=+acc -t 1ps -c -L fifo_generator_v13_2_5 -L unisim work.ipbus_bfm_tb 
+	vsim -voptargs=+acc -t 1ps -c -L fifo_generator_v13_2_5 -L unisim work.ipbus_bfm_tb -do add_wave.do
 .PHONY: clean
 clean:
 	rm -rf work 
