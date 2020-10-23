@@ -25,6 +25,9 @@ use work.ipbus_reg_types.all;
 
 library uvvm_util;
 context uvvm_util.uvvm_util_context;
+library OSVVM ; 
+  use OSVVM.RandomBasePkg.all ; 
+  use OSVVM.RandomPkg.all ;
 
 library work;
 use work.ipbus_bfm_pkg.all;
@@ -529,6 +532,8 @@ begin
       );
 
   main : process
+	variable RV : RandomPType ;
+    variable RV_SLV : std_logic_vector(7 downto 0) ;
   begin
     wait for 2*CLK_IPB_PERIOD;
 
@@ -647,14 +652,29 @@ begin
     --check_value(ipb_control_regs(3), X"00000003", FAILURE,
     --            "Checking read/modify/write sum transaction.");
 
+	RV.InitSeed (RV'instance_name) ;
+	RV_SLV := RV.RandSlv(0, 255, 8) ;
+	DATA_IN <= RV_SLV;
+
     wait for 15*SYS_CLK_PERIOD;
     -- channel 0
     gen_valid(clk_cache, 2.0, 6, 0, VALID_IN);
+	
+	RV_SLV := RV.RandSlv(0, 255, 8) ;
+	DATA_IN <= RV_SLV;
     gen_valid(clk_cache, 0.0, 0, 0, VALID_IN);
+
+	RV_SLV := RV.RandSlv(0, 255, 8) ;
+	DATA_IN <= RV_SLV;
     gen_valid(clk_cache, 0.0, 30, 0, VALID_IN);
+
+	RV_SLV := RV.RandSlv(0, 255, 8) ;
+	DATA_IN <= RV_SLV;
     gen_valid(clk_cache, 1.0, 14, 0, VALID_IN);
 
     -- channel 1
+	RV_SLV := RV.RandSlv(0, 255, 8) ;
+	DATA_IN <= RV_SLV;
     gen_valid(clk_cache, 1.0, 14, 1, VALID_IN);
 
     wait for 15*CLK_IPB_PERIOD;
