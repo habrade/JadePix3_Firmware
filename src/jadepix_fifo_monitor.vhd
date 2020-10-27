@@ -38,13 +38,15 @@ entity jadepix_fifo_monitor is
     clk : in std_logic;
     rst : in std_logic;
 
-    clk_cache : in std_logic;
+    clk_cache     : in std_logic;
+    is_busy_cache : in std_logic;
 
     fifo_valid_in : in std_logic;
     fifo_read_en  : in std_logic;
 
-    fifo_counters : out sector_counters;
-    fifo_status   : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0)
+    fifo_counters      : out sector_counters;
+    fifo_status        : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
+    fifo_monitor_valid : out std_logic
     );
 
 end jadepix_fifo_monitor;
@@ -61,32 +63,62 @@ architecture behv of jadepix_fifo_monitor is
 
   type COUNTER_STATE is (INITIAL, IDLE, W_FIFO, WR_FIFO, FIFO_OVERFLOW, R_FIFO);
 
-  signal state_reg, state_next : COUNTER_STATE := IDLE;
+  signal state_reg, state_next : COUNTER_STATE := INITIAL;
 
-  procedure GET_NEXT_STATE (signal fifo_valid_in : in    std_logic;
+
+  -- DEBUG
+  attribute mark_debug                  : string;
+  attribute mark_debug of fifo_valid_in : signal is "true";
+  attribute mark_debug of fifo_read_en  : signal is "true";
+  attribute mark_debug of fifo_counters : signal is "true";
+  attribute mark_debug of fifo_status   : signal is "true";
+  attribute mark_debug of valid_cnt     : signal is "true";
+  attribute mark_debug of valid_num     : signal is "true";
+  attribute mark_debug of fifo_read_cnt : signal is "true";
+  attribute mark_debug of fifo_cnt      : signal is "true";
+  attribute mark_debug of overflow_cnt  : signal is "true";
+  attribute mark_debug of overflow_num  : signal is "true";
+  attribute mark_debug of state_reg     : signal is "true";
+  attribute mark_debug of state_next    : signal is "true";
+
+  procedure GET_NEXT_STATE (signal rst           : in    std_logic;
+                            signal fifo_valid_in : in    std_logic;
                             signal fifo_read_en  : in    std_logic;
                             signal state_next    : inout COUNTER_STATE) is
   begin
-    if fifo_valid_in = '1' and fifo_read_en = '0' then
-      if fifo_cnt = FIFO_DEPTH then
-        state_next <= FIFO_OVERFLOW;
-      else
-        state_next <= W_FIFO;
-      end if;
-    elsif fifo_valid_in = '1' and fifo_read_en = '1' then
-      state_next <= WR_FIFO;
-    elsif fifo_valid_in = '0' and fifo_read_en = '1' then
-      state_next <= R_FIFO;
+    if ?? rst then
+      state_next <= INITIAL;
     else
-      state_next <= IDLE;
+      if ?? is_busy_cache then
+        if fifo_valid_in = '0' and fifo_read_en = '1' then
+          state_next <= R_FIFO;
+        elsif fifo_valid_in = '1' and fifo_read_en = '0' then
+          if fifo_cnt = FIFO_DEPTH then
+            state_next <= FIFO_OVERFLOW;
+          else
+            state_next <= W_FIFO;
+          end if;
+        elsif fifo_valid_in = '1' and fifo_read_en = '1' then
+          state_next <= WR_FIFO;
+        else
+          state_next <= IDLE;
+        end if;
+      else
+        if fifo_read_en = '1' then
+          state_next <= R_FIFO;
+        else
+          state_next <= IDLE;
+        end if;
+      end if;
+
     end if;
   end procedure;
 
 begin
 
-  process(all)
+  process(rst, clk)
   begin
-    if rst = '1' then
+    if ?? rst then
       state_reg <= INITIAL;
     elsif rising_edge(clk) then
       state_reg <= state_next;
@@ -96,24 +128,26 @@ begin
 
   process(all)
   begin
+    state_next <= state_reg;
+
     case state_reg is
       when INITIAL =>
-        state_next <= IDLE;
+        GET_NEXT_STATE(rst, fifo_valid_in, fifo_read_en, state_next);
 
       when IDLE =>
-        GET_NEXT_STATE(fifo_valid_in, fifo_read_en, state_next);
+        GET_NEXT_STATE(rst, fifo_valid_in, fifo_read_en, state_next);
 
       when W_FIFO =>
-        GET_NEXT_STATE(fifo_valid_in, fifo_read_en, state_next);
+        GET_NEXT_STATE(rst, fifo_valid_in, fifo_read_en, state_next);
 
       when WR_FIFO =>
-        GET_NEXT_STATE(fifo_valid_in, fifo_read_en, state_next);
+        GET_NEXT_STATE(rst, fifo_valid_in, fifo_read_en, state_next);
 
       when R_FIFO =>
-        GET_NEXT_STATE(fifo_valid_in, fifo_read_en, state_next);
+        GET_NEXT_STATE(rst, fifo_valid_in, fifo_read_en, state_next);
 
       when FIFO_OVERFLOW =>
-        GET_NEXT_STATE(fifo_valid_in, fifo_read_en, state_next);
+        GET_NEXT_STATE(rst, fifo_valid_in, fifo_read_en, state_next);
 
       when others => null;
 
@@ -131,7 +165,8 @@ begin
           overflow_cnt <= 0;
 
         when IDLE =>
-          valid_cnt <= 0;
+          null;
+--          valid_cnt <= 0;
 
         when W_FIFO =>
 

@@ -81,6 +81,8 @@ entity jadepix_ctrl_wrapper is
 
     clk_cache       : out std_logic;
     clk_cache_delay : out std_logic;
+		is_busy_cache   : out std_logic;
+
 
     hitmap_col_low  : in std_logic_vector(COL_WIDTH-1 downto 0);
     hitmap_col_high : in std_logic_vector(COL_WIDTH-1 downto 0);
@@ -125,7 +127,8 @@ begin
       cfg_busy       => cfg_busy,
       cfg_start      => cfg_start,
 
-      clk_cache => clk_cache,
+      clk_cache     => clk_cache,
+      is_busy_cache => is_busy_cache,
 
       hitmap_col_low  => hitmap_col_low,
       hitmap_col_high => hitmap_col_high,

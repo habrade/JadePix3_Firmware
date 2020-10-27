@@ -90,20 +90,20 @@ entity ipbus_jadepix_device is
     load_soft      : out std_logic;
 
     PDB : out std_logic;
-    
-		-- FIFO
-		ctrl_fifo_rst               : in  std_logic;
-		slow_ctrl_fifo_rd_clk       : in  std_logic;
-		slow_ctrl_fifo_rd_en        : in  std_logic;
-		slow_ctrl_fifo_valid        : out std_logic;
-		slow_ctrl_fifo_empty        : out std_logic;
-		slow_ctrl_fifo_rd_dout      : out std_logic_vector(31 downto 0);
-		data_fifo_rst               : in  std_logic;
-		data_fifo_wr_clk            : in  std_logic;
-		data_fifo_wr_en             : in  std_logic;
-		data_fifo_wr_din            : in  std_logic_vector(31 downto 0);
-		data_fifo_full              : out std_logic
-);
+
+    -- FIFO
+    ctrl_fifo_rst          : in  std_logic;
+    slow_ctrl_fifo_rd_clk  : in  std_logic;
+    slow_ctrl_fifo_rd_en   : in  std_logic;
+    slow_ctrl_fifo_valid   : out std_logic;
+    slow_ctrl_fifo_empty   : out std_logic;
+    slow_ctrl_fifo_rd_dout : out std_logic_vector(31 downto 0);
+    data_fifo_rst          : in  std_logic;
+    data_fifo_wr_clk       : in  std_logic;
+    data_fifo_wr_en        : in  std_logic;
+    data_fifo_wr_din       : in  std_logic_vector(31 downto 0);
+    data_fifo_full         : out std_logic
+    );
 end ipbus_jadepix_device;
 
 architecture behv of ipbus_jadepix_device is
@@ -111,19 +111,19 @@ architecture behv of ipbus_jadepix_device is
   constant SYNC_REG_ENA               : boolean := false;
   constant N_STAT                     : integer := 2;
   constant N_CTRL                     : integer := 9;
-  constant N_WFIFO                    : integer := 0;
+  constant N_WFIFO                    : integer := 1;
   constant N_RFIFO                    : integer := 1;
   signal stat                         : ipb_reg_v(N_STAT-1 downto 0);
   signal ctrl                         : ipb_reg_v(N_CTRL-1 downto 0);
   signal ctrl_reg_stb, ctrl_reg_stb_r : std_logic_vector(N_CTRL-1 downto 0);
   signal stat_reg_stb, stat_reg_stb_r : std_logic_vector(N_STAT-1 downto 0);
-  
+
   --IPbus slave fifo
-	signal rfifo_wr_din                                                     :std_logic_vector(32*integer_max(N_RFIFO, 1)-1 downto 0);
-	signal rfifo_wr_clk,  rfifo_wr_en, rfifo_full                           :std_logic_vector(integer_max(N_RFIFO, 1)-1 downto 0);
-	
-	signal wfifo_rd_clk,  wfifo_rd_en, wfifo_valid, wfifo_empty             :std_logic_vector(integer_max(N_WFIFO, 1)-1 downto 0);
-	signal wfifo_rd_dout                                                    :std_logic_vector(32*integer_max(N_WFIFO, 1)-1 downto 0);
+  signal rfifo_wr_din                          : std_logic_vector(32*integer_max(N_RFIFO, 1)-1 downto 0);
+  signal rfifo_wr_clk, rfifo_wr_en, rfifo_full : std_logic_vector(integer_max(N_RFIFO, 1)-1 downto 0);
+
+  signal wfifo_rd_clk, wfifo_rd_en, wfifo_valid, wfifo_empty : std_logic_vector(integer_max(N_WFIFO, 1)-1 downto 0);
+  signal wfifo_rd_dout                                       : std_logic_vector(32*integer_max(N_WFIFO, 1)-1 downto 0);
 
   signal cfg_start_tmp     : std_logic;
   signal rs_start_tmp      : std_logic;
@@ -149,6 +149,20 @@ architecture behv of ipbus_jadepix_device is
   attribute mark_debug of spi_busy        : signal is "true";
 
 begin
+  --------------------------------------------------------------
+  -- fifo signals and registers
+  --------------------------------------------------------------
+
+  wfifo_rd_clk(WFIFO_ADDR_SLOW_CTRL_CMD) <= slow_ctrl_fifo_rd_clk;
+  wfifo_rd_en(WFIFO_ADDR_SLOW_CTRL_CMD)  <= slow_ctrl_fifo_rd_en;
+  slow_ctrl_fifo_valid                   <= wfifo_valid(WFIFO_ADDR_SLOW_CTRL_CMD);
+  slow_ctrl_fifo_empty                   <= wfifo_empty(WFIFO_ADDR_SLOW_CTRL_CMD);
+  slow_ctrl_fifo_rd_dout                 <= wfifo_rd_dout((WFIFO_ADDR_SLOW_CTRL_CMD+1)*32-1 downto WFIFO_ADDR_SLOW_CTRL_CMD*32);
+
+  rfifo_wr_clk(RFIFO_ADDR_DATA_FIFO)                                         <= data_fifo_wr_clk;
+  rfifo_wr_en(RFIFO_ADDR_DATA_FIFO)                                          <= data_fifo_wr_en;
+  data_fifo_full                                                             <= rfifo_full(RFIFO_ADDR_DATA_FIFO);
+  rfifo_wr_din((RFIFO_ADDR_DATA_FIFO+1)*32-1 downto RFIFO_ADDR_DATA_FIFO*32) <= data_fifo_wr_din;
 
   ipbus_slave_reg_fifo : entity work.ipbus_slave_reg_fifo
     generic map(
@@ -173,19 +187,19 @@ begin
       ctrl_reg_stb => ctrl_reg_stb,
       stat         => stat,
       stat_reg_stb => open,
-      
+
       -- FIFO
-			wfifo_rst         => ctrl_fifo_rst,
-			wfifo_rd_clk      => wfifo_rd_clk,
-			wfifo_rd_en       => wfifo_rd_en,
-			wfifo_valid       => wfifo_valid,
-			wfifo_empty       => wfifo_empty,
-			wfifo_rd_dout     => wfifo_rd_dout,
-			rfifo_rst         => data_fifo_rst,
-			rfifo_wr_clk      => rfifo_wr_clk,
-			rfifo_wr_en       => rfifo_wr_en,
-			rfifo_full        => rfifo_full,
-			rfifo_wr_din      => rfifo_wr_din 
+      wfifo_rst     => ctrl_fifo_rst,
+      wfifo_rd_clk  => wfifo_rd_clk,
+      wfifo_rd_en   => wfifo_rd_en,
+      wfifo_valid   => wfifo_valid,
+      wfifo_empty   => wfifo_empty,
+      wfifo_rd_dout => wfifo_rd_dout,
+      rfifo_rst     => data_fifo_rst,
+      rfifo_wr_clk  => rfifo_wr_clk,
+      rfifo_wr_en   => rfifo_wr_en,
+      rfifo_full    => rfifo_full,
+      rfifo_wr_din  => rfifo_wr_din
       );
 
   -- control

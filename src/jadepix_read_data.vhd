@@ -39,11 +39,9 @@ entity jadepix_read_data is
     clk : in std_logic;
     rst : in std_logic;
 
-    clk_wfifo     : in std_logic;
-    clk_wfifo_rst : in std_logic;
-
     clk_cache       : in std_logic;
     clk_cache_delay : in std_logic;
+    is_busy_cache   : in std_logic;
 
 --    rs_frame_start : in std_logic;
     frame_num      : in std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
@@ -127,6 +125,7 @@ begin
       rst => rst,
 
       clk_cache         => clk_cache,
+      is_busy_cache     => is_busy_cache,
       fifo_read_en_v    => fifo_read_en_v,
       VALID_IN          => VALID_IN,
       sector_counters_v => sector_counters_v,

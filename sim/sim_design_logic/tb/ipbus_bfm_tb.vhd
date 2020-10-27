@@ -51,12 +51,11 @@ architecture behavioral of ipbus_bfm_tb is
   signal rst_ipb : std_logic := '0';
 
   signal sysclk    : std_logic := '0';
-  signal clk_wfifo : std_logic := '0';
 
   signal clk_sys       : std_logic := '0';
+  signal clk_rx        : std_logic := '0';
   signal clk_sys_rst   : std_logic := '0';
   signal clk_dac_rst   : std_logic := '0';
-  signal clk_wfifo_rst : std_logic := '0';
 
   signal clk_cache_delay : std_logic := '0';
 
@@ -238,7 +237,8 @@ architecture behavioral of ipbus_bfm_tb is
   signal data_fifo_full   : std_logic                     := '0';
   signal data_fifo_wr_din : std_logic_vector(31 downto 0) := (others => '0');
 
-  signal clk_cache : std_logic;
+  signal clk_cache     : std_logic;
+  signal is_busy_cache : std_logic := '0';
 
   -- config FIFO signals
   signal cfg_sync       : jadepix_cfg;
@@ -322,11 +322,10 @@ begin
       clk_ref       => REFCLK,
       clk_dac       => DACCLK,
       clk_sys       => clk_sys,
-      clk_wfifo     => clk_wfifo,
+      clk_rx        => clk_rx,
       clk_dac_rst   => clk_dac_rst,
       clk_ref_rst   => clk_ref_rst,
       clk_sys_rst   => clk_sys_rst,
-      clk_wfifo_rst => clk_wfifo_rst,
       locked        => locked_jadepix_mmcm
       );
 
@@ -442,6 +441,7 @@ begin
 
       clk_cache       => clk_cache,
       clk_cache_delay => clk_cache_delay,
+      is_busy_cache   => is_busy_cache,
 
       hitmap_col_low  => hitmap_col_low,
       hitmap_col_high => hitmap_col_high,
@@ -499,11 +499,9 @@ begin
       clk => clk_sys,
       rst => clk_sys_rst,
 
-      clk_wfifo     => clk_wfifo,
-      clk_wfifo_rst => clk_wfifo_rst,
-
       clk_cache       => clk_cache,
       clk_cache_delay => clk_cache_delay,
+      is_busy_cache   => is_busy_cache,
 
       frame_num      => rs_frame_cnt,
       row            => row_num,
@@ -539,7 +537,6 @@ begin
 
     gen_pulse(rst_ipb, 2 * CLK_IPB_PERIOD, "Reset ipbus pulse");
     wait for 2*CLK_IPB_PERIOD;
-    gen_pulse(clk_wfifo_rst, 2 * SYS_CLK_PERIOD, "Reset wfifo_clock  pulse");
 
     --ipbus_transact(read_request_transaction,
     --               response_transaction,
@@ -656,26 +653,28 @@ begin
 	RV_SLV := RV.RandSlv(0, 255, 8) ;
 	DATA_IN <= RV_SLV;
 
+	VALID_IN <= (others=>'1');
+
     wait for 15*SYS_CLK_PERIOD;
     -- channel 0
-    gen_valid(clk_cache, 2.0, 6, 0, VALID_IN);
+    --gen_valid(clk_cache, 2.0, 6, 0, VALID_IN);
 	
 	RV_SLV := RV.RandSlv(0, 255, 8) ;
 	DATA_IN <= RV_SLV;
-    gen_valid(clk_cache, 0.0, 0, 0, VALID_IN);
+    --gen_valid(clk_cache, 0.0, 0, 0, VALID_IN);
 
 	RV_SLV := RV.RandSlv(0, 255, 8) ;
 	DATA_IN <= RV_SLV;
-    gen_valid(clk_cache, 0.0, 30, 0, VALID_IN);
+    --gen_valid(clk_cache, 0.0, 30, 0, VALID_IN);
 
 	RV_SLV := RV.RandSlv(0, 255, 8) ;
 	DATA_IN <= RV_SLV;
-    gen_valid(clk_cache, 1.0, 14, 0, VALID_IN);
+    --gen_valid(clk_cache, 1.0, 14, 0, VALID_IN);
 
     -- channel 1
 	RV_SLV := RV.RandSlv(0, 255, 8) ;
 	DATA_IN <= RV_SLV;
-    gen_valid(clk_cache, 1.0, 14, 1, VALID_IN);
+    --gen_valid(clk_cache, 1.0, 14, 1, VALID_IN);
 
     wait for 15*CLK_IPB_PERIOD;
     wait on rs_busy until rs_busy = '0';

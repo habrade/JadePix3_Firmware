@@ -73,7 +73,8 @@ entity jadepix_ctrl is
     RD_EN       : out std_logic;
     MATRIX_GRST : out std_logic;
 
-    clk_cache : out std_logic;
+    clk_cache     : out std_logic;
+    is_busy_cache : out std_logic;
 
     hitmap_col_low  : in std_logic_vector(COL_WIDTH-1 downto 0);
     hitmap_col_high : in std_logic_vector(COL_WIDTH-1 downto 0);
@@ -120,9 +121,13 @@ architecture behv of jadepix_ctrl is
   signal cfg_cnt                    : integer range 0 to JADEPIX_CFG_CNT_MAX := 0;
 
   -- RS
-  signal rs_cnt                    : integer range 0 to JADEPIX_RS_CNT_MAX           := 0;
-  signal rs_hitmap_cnt             : integer range 0 to JADEPIX_HITMAP_CNT_MAX       := 0;
-  signal rs_row_cnt                : integer range 0 to N_ROW                        := 0;
+  signal start_cache   : std_logic                                 := '0';
+  signal enable_cache  : std_logic                                 := '0';
+  signal rs_cnt        : integer range 0 to JADEPIX_RS_CNT_MAX     := 0;
+  signal rs_cache_cnt  : integer range 0 to JADEPIX_RS_CNT_MAX     := 0;
+  signal rs_hitmap_cnt : integer range 0 to JADEPIX_HITMAP_CNT_MAX := 0;
+  signal rs_row_cnt    : integer range 0 to N_ROW                  := 0;
+
   signal hitmap_cnt                : integer range 0 to (JADEPIX_HITMAP_CHN_MAX + 1) := 0;
   signal hitmap_num_int            : integer range 0 to JADEPIX_HITMAP_CHN_MAX       := 0;
   -- Hitmap
@@ -136,7 +141,7 @@ architecture behv of jadepix_ctrl is
   signal is_gs                     : std_logic;
 
   -- for test
-  signal rs_frame_stop  : std_logic := '0';
+  signal rs_frame_stop : std_logic := '0';
 
   -- DEBUG
   attribute mark_debug                   : string;
@@ -190,6 +195,7 @@ architecture behv of jadepix_ctrl is
   attribute mark_debug of rs_hitmap_cnt           : signal is "true";
   attribute mark_debug of hitmap_num              : signal is "true";
   attribute mark_debug of hitmap_cnt              : signal is "true";
+
 
   component fifo_generator_0
     port (
@@ -418,7 +424,8 @@ begin
 
           gshutter_gs <= '0';
 
-          clk_cache <= '0';
+          start_cache <= '0';
+          clk_cache   <= '0';
 
           RA_EN <= '0';
           CA_EN <= '0';
@@ -437,11 +444,11 @@ begin
           digsel_en_rs <= '0';
           anasel_en_gs <= '0';
 
-          rs_hitmap_cnt  <= 0;
-          rs_row_cnt     <= 0;
-          hitmap_cnt     <= 0;
-          rs_frame_cnt   <= (others => '0');
-          rs_frame_stop  <= '0';
+          rs_hitmap_cnt <= 0;
+          rs_row_cnt    <= 0;
+          hitmap_cnt    <= 0;
+          rs_frame_cnt  <= (others => '0');
+          rs_frame_stop <= '0';
 
           gs_width_counter          <= (others => '0');
           gs_pulse_delay_counter    <= (others => '0');
@@ -512,9 +519,9 @@ begin
           digsel_en_rs <= '1';
 
         when RS_SET_ROW =>
-          RA_EN          <= '1';
-          rs_cnt         <= (rs_cnt rem JADEPIX_RS_CNT_MAX) + 1;
-          rs_frame_stop  <= '0';
+          RA_EN         <= '1';
+          rs_cnt        <= (rs_cnt rem JADEPIX_RS_CNT_MAX) + 1;
+          rs_frame_stop <= '0';
 
         when RS_SET_COL =>
           RD_EN  <= '1';
@@ -526,21 +533,32 @@ begin
           hitmap_cnt    <= 1;
           rs_hitmap_cnt <= (rs_hitmap_cnt rem JADEPIX_HITMAP_CNT_MAX) + 1;
 
+
         when RS_HITMAP_NEXT_COL =>
           rs_hitmap_cnt <= (rs_hitmap_cnt rem JADEPIX_HITMAP_CNT_MAX) + 1;
+
           if rs_hitmap_cnt = JADEPIX_HITMAP_CNT_MAX then
             CA         <= CA + 1;
             hitmap_cnt <= hitmap_cnt + 1;
           end if;
 
         when RS_HOLD_COL =>
+
           if rs_cnt = 11 then
             clk_cache <= '1';
           else
             clk_cache <= '0';
           end if;
 
-          rs_cnt        <= rs_cnt + 1;
+          if rs_cnt = 10 then
+            start_cache  <= '1';
+            enable_cache <= '1';
+          else
+            start_cache <= '0';
+          end if;
+
+          rs_cnt <= rs_cnt + 1;
+
           -- clear hitmap signals
           hitmap_cnt    <= 0;
           rs_hitmap_cnt <= 0;
@@ -548,10 +566,12 @@ begin
           CA_EN         <= '0';
 
         when RS_HIT_RST =>
-          clk_cache <= '0';
-          rs_cnt    <= rs_cnt + 1;
-          RD_EN     <= '0';
-          HIT_RST   <= '1';
+          clk_cache   <= '0';
+          start_cache <= '0';
+          rs_cnt      <= rs_cnt + 1;
+
+          RD_EN   <= '0';
+          HIT_RST <= '1';
 
         when RS_END_ROW =>
           rs_cnt     <= rs_cnt + 1;
@@ -561,7 +581,8 @@ begin
 
         when RS_NEXT_STEP =>
           rs_cnt <= (rs_cnt rem JADEPIX_RS_CNT_MAX) + 1;
-          RA     <= RA + 1;
+
+          RA <= RA + 1;
 
         when RS_END_FRAME =>
           HIT_RST       <= '0';
@@ -580,7 +601,6 @@ begin
           rs_frame_cnt  <= (others => '0');
           is_gs         <= '0';
           rs_frame_stop <= '1';
-
 
         when GS_GO =>
           CA           <= gs_col;
@@ -626,6 +646,47 @@ begin
     end if;
   end process;
 
+  gen_busy_cache_cnt : process(all)
+  begin
+    if ?? rst then
+      rs_cache_cnt <= 0;
+    else
+      if rising_edge(clk) then
+        if ?? enable_cache then
+          if ?? start_cache then
+            rs_cache_cnt <= 0;
+          else
+            if rs_cache_cnt <= 15 then
+              rs_cache_cnt <= rs_cache_cnt + 1;
+            end if;
+          end if;
+        else
+          rs_cache_cnt <= 0;
+        end if;
+      end if;
+    end if;
+  end process;
+
+  gen_busy_cache : process(all)
+  begin
+    if ?? rst then
+      is_busy_cache <= '0';
+    else
+      if rising_edge(clk) then
+        if ?? enable_cache then
+          if ?? start_cache then
+            is_busy_cache <= '1';
+          else
+            if rs_cache_cnt <= 14 and rs_cache_cnt >= 0 then
+              is_busy_cache <= '1';
+            else
+              is_busy_cache <= '0';
+            end if;
+          end if;
+        end if;
+      end if;
+    end if;
+  end process;
 
   fifo_rst_gen : process(clk)
   begin

@@ -40,26 +40,25 @@ entity jadepix_clock_gen is
     CLK_VCO_FREQ : real := 1000.0       -- VCO freq 1000M
     );
   port (
-    sysclk        : in  std_logic;
-    clk_ref       : out std_logic;
-    clk_dac       : out std_logic;
-    clk_sys       : out std_logic;
-    clk_wfifo     : out std_logic;
-    clk_ref_rst   : out std_logic;
-    clk_dac_rst   : out std_logic;
-    clk_sys_rst   : out std_logic;
-    clk_wfifo_rst : out std_logic;
-    locked        : out std_logic
+    sysclk      : in  std_logic;
+    clk_ref     : out std_logic;
+    clk_dac     : out std_logic;
+    clk_sys     : out std_logic;
+    clk_rx      : out std_logic;
+    clk_ref_rst : out std_logic;
+    clk_dac_rst : out std_logic;
+    clk_sys_rst : out std_logic;
+    locked      : out std_logic
     );
 end jadepix_clock_gen;
 
 
 architecture behv of jadepix_clock_gen is
 
-  signal clkfb                                    : std_logic;
-  signal clkdac_i, clkref_i, clksys_i, clkwfifo_i : std_logic;
-  signal mmcm_locked                              : std_logic;
-  signal rst                                      : std_logic;
+  signal clkfb                                 : std_logic;
+  signal clkdac_i, clkref_i, clksys_i, clkrx_i : std_logic;
+  signal mmcm_locked                           : std_logic;
+  signal rst                                   : std_logic;
 
 begin
 
@@ -72,7 +71,6 @@ begin
       -- CLKOUT0_DIVIDE - CLKOUT6_DIVIDE: Divide amount for each CLKOUT (1-128)
       CLKOUT1_DIVIDE     => integer(CLK_VCO_FREQ / (1000.0 / DACCLK_PERIOD)),  -- Divide amount for CLKOUT1 (1.000-128.000).
       CLKOUT2_DIVIDE     => integer(CLK_VCO_FREQ / (1000.0 / JADEPIX_REF_PERIOD)),  -- Divide amount for CLKOUT2 (1.000-128.000).
-      CLKOUT3_DIVIDE     => integer(CLK_VCO_FREQ / (1000.0 / JADEPIX_WFIFO_PERIOD)),  -- Divide amount for CLKOUT3 (1.000-128.000).
       CLKOUT0_DIVIDE_F   => CLK_VCO_FREQ / (1000.0 / JADEPIX_SYS_PERIOD),  -- Divide amount for CLKOUT0 (1.000-128.000).
       -- CLKOUT0_DUTY_CYCLE - CLKOUT6_DUTY_CYCLE: Duty cycle for each CLKOUT (0.01-0.99).
       CLKOUT0_DUTY_CYCLE => 0.5,
@@ -85,7 +83,6 @@ begin
       CLKOUT0_PHASE      => 0.0,
       CLKOUT1_PHASE      => 0.0,
       CLKOUT2_PHASE      => 0.0,
-      CLKOUT3_PHASE      => 0.0,
       CLKOUT4_CASCADE    => false,  -- Cascade CLKOUT4 counter with CLKOUT6 (FALSE, TRUE)
       DIVCLK_DIVIDE      => 1,          -- Master division value (1-106)
       REF_JITTER1        => 0.0,  -- Reference input jitter in UI (0.000-0.999).
@@ -94,9 +91,9 @@ begin
     port map (
       -- Clock Outputs: 1-bit (each) output: User configurable clock outputs
       CLKOUT0  => clksys_i,             -- 1-bit output: CLKOUT0
+      CLKOUT0B => clkrx_i,              -- 1-bit output: CLKOUT0
       CLKOUT1  => clkdac_i,             -- 1-bit output: CLKOUT1
       CLKOUT2  => clkref_i,             -- 1-bit output: CLKOUT2
-      CLKOUT3  => clkwfifo_i,           -- 1-bit output: CLKOUT3
       -- Feedback Clocks: 1-bit (each) output: Clock feedback ports
       CLKFBOUT => clkfb,                -- 1-bit output: Feedback clock
       -- Status Ports: 1-bit (each) output: MMCM status ports
@@ -126,9 +123,10 @@ begin
     );
 
   bufg3 : BUFG port map(
-    i => clkwfifo_i,
-    o => clk_wfifo
+    i => clkrx_i,
+    o => clk_rx
     );
+
 
   rst <= not mmcm_locked;
 
@@ -150,13 +148,6 @@ begin
   begin
     if rising_edge(clksys_i) then
       clk_sys_rst <= rst;
-    end if;
-  end process;
-
-  process(clkwfifo_i)
-  begin
-    if rising_edge(clkwfifo_i) then
-      clk_wfifo_rst <= rst;
     end if;
   end process;
 

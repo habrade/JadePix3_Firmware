@@ -63,8 +63,10 @@ entity JadePix3_Readout is port(
   -- JadePix3
   REFCLK        : out std_logic;
   CACHE_CLK     : out std_logic;
-  LVDS_RX_OUT_P : out std_logic;
-  LVDS_RX_OUT_N : out std_logic;
+  RX_CLK        : out std_logic;
+  
+--  LVDS_RX_OUT_P : out std_logic;
+--  LVDS_RX_OUT_N : out std_logic;
 
   RA    : out std_logic_vector(ROW_WIDTH-1 downto 0);
   RA_EN : out std_logic;
@@ -101,6 +103,7 @@ architecture rtl of JadePix3_Readout is
 
   signal sysclk                                               : std_logic;
   signal clk_sys                                              : std_logic;
+  signal clk_rx                                               : std_logic;
   signal clk_wfifo                                            : std_logic;
   signal clk_ref_rst, clk_dac_rst, clk_sys_rst, clk_wfifo_rst : std_logic;
 
@@ -152,7 +155,8 @@ architecture rtl of JadePix3_Readout is
   signal gs_pulse_deassert_cnt   : std_logic_vector(8 downto 0);
   signal gs_deassert_cnt         : std_logic_vector(8 downto 0);
 
-  signal clk_cache : std_logic;
+  signal clk_cache     : std_logic;
+  signal is_busy_cache : std_logic;
 
   -- config FIFO signals
   signal cfg_sync       : jadepix_cfg;
@@ -189,6 +193,7 @@ architecture rtl of JadePix3_Readout is
   -- Readout
   signal clk_cache_delay : std_logic;
   signal row_num         : std_logic_vector(ROW_WIDTH-1 downto 0);
+  signal rd_data_rst     : std_logic;
 
   -- SPI 
   signal load_soft     : std_logic;
@@ -206,15 +211,16 @@ begin
       I => clk_cache                    -- Buffer input 
       );
 
-  OBUFDS_LVDX_RX : OBUFDS
-    generic map (
-      IOSTANDARD => "DEFAULT",          -- Specify the output I/O standard
-      SLEW       => "SLOW")             -- Specify the output slew rate
-    port map (
-      O  => LVDS_RX_OUT_P,  -- Diff_p output (connect directly to top-level port)
-      OB => LVDS_RX_OUT_N,  -- Diff_n output (connect directly to top-level port)
-      I  => clk_sys                     -- Buffer input 
-      );
+   OBUF_RX_CLK : OBUF
+   generic map (
+      DRIVE => 12,
+      IOSTANDARD => "DEFAULT",
+      SLEW => "SLOW")
+   port map (
+      O => RX_CLK,     -- Buffer output (connect directly to top-level port)
+      I => clk_rx      -- Buffer input 
+   );
+
 
   ibufgds0 : IBUFGDS port map(
     i  => sysclk_p,
@@ -228,6 +234,7 @@ begin
       clk_ref     => REFCLK,
       clk_dac     => DACCLK,
       clk_sys     => clk_sys,
+      clk_rx      => clk_rx,
       clk_dac_rst => clk_dac_rst,
       clk_ref_rst => clk_ref_rst,
       clk_sys_rst => clk_sys_rst,
@@ -399,6 +406,7 @@ begin
 
       clk_cache       => clk_cache,
       clk_cache_delay => clk_cache_delay,
+      is_busy_cache   => is_busy_cache,
 
       hitmap_col_low  => hitmap_col_low,
       hitmap_col_high => hitmap_col_high,
@@ -449,17 +457,16 @@ begin
   DPLSE     <= dplse_gs and dplse_soft;
 
   RA <= row_num;
-
+  
+	rd_data_rst <= rs_start or gs_start or clk_sys_rst; -- when start rolling shutter or global shutter, reset data readout
   jadepix_read_data : entity work.jadepix_read_data
     port map(
       clk => clk_sys,
-      rst => clk_sys_rst,
-
-      clk_wfifo     => clk_wfifo,
-      clk_wfifo_rst => clk_wfifo_rst,
+      rst => rd_data_rst,
 
       clk_cache       => clk_cache,
       clk_cache_delay => clk_cache_delay,
+			is_busy_cache   => is_busy_cache,
 
       frame_num => rs_frame_cnt,
       row       => row_num,

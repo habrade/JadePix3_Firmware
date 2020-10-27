@@ -60,7 +60,7 @@ entity ipbus_read_fifo is
     --read  FIFO
     rfifo_wr_clk : in  std_logic;
     rfifo_wr_en  : in  std_logic;
-		rfifo_wr_din : in  std_logic_vector(31 downto 0);
+    rfifo_wr_din : in  std_logic_vector(31 downto 0);
     rfifo_full   : out std_logic;
     debug        : out std_logic
     );
@@ -69,7 +69,7 @@ end ipbus_read_fifo;
 
 architecture rtl of ipbus_read_fifo is
 
-  constant RDFIFO_ADD_NUM : natural := 15;  -- the depth of the read fifo is 2**RDFIFO_ADD_NUM
+  constant RDFIFO_ADD_NUM : natural := 17;  -- the depth of the read fifo is 2**RDFIFO_ADD_NUM
 
   component fwft_fifo_32_2048 is
     port (
@@ -108,6 +108,20 @@ architecture rtl of ipbus_read_fifo is
 
   signal ipb_strobe_d, ipb_write_d : std_logic := '0';
   signal ipb_addr_d                : std_logic_vector(1 downto 0);
+
+  -- DEBUG
+  attribute mark_debug                      : string;
+  attribute mark_debug of rfifo_wr_en       : signal is "true";
+  attribute mark_debug of rfifo_wr_din      : signal is "true";
+  attribute mark_debug of ipb_rd_ack        : signal is "true";
+  attribute mark_debug of rd_addr_match     : signal is "true";
+  attribute mark_debug of rd_en             : signal is "true";
+  attribute mark_debug of valid             : signal is "true";
+  attribute mark_debug of empty             : signal is "true";
+  attribute mark_debug of rd_data_count     : signal is "true";
+  attribute mark_debug of valid_rdata_count : signal is "true";
+  attribute mark_debug of valid_rdata_en    : signal is "true";
+  attribute mark_debug of valid_rdata_port  : signal is "true";
 
 begin
 

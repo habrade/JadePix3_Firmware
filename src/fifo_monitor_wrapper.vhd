@@ -39,7 +39,8 @@ entity fifo_monitor_wrapper is
     clk : in std_logic;
     rst : in std_logic;
 
-    clk_cache : in std_logic;
+    clk_cache     : in std_logic;
+    is_busy_cache : in std_logic;
 
     fifo_read_en_v : in std_logic_vector(SECTOR_NUM-1 downto 0);
 
@@ -59,6 +60,7 @@ begin
         clk           => clk,
         rst           => rst,
         clk_cache     => clk_cache,
+        is_busy_cache => is_busy_cache,
         fifo_read_en  => fifo_read_en_v(index),
         fifo_valid_in => VALID_IN(index),
         fifo_counters => sector_counters_v(index),

@@ -75,6 +75,23 @@ architecture behv of jadepix_status_buffer is
 
   signal rbof : std_logic_vector(RBOF_WIDTH-1 downto 0) := (others => '0');
 
+  -- DEBUG
+  attribute mark_debug                      : string;
+  attribute mark_debug of state_reg         : signal is "true";
+  attribute mark_debug of state_next        : signal is "true";
+  attribute mark_debug of buffer_read_en    : signal is "true";
+  attribute mark_debug of buffer_data_valid : signal is "true";
+  attribute mark_debug of buffer_data_flat  : signal is "true";
+  attribute mark_debug of buffer_w_en       : signal is "true";
+  attribute mark_debug of frame_num         : signal is "true";
+  attribute mark_debug of row               : signal is "true";
+  attribute mark_debug of sector_counters_v : signal is "true";
+  attribute mark_debug of buffer_empty      : signal is "true";
+  attribute mark_debug of buffer_full       : signal is "true";
+  attribute mark_debug of buffer_fill_count : signal is "true";
+
+
+
 
 begin
 
@@ -89,6 +106,8 @@ begin
 
   process(all)
   begin
+		state_next <= state_reg;
+
     case state_reg is
 --      when INITIAL =>
 --        state_next <= IDLE;

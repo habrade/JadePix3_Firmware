@@ -42,7 +42,6 @@ package JADEPIX_DEFINES is
 
   constant DACCLK_PERIOD               : real := 20.0;   -- unit: ns
   constant JADEPIX_SYS_PERIOD          : real := 12.0;   -- unit: ns
-  constant JADEPIX_WFIFO_PERIOD        : real := 6.0;    -- unit: ns
   constant JADEPIX_REF_PERIOD          : real := 25.0;   -- unit: ns
   constant JADEPIX_CFG_PERIOD          : real := 192.0;  -- unit: ns
   constant JADEPIX_RS_NO_HITMAP_PERIOD : real := 192.0;  -- unit: ns
@@ -84,6 +83,9 @@ package JADEPIX_DEFINES is
   constant BUFFER_DATA_DEPTH_WIDTH : integer := 8;
   constant BUFFER_DATA_DEPTH       : integer := 192;
 
+  -- IPbus reg fifo slave
+  constant WFIFO_ADDR_SLOW_CTRL_CMD : integer := 0;
+  constant RFIFO_ADDR_DATA_FIFO     : integer := 0;
 
   type sector_counters is
   record
