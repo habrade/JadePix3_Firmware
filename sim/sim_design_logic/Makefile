@@ -73,7 +73,10 @@ all: sim
 ipcores:
 	#vmap -modelsimini ${XILINX_LIB_PATH}/modelsim.ini
 	vmap fifo_generator_v13_2_5 ${XILINX_LIB_PATH}/fifo_generator_v13_2_5
-	vlog -work work ${FIRMWARE_IPCORE_DIR}/fifo_generator_0/sim/*.v
+	vcom -work work ${FIRMWARE_IPCORE_DIR}/fifo_generator_0/synth/*.vhd
+	vcom -work work ${FIRMWARE_IPCORE_DIR}/fwft_fifo_32_2048/synth/*.vhd
+	vcom -work work ${FIRMWARE_IPCORE_DIR}/fwft_fifo_32_512/synth/*.vhd
+
 
 comp_ipbus_lib:
 	vcom -work work ${VSTD} ${IPBUS_SRCS_CORE_FILE}
