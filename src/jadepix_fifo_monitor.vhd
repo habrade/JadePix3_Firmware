@@ -38,27 +38,29 @@ entity jadepix_fifo_monitor is
     clk : in std_logic;
     rst : in std_logic;
 
+    clk_rx : in std_logic;
+
+    start_cache   : in std_logic;
     clk_cache     : in std_logic;
     is_busy_cache : in std_logic;
 
     fifo_valid_in : in std_logic;
     fifo_read_en  : in std_logic;
 
-    fifo_counters      : out sector_counters;
-    fifo_status        : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
-    fifo_monitor_valid : out std_logic
+    fifo_counters : out sector_counters;
+    fifo_status   : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0)
     );
 
 end jadepix_fifo_monitor;
 
 architecture behv of jadepix_fifo_monitor is
 
-  signal valid_cnt     : integer range 0 to VALID_MAX         := 0;
-  signal valid_num     : integer range 0 to VALID_MAX         := 0;
-  signal fifo_read_cnt : integer range 0 to 1                 := 0;
-  signal fifo_cnt      : integer range 0 to FIFO_DEPTH        := 0;
-  signal overflow_cnt  : integer range 0 to FIFO_DEPTH        := 0;
-  signal overflow_num  : integer range 0 to FIFO_OVERFLOW_MAX := 0;
+  signal valid_cnt     : integer range 0 to VALID_MAX  := 0;
+  signal valid_num     : integer range 0 to VALID_MAX  := 0;
+  signal fifo_read_cnt : integer range 0 to 1          := 0;
+  signal fifo_cnt      : integer range 0 to FIFO_DEPTH := 0;
+  signal overflow_cnt  : integer range 0 to VALID_MAX  := 0;
+  signal overflow_num  : integer range 0 to VALID_MAX  := 0;
 
 
   type COUNTER_STATE is (INITIAL, IDLE, W_FIFO, WR_FIFO, FIFO_OVERFLOW, R_FIFO);
@@ -81,46 +83,40 @@ architecture behv of jadepix_fifo_monitor is
   attribute mark_debug of state_reg     : signal is "true";
   attribute mark_debug of state_next    : signal is "true";
 
-  procedure GET_NEXT_STATE (signal rst           : in    std_logic;
-                            signal fifo_valid_in : in    std_logic;
+  procedure GET_NEXT_STATE (signal fifo_valid_in : in    std_logic;
                             signal fifo_read_en  : in    std_logic;
                             signal state_next    : inout COUNTER_STATE) is
   begin
-    if ?? rst then
-      state_next <= INITIAL;
-    else
-      if ?? is_busy_cache then
-        if fifo_valid_in = '0' and fifo_read_en = '1' then
-          state_next <= R_FIFO;
-        elsif fifo_valid_in = '1' and fifo_read_en = '0' then
-          if fifo_cnt = FIFO_DEPTH then
-            state_next <= FIFO_OVERFLOW;
-          else
-            state_next <= W_FIFO;
-          end if;
-        elsif fifo_valid_in = '1' and fifo_read_en = '1' then
-          state_next <= WR_FIFO;
+    if ?? is_busy_cache then
+      if fifo_valid_in = '0' and fifo_read_en = '1' then
+        state_next <= R_FIFO;
+      elsif fifo_valid_in = '1' and fifo_read_en = '0' then
+        if fifo_cnt = FIFO_DEPTH then
+          state_next <= FIFO_OVERFLOW;
         else
-          state_next <= IDLE;
+          state_next <= W_FIFO;
         end if;
+      elsif fifo_valid_in = '1' and fifo_read_en = '1' then
+        state_next <= WR_FIFO;
       else
-        if fifo_read_en = '1' then
-          state_next <= R_FIFO;
-        else
-          state_next <= IDLE;
-        end if;
+        state_next <= IDLE;
       end if;
-
+    else
+      if fifo_read_en = '1' then
+        state_next <= R_FIFO;
+      else
+        state_next <= IDLE;
+      end if;
     end if;
   end procedure;
 
 begin
 
-  process(rst, clk)
+  process(all)
   begin
     if ?? rst then
       state_reg <= INITIAL;
-    elsif rising_edge(clk) then
+    elsif rising_edge(clk_rx) then
       state_reg <= state_next;
     end if;
   end process;
@@ -130,73 +126,98 @@ begin
   begin
     state_next <= state_reg;
 
-    case state_reg is
-      when INITIAL =>
-        GET_NEXT_STATE(rst, fifo_valid_in, fifo_read_en, state_next);
+    if ?? rst then
+      state_next <= INITIAL;
+    else
+      case state_reg is
+        when INITIAL =>
+          GET_NEXT_STATE(fifo_valid_in, fifo_read_en, state_next);
 
-      when IDLE =>
-        GET_NEXT_STATE(rst, fifo_valid_in, fifo_read_en, state_next);
+        when IDLE =>
+          GET_NEXT_STATE(fifo_valid_in, fifo_read_en, state_next);
 
-      when W_FIFO =>
-        GET_NEXT_STATE(rst, fifo_valid_in, fifo_read_en, state_next);
+        when W_FIFO =>
+          GET_NEXT_STATE(fifo_valid_in, fifo_read_en, state_next);
 
-      when WR_FIFO =>
-        GET_NEXT_STATE(rst, fifo_valid_in, fifo_read_en, state_next);
+        when WR_FIFO =>
+          GET_NEXT_STATE(fifo_valid_in, fifo_read_en, state_next);
 
-      when R_FIFO =>
-        GET_NEXT_STATE(rst, fifo_valid_in, fifo_read_en, state_next);
+        when R_FIFO =>
+          GET_NEXT_STATE(fifo_valid_in, fifo_read_en, state_next);
 
-      when FIFO_OVERFLOW =>
-        GET_NEXT_STATE(rst, fifo_valid_in, fifo_read_en, state_next);
+        when FIFO_OVERFLOW =>
+          GET_NEXT_STATE(fifo_valid_in, fifo_read_en, state_next);
 
-      when others => null;
-
-    end case;
+        when others => null;
+      end case;
+    end if;
   end process;
 
 
   process(all)
   begin
-    if rising_edge(clk) then
+    if rising_edge(clk_rx) then
       case(state_next) is
         when INITIAL =>
-          valid_cnt    <= 0;
-          fifo_cnt     <= 0;
+          valid_cnt <= 0;
           overflow_cnt <= 0;
+          fifo_cnt  <= 0;
 
         when IDLE =>
-          null;
---          valid_cnt <= 0;
+          valid_cnt <= 0;
+          
+					if ?? clk_cache then
+            overflow_cnt <= 0;
+         	end if;
 
         when W_FIFO =>
-
-          valid_cnt <= (valid_cnt rem VALID_MAX) + 1;
+          if ?? clk_cache then
+            valid_cnt <= 1;
+          else
+            valid_cnt <= (valid_cnt rem VALID_MAX) + 1;
+          end if;
 
           if fifo_cnt < FIFO_DEPTH then
             fifo_cnt <= fifo_cnt + 1;
           end if;
+        
+					if ?? clk_cache then
+            overflow_cnt <= 0;
+         	end if;
 
         when WR_FIFO =>
-          valid_cnt <= (valid_cnt rem VALID_MAX) + 1;
-
+          if ?? clk_cache then
+            valid_cnt <= 1;
+          else
+            valid_cnt <= (valid_cnt rem VALID_MAX) + 1;
+          end if;
+				
+					if ?? clk_cache then
+            overflow_cnt <= 0;
+         	end if;
+          
         when R_FIFO =>
-          valid_cnt    <= 0;
-          overflow_cnt <= 0;
-
+          valid_cnt     <= 0;
           fifo_read_cnt <= (fifo_read_cnt + 1) rem 2;
-
           if fifo_cnt > 0 and fifo_read_cnt = 1 then
             fifo_cnt <= fifo_cnt - 1;
           end if;
+          
+					if ?? clk_cache then
+            overflow_cnt <= 0;
+         	end if;
 
         when FIFO_OVERFLOW =>
           valid_cnt <= 0;
-          if overflow_cnt < FIFO_OVERFLOW_MAX then
-            overflow_cnt <= overflow_cnt + 1;
+          if ?? clk_cache then
+            overflow_cnt <= 1;
+          else
+            overflow_cnt <= (overflow_cnt rem VALID_MAX) + 1;
           end if;
 
         when others => null;
       end case;
+
     end if;
   end process;
 
@@ -217,14 +238,22 @@ begin
 
   get_valid_cnt_max : process(all)
   begin
-    valid_num <= maximum(valid_num, valid_cnt);
-    /* update valid number */
-    if falling_edge(clk_cache) then
-      valid_num <= maximum(0, valid_cnt);
+
+    if clk_cache and clk_rx then
+      valid_num    <= 0;
+      overflow_num <= 0;
+    else
+      valid_num    <= maximum(valid_num, valid_cnt);  -- Use combine logic to make sure "vliad_num" sync with "valid_cnt" 
+      overflow_num <= maximum(overflow_num, overflow_cnt);
     end if;
   end process;
 
-  fifo_counters.valid_counter    <= std_logic_vector(to_unsigned(valid_num, fifo_counters.valid_counter'length));
-  fifo_counters.overflow_counter <= std_logic_vector(to_unsigned(overflow_cnt, fifo_counters.overflow_counter'length));
+  process(all)
+  begin
+    if rising_edge(clk_cache) then
+      fifo_counters.valid_counter    <= std_logic_vector(to_unsigned(valid_num, fifo_counters.valid_counter'length));
+      fifo_counters.overflow_counter <= std_logic_vector(to_unsigned(overflow_num, fifo_counters.overflow_counter'length));
+    end if;
+  end process;
 
 end behv;

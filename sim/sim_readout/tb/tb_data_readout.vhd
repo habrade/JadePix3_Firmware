@@ -22,8 +22,6 @@ end entity;
 architecture behv of tb_data_readout is
   signal clk           : std_logic := '1';
   signal rst           : std_logic := '0';
-  signal clk_wfifo     : std_logic := '1';
-  signal clk_wfifo_rst : std_logic := '0';
 
   signal clk_cache       : std_logic := '0';
   signal clk_cache_delay : std_logic := '0';
@@ -70,7 +68,6 @@ architecture behv of tb_data_readout is
 begin
 
   clk <= not clk after SYS_PERIOD/2;
-  clk_wfifo <= not clk_wfifo after SYS_PERIOD/4;
 
   process (all)
   begin
@@ -104,8 +101,6 @@ begin
       clk => clk,
       rst => rst,
 
-      clk_wfifo     => clk_wfifo,
-      clk_wfifo_rst => clk_wfifo_rst,
 
       clk_cache       => clk_cache,
       clk_cache_delay => clk_cache_delay,
@@ -132,7 +127,6 @@ begin
   begin
     wait for 2*SYS_PERIOD;
     gen_pulse(rst, 2 * SYS_PERIOD, "Reset sys_clock  pulse");
-    gen_pulse(clk_wfifo_rst, 2 * SYS_PERIOD, "Reset wfifo_clock  pulse");
 
     -- channel 0
     gen_valid(clk_cache, 2.0, 6, 0, VALID_IN);

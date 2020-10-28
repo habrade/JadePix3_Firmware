@@ -238,6 +238,7 @@ architecture behavioral of ipbus_bfm_tb is
   signal data_fifo_wr_din : std_logic_vector(31 downto 0) := (others => '0');
 
   signal clk_cache     : std_logic;
+  signal start_cache   : std_logic;
   signal is_busy_cache : std_logic := '0';
 
   -- config FIFO signals
@@ -440,6 +441,7 @@ begin
       cfg_start      => cfg_start,
 
       clk_cache       => clk_cache,
+      start_cache     => start_cache,
       clk_cache_delay => clk_cache_delay,
       is_busy_cache   => is_busy_cache,
 
@@ -499,6 +501,9 @@ begin
       clk => clk_sys,
       rst => clk_sys_rst,
 
+	  clk_rx => clk_rx,
+
+      start_cache     => start_cache,
       clk_cache       => clk_cache,
       clk_cache_delay => clk_cache_delay,
       is_busy_cache   => is_busy_cache,
@@ -554,11 +559,13 @@ begin
 
 
     wait for 5*CLK_IPB_PERIOD;
+/*
     ipbus_transact(hitmap_transaction,
                    response_transaction,
                    ipbus_transactor_inputs,
                    ipbus_transactor_outputs,
                    clk_ipb);
+*/
 
     wait for 5*CLK_IPB_PERIOD;
     ipbus_transact(frame_num_transaction,
@@ -653,30 +660,35 @@ begin
 	RV_SLV := RV.RandSlv(0, 255, 8) ;
 	DATA_IN <= RV_SLV;
 
-	VALID_IN <= (others=>'1');
-
     wait for 15*SYS_CLK_PERIOD;
     -- channel 0
-    --gen_valid(clk_cache, 2.0, 6, 0, VALID_IN);
+    gen_valid(clk_cache, 0.2, 6, 0, VALID_IN);
 	
 	RV_SLV := RV.RandSlv(0, 255, 8) ;
 	DATA_IN <= RV_SLV;
-    --gen_valid(clk_cache, 0.0, 0, 0, VALID_IN);
+    gen_valid(clk_cache, 0.1, 12, 0, VALID_IN);
 
 	RV_SLV := RV.RandSlv(0, 255, 8) ;
 	DATA_IN <= RV_SLV;
-    --gen_valid(clk_cache, 0.0, 30, 0, VALID_IN);
+    gen_valid(clk_cache, 0.1, 16, 0, VALID_IN);
 
 	RV_SLV := RV.RandSlv(0, 255, 8) ;
 	DATA_IN <= RV_SLV;
-    --gen_valid(clk_cache, 1.0, 14, 0, VALID_IN);
+    gen_valid(clk_cache, 0.1, 16, 0, VALID_IN);
+
+	RV_SLV := RV.RandSlv(0, 255, 8) ;
+	DATA_IN <= RV_SLV;
+    gen_valid(clk_cache, 0.2, 14, 0, VALID_IN);
 
     -- channel 1
 	RV_SLV := RV.RandSlv(0, 255, 8) ;
 	DATA_IN <= RV_SLV;
-    --gen_valid(clk_cache, 1.0, 14, 1, VALID_IN);
+    gen_valid(clk_cache, 0.3, 14, 1, VALID_IN);
 
     wait for 15*CLK_IPB_PERIOD;
+	wait on clk_cache until clk_cache = '1';
+	wait for 0.1*SYS_PERIOD;
+	VALID_IN <= (others=>'1');
     wait on rs_busy until rs_busy = '0';
     wait for 15*CLK_IPB_PERIOD;
     std.env.stop;

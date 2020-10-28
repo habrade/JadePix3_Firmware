@@ -73,6 +73,7 @@ entity jadepix_ctrl is
     RD_EN       : out std_logic;
     MATRIX_GRST : out std_logic;
 
+    start_cache   : out std_logic;
     clk_cache     : out std_logic;
     is_busy_cache : out std_logic;
 
@@ -121,7 +122,7 @@ architecture behv of jadepix_ctrl is
   signal cfg_cnt                    : integer range 0 to JADEPIX_CFG_CNT_MAX := 0;
 
   -- RS
-  signal start_cache   : std_logic                                 := '0';
+--  signal start_cache   : std_logic                                 := '0';
   signal enable_cache  : std_logic                                 := '0';
   signal rs_cnt        : integer range 0 to JADEPIX_RS_CNT_MAX     := 0;
   signal rs_cache_cnt  : integer range 0 to JADEPIX_RS_CNT_MAX     := 0;

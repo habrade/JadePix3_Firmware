@@ -38,7 +38,10 @@ entity jadepix_read_data is
   port (
     clk : in std_logic;
     rst : in std_logic;
+    
+    clk_rx : in std_logic;
 
+    start_cache      : in std_logic;
     clk_cache       : in std_logic;
     clk_cache_delay : in std_logic;
     is_busy_cache   : in std_logic;
@@ -123,7 +126,10 @@ begin
     port map(
       clk => clk,
       rst => rst,
-
+	
+			clk_rx => clk_rx,
+	
+      start_cache       => start_cache,
       clk_cache         => clk_cache,
       is_busy_cache     => is_busy_cache,
       fifo_read_en_v    => fifo_read_en_v,

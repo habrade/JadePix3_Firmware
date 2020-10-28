@@ -39,6 +39,9 @@ entity fifo_monitor_wrapper is
     clk : in std_logic;
     rst : in std_logic;
 
+    clk_rx : in std_logic;
+
+    start_cache   : in std_logic;
     clk_cache     : in std_logic;
     is_busy_cache : in std_logic;
 
@@ -59,7 +62,9 @@ begin
       port map(
         clk           => clk,
         rst           => rst,
+        clk_rx        => clk_rx,
         clk_cache     => clk_cache,
+        start_cache   => start_cache,
         is_busy_cache => is_busy_cache,
         fifo_read_en  => fifo_read_en_v(index),
         fifo_valid_in => VALID_IN(index),

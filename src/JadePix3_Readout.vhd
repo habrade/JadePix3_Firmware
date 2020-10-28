@@ -155,6 +155,7 @@ architecture rtl of JadePix3_Readout is
   signal gs_pulse_deassert_cnt   : std_logic_vector(8 downto 0);
   signal gs_deassert_cnt         : std_logic_vector(8 downto 0);
 
+  signal start_cache   : std_logic;
   signal clk_cache     : std_logic;
   signal is_busy_cache : std_logic;
 
@@ -404,6 +405,7 @@ begin
       cfg_busy       => cfg_busy,
       cfg_start      => cfg_start,
 
+      start_cache     => start_cache,
       clk_cache       => clk_cache,
       clk_cache_delay => clk_cache_delay,
       is_busy_cache   => is_busy_cache,
@@ -463,7 +465,10 @@ begin
     port map(
       clk => clk_sys,
       rst => rd_data_rst,
-
+			
+			clk_rx => clk_rx,
+			
+      start_cache     => start_cache,
       clk_cache       => clk_cache,
       clk_cache_delay => clk_cache_delay,
 			is_busy_cache   => is_busy_cache,

@@ -111,7 +111,7 @@ set_property PACKAGE_PIN E14 [get_ports CACHE_BIT_SET[2]]
 set_property PACKAGE_PIN E11 [get_ports CACHE_BIT_SET[3]]
 
 set_property IOSTANDARD LVCMOS25 [get_ports {RA*}]
-set_property PACKAGE_PIN E16 [get_ports RA_EN]
+set_property PACKAGE_PIN H14 [get_ports RA_EN]
 set_property PACKAGE_PIN B30 [get_ports RA[0]]
 set_property PACKAGE_PIN AH22 [get_ports RA[1]]
 set_property PACKAGE_PIN AG22 [get_ports RA[2]]

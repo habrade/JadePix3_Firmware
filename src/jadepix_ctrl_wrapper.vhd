@@ -79,6 +79,7 @@ entity jadepix_ctrl_wrapper is
     RD_EN       : out std_logic;
     MATRIX_GRST : out std_logic;
 
+    start_cache     : out std_logic;
     clk_cache       : out std_logic;
     clk_cache_delay : out std_logic;
 		is_busy_cache   : out std_logic;
@@ -127,6 +128,7 @@ begin
       cfg_busy       => cfg_busy,
       cfg_start      => cfg_start,
 
+      start_cache   => start_cache,
       clk_cache     => clk_cache,
       is_busy_cache => is_busy_cache,
 
