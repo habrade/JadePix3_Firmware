@@ -113,6 +113,11 @@ architecture behavioral of ipbus_bfm_tb is
   constant C_GS_DEASSERT_CNT : t_ipbus_slv_array(0 to 0)
     := (0 => X"00000002");
 
+  constant C_READ_RFIFO_LEN : t_ipbus_slv_array(0 to 0)
+    := (0 => X"00000000");
+
+  signal read_rfifo_len : t_ipbus_transaction(bodyy(0 to 1))
+    := ipbus_non_inc_write_transaction(X"60000024", 1, C_READ_RFIFO_LEN);
 
   signal write_rst_transaction : t_ipbus_transaction(bodyy(0 to 3))
     := ipbus_non_inc_write_transaction(X"00000000", 3, C_WRITE_RST);
@@ -691,6 +696,16 @@ begin
 	VALID_IN <= (others=>'1');
     wait on rs_busy until rs_busy = '0';
     wait for 15*CLK_IPB_PERIOD;
+
+	
+    ipbus_transact(read_rfifo_len,
+                   response_transaction,
+                   ipbus_transactor_inputs,
+                   ipbus_transactor_outputs,
+                   clk_ipb);
+
+    wait for 15*CLK_IPB_PERIOD;
+
     std.env.stop;
   end process;
 

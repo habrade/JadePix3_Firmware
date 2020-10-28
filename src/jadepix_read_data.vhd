@@ -38,17 +38,17 @@ entity jadepix_read_data is
   port (
     clk : in std_logic;
     rst : in std_logic;
-    
+
     clk_rx : in std_logic;
 
-    start_cache      : in std_logic;
+    start_cache     : in std_logic;
     clk_cache       : in std_logic;
     clk_cache_delay : in std_logic;
     is_busy_cache   : in std_logic;
 
 --    rs_frame_start : in std_logic;
-    frame_num      : in std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
-    row            : in std_logic_vector(ROW_WIDTH-1 downto 0);
+    frame_num : in std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
+    row       : in std_logic_vector(ROW_WIDTH-1 downto 0);
 
     VALID_IN : in std_logic_vector(SECTOR_NUM-1 downto 0);
     DATA_IN  : in std_logic_vector(7 downto 0);
@@ -95,8 +95,26 @@ architecture behv of jadepix_read_data is
 
   signal fifo_oc          : std_logic_vector(OC_WIDTH-1 downto 0);
   signal blk_select_delay : std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
-  signal read_frame_start :  std_logic;
-  signal read_frame_stop  :  std_logic;
+  signal read_frame_start : std_logic;
+  signal read_frame_stop  : std_logic;
+
+  -- DEBUG
+  attribute mark_debug                     : string;
+  attribute mark_debug of start_cache      : signal is "true";
+  attribute mark_debug of clk_cache        : signal is "true";
+  attribute mark_debug of clk_cache_delay  : signal is "true";
+  attribute mark_debug of is_busy_cache    : signal is "true";
+  attribute mark_debug of frame_num        : signal is "true";
+  attribute mark_debug of row              : signal is "true";
+  attribute mark_debug of VALID_IN         : signal is "true";
+  attribute mark_debug of DATA_IN          : signal is "true";
+  attribute mark_debug of FIFO_READ_EN     : signal is "true";
+  attribute mark_debug of BLK_SELECT       : signal is "true";
+  attribute mark_debug of data_fifo_rst    : signal is "true";
+  attribute mark_debug of data_fifo_wr_clk : signal is "true";
+  attribute mark_debug of data_fifo_wr_din : signal is "true";
+  attribute mark_debug of data_fifo_wr_en  : signal is "true";
+  attribute mark_debug of data_fifo_full   : signal is "true";
 
 --  signal rbof    : std_logic_vector(RBOF_WIDTH-1 downto 0);
 
@@ -126,9 +144,9 @@ begin
     port map(
       clk => clk,
       rst => rst,
-	
-			clk_rx => clk_rx,
-	
+
+      clk_rx => clk_rx,
+
       start_cache       => start_cache,
       clk_cache         => clk_cache,
       is_busy_cache     => is_busy_cache,
@@ -181,7 +199,7 @@ begin
 
       fifo_read_en_v => fifo_read_en_v,
       blk_select     => blk_select_reg,
-      
+
       read_frame_start => read_frame_start,
       read_frame_stop  => read_frame_stop,
 
