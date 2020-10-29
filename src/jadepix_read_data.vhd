@@ -55,6 +55,7 @@ entity jadepix_read_data is
 
     FIFO_READ_EN : out std_logic;
     BLK_SELECT   : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
+    
     INQUIRY      : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
 
     -- DATA FIFO
@@ -108,8 +109,6 @@ architecture behv of jadepix_read_data is
   attribute mark_debug of row              : signal is "true";
   attribute mark_debug of VALID_IN         : signal is "true";
   attribute mark_debug of DATA_IN          : signal is "true";
-  attribute mark_debug of FIFO_READ_EN     : signal is "true";
-  attribute mark_debug of BLK_SELECT       : signal is "true";
   attribute mark_debug of data_fifo_rst    : signal is "true";
   attribute mark_debug of data_fifo_wr_clk : signal is "true";
   attribute mark_debug of data_fifo_wr_din : signal is "true";

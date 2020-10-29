@@ -91,8 +91,6 @@ architecture behv of jadepix_status_buffer is
   attribute mark_debug of buffer_fill_count : signal is "true";
 
 
-
-
 begin
 
   process(clk, rst)
@@ -109,8 +107,8 @@ begin
 		state_next <= state_reg;
 
     case state_reg is
---      when INITIAL =>
---        state_next <= IDLE;
+      when INITIAL =>
+        state_next <= IDLE;
       when IDLE =>
         if buffer_w_en = '1' then
           state_next <= W_RECORD;

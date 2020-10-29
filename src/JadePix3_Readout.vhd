@@ -476,8 +476,8 @@ begin
       frame_num => rs_frame_cnt,
       row       => row_num,
 
-      VALID_IN => VALID_IN,
-      DATA_IN  => DATA_IN,
+      VALID_IN => 4X"F", -- for test
+      DATA_IN  => 8X"FF",
 
       FIFO_READ_EN => FIFO_READ_EN,
       BLK_SELECT   => BLK_SELECT,

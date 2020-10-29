@@ -661,39 +661,42 @@ begin
     --check_value(ipb_control_regs(3), X"00000003", FAILURE,
     --            "Checking read/modify/write sum transaction.");
 
-	RV.InitSeed (RV'instance_name) ;
-	RV_SLV := RV.RandSlv(0, 255, 8) ;
-	DATA_IN <= RV_SLV;
+	--RV.InitSeed (RV'instance_name) ;
+	--RV_SLV := RV.RandSlv(0, 255, 8) ;
+	--DATA_IN <= RV_SLV;
 
-    wait for 15*SYS_CLK_PERIOD;
-    -- channel 0
-    gen_valid(clk_cache, 0.2, 6, 0, VALID_IN);
-	
-	RV_SLV := RV.RandSlv(0, 255, 8) ;
-	DATA_IN <= RV_SLV;
-    gen_valid(clk_cache, 0.1, 12, 0, VALID_IN);
+    --wait for 15*SYS_CLK_PERIOD;
+    ---- channel 0
+    --gen_valid(clk_cache, 0.2, 6, 0, VALID_IN);
+	--
+	--RV_SLV := RV.RandSlv(0, 255, 8) ;
+	--DATA_IN <= RV_SLV;
+    --gen_valid(clk_cache, 0.1, 12, 0, VALID_IN);
 
-	RV_SLV := RV.RandSlv(0, 255, 8) ;
-	DATA_IN <= RV_SLV;
-    gen_valid(clk_cache, 0.1, 16, 0, VALID_IN);
+	--RV_SLV := RV.RandSlv(0, 255, 8) ;
+	--DATA_IN <= RV_SLV;
+    --gen_valid(clk_cache, 0.1, 16, 0, VALID_IN);
 
-	RV_SLV := RV.RandSlv(0, 255, 8) ;
-	DATA_IN <= RV_SLV;
-    gen_valid(clk_cache, 0.1, 16, 0, VALID_IN);
+	--RV_SLV := RV.RandSlv(0, 255, 8) ;
+	--DATA_IN <= RV_SLV;
+    --gen_valid(clk_cache, 0.1, 16, 0, VALID_IN);
 
-	RV_SLV := RV.RandSlv(0, 255, 8) ;
-	DATA_IN <= RV_SLV;
-    gen_valid(clk_cache, 0.2, 14, 0, VALID_IN);
+	--RV_SLV := RV.RandSlv(0, 255, 8) ;
+	--DATA_IN <= RV_SLV;
+    --gen_valid(clk_cache, 0.2, 14, 0, VALID_IN);
 
-    -- channel 1
-	RV_SLV := RV.RandSlv(0, 255, 8) ;
-	DATA_IN <= RV_SLV;
-    gen_valid(clk_cache, 0.3, 14, 1, VALID_IN);
+    ---- channel 1
+	--RV_SLV := RV.RandSlv(0, 255, 8) ;
+	--DATA_IN <= RV_SLV;
+    --gen_valid(clk_cache, 0.3, 14, 1, VALID_IN);
+
+
+	VALID_IN <= 4X"F";
+	DATA_IN <= 8X"FF";
 
     wait for 15*CLK_IPB_PERIOD;
 	wait on clk_cache until clk_cache = '1';
 	wait for 0.1*SYS_PERIOD;
-	VALID_IN <= (others=>'1');
     wait on rs_busy until rs_busy = '0';
     wait for 15*CLK_IPB_PERIOD;
 
