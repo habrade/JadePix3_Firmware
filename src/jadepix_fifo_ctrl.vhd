@@ -56,8 +56,8 @@ entity jadepix_fifo_ctrl is
     fifo_read_en_v : out std_logic_vector(SECTOR_NUM-1 downto 0);
     blk_select     : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
 
-    read_frame_start : out std_logic;
-    read_frame_stop  : out std_logic;
+--    read_frame_start : out std_logic;
+--    read_frame_stop  : out std_logic;
 --    INQUIRY : out std_logic_vector(1 downto 0);
 
     buffer_data_record : out buffer_data_frame
@@ -85,7 +85,7 @@ architecture behv of jadepix_fifo_ctrl is
                                                    (others => ((others => '0'), (others => '0'))),
                                                    (others => '0'));
 
-  signal read_row_cnt : integer range 0 to 512 := 0;
+--  signal read_row_cnt : integer range 0 to N_ROW := 0;
 
   -- DEBUG
   attribute mark_debug                       : string;
@@ -97,14 +97,14 @@ architecture behv of jadepix_fifo_ctrl is
   attribute mark_debug of buffer_fill_count  : signal is "true";
   attribute mark_debug of fifo_read_en_v     : signal is "true";
   attribute mark_debug of blk_select         : signal is "true";
-  attribute mark_debug of read_frame_start   : signal is "true";
-  attribute mark_debug of read_frame_stop    : signal is "true";
+--  attribute mark_debug of read_frame_start   : signal is "true";
+--  attribute mark_debug of read_frame_stop    : signal is "true";
   attribute mark_debug of buffer_data_record : signal is "true";
   attribute mark_debug of cnt_sec0           : signal is "true";
   attribute mark_debug of cnt_sec1           : signal is "true";
   attribute mark_debug of cnt_sec2           : signal is "true";
   attribute mark_debug of cnt_sec3           : signal is "true";
-  attribute mark_debug of read_row_cnt       : signal is "true";
+--  attribute mark_debug of read_row_cnt       : signal is "true";
 
 begin
 
@@ -220,40 +220,43 @@ begin
           buffer_read_en   <= '0';
           blk_select       <= "ZZ";
           fifo_read_en_v   <= (others => '0');
-          read_frame_start <= '0';
-          read_frame_stop  <= '0';
+--          read_frame_start <= '0';
+--          read_frame_stop  <= '0';
 
         when READ_BUFFER =>
           buffer_read_en <= '1';
 
         when READ_ROW =>
           buffer_read_en <= '0';
-
-					read_row_cnt <= (read_row_cnt rem N_ROW) + 1;
           
-          read_frame_start <= '1' when read_row_cnt = 1 else '0';
-          read_frame_stop <= '0';
+--          read_frame_start <= '1' when read_row_cnt = 0 else '0';
+--          read_frame_stop <= '0';
 
           /* Yeah, ugly code here... */
           buffer_data_record.frame_num                   <= buffer_data_flat(BUFFER_DATA_FRAME_WIDTH-1 downto BUFFER_DATA_FRAME_WIDTH-FRAME_CNT_WIDTH);
           buffer_data_record.row                         <= buffer_data_flat(BUFFER_DATA_FRAME_WIDTH-FRAME_CNT_WIDTH-1 downto BUFFER_DATA_FRAME_WIDTH-FRAME_CNT_WIDTH-ROW_WIDTH);
+         
+				  cnt_sec0                                       <= to_integer(unsigned(buffer_data_flat(4*VC_WIDTH+4*OC_WIDTH+RBOF_WIDTH-1 downto 3*VC_WIDTH+4*OC_WIDTH+RBOF_WIDTH)));
           buffer_data_record.sectors(0).valid_counter    <= buffer_data_flat(4*VC_WIDTH+4*OC_WIDTH+RBOF_WIDTH-1 downto 3*VC_WIDTH+4*OC_WIDTH+RBOF_WIDTH);
-          cnt_sec0                                       <= to_integer(unsigned(buffer_data_flat(4*VC_WIDTH+4*OC_WIDTH+RBOF_WIDTH-1 downto 3*VC_WIDTH+4*OC_WIDTH+RBOF_WIDTH)));
           buffer_data_record.sectors(0).overflow_counter <= buffer_data_flat(3*VC_WIDTH+4*OC_WIDTH+RBOF_WIDTH-1 downto 3*VC_WIDTH+3*OC_WIDTH+RBOF_WIDTH);
-          buffer_data_record.sectors(1).valid_counter    <= buffer_data_flat(3*VC_WIDTH+3*OC_WIDTH+RBOF_WIDTH-1 downto 2*VC_WIDTH+3*OC_WIDTH+RBOF_WIDTH);
+          
           cnt_sec1                                       <= to_integer(unsigned(buffer_data_flat(3*VC_WIDTH+3*OC_WIDTH+RBOF_WIDTH-1 downto 2*VC_WIDTH+3*OC_WIDTH+RBOF_WIDTH)));
+          buffer_data_record.sectors(1).valid_counter    <= buffer_data_flat(3*VC_WIDTH+3*OC_WIDTH+RBOF_WIDTH-1 downto 2*VC_WIDTH+3*OC_WIDTH+RBOF_WIDTH);
           buffer_data_record.sectors(1).overflow_counter <= buffer_data_flat(2*VC_WIDTH+3*OC_WIDTH+RBOF_WIDTH-1 downto 2*VC_WIDTH+2*OC_WIDTH+RBOF_WIDTH);
-          buffer_data_record.sectors(2).valid_counter    <= buffer_data_flat(2*VC_WIDTH+2*OC_WIDTH+RBOF_WIDTH-1 downto VC_WIDTH+2*OC_WIDTH+RBOF_WIDTH);
+         
           cnt_sec2                                       <= to_integer(unsigned(buffer_data_flat(2*VC_WIDTH+2*OC_WIDTH+RBOF_WIDTH-1 downto VC_WIDTH+2*OC_WIDTH+RBOF_WIDTH)));
+          buffer_data_record.sectors(2).valid_counter    <= buffer_data_flat(2*VC_WIDTH+2*OC_WIDTH+RBOF_WIDTH-1 downto VC_WIDTH+2*OC_WIDTH+RBOF_WIDTH);
           buffer_data_record.sectors(2).overflow_counter <= buffer_data_flat(VC_WIDTH+2*OC_WIDTH+RBOF_WIDTH-1 downto VC_WIDTH+OC_WIDTH+RBOF_WIDTH);
-          buffer_data_record.sectors(3).valid_counter    <= buffer_data_flat(VC_WIDTH+OC_WIDTH+RBOF_WIDTH-1 downto OC_WIDTH+RBOF_WIDTH);
+          
           cnt_sec3                                       <= to_integer(unsigned(buffer_data_flat(VC_WIDTH+OC_WIDTH+RBOF_WIDTH-1 downto OC_WIDTH+RBOF_WIDTH)));
+          buffer_data_record.sectors(3).valid_counter    <= buffer_data_flat(VC_WIDTH+OC_WIDTH+RBOF_WIDTH-1 downto OC_WIDTH+RBOF_WIDTH);
           buffer_data_record.sectors(3).overflow_counter <= buffer_data_flat(OC_WIDTH+RBOF_WIDTH-1 downto RBOF_WIDTH);
+          
           buffer_data_record.rbof                        <= buffer_data_flat(RBOF_WIDTH-1 downto 0);
 
         -- Read FIFO 0
         when READ_FIFO0_HALF1 =>
-					read_frame_start <= '0';
+--					read_frame_start <= '0';
 
           blk_select     <= "00";
           fifo_read_en_v <= "0001";
@@ -264,7 +267,7 @@ begin
 
         -- Read FIFO 1
         when READ_FIFO1_HALF1 =>
-					read_frame_start <= '0';
+--					read_frame_start <= '0';
           blk_select     <= "01";
           fifo_read_en_v <= "0010";
 
@@ -275,7 +278,7 @@ begin
 
         -- Read FIFO 2
         when READ_FIFO2_HALF1 =>
-					read_frame_start <= '0';
+--					read_frame_start <= '0';
           blk_select     <= "10";
           fifo_read_en_v <= "0100";
 
@@ -286,7 +289,7 @@ begin
 
         -- Read FIFO 3
         when READ_FIFO3_HALF1 =>
-					read_frame_start <= '0';
+--					read_frame_start <= '0';
           blk_select     <= "11";
           fifo_read_en_v <= "1000";
 
@@ -299,8 +302,10 @@ begin
           blk_select      <= "ZZ";
           fifo_read_en_v  <= (others => '0');
           
-					read_frame_start <= '0';
-          read_frame_stop <= '1' when read_row_cnt = N_ROW else '0';
+--					read_row_cnt <= 0 when read_row_cnt = N_ROW else (read_row_cnt + 1);
+					
+--					read_frame_start <= '0';
+--          read_frame_stop <= '1' when read_row_cnt = N_ROW else '0';
 
         when others =>
           null;

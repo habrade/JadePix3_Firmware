@@ -101,7 +101,7 @@ architecture behavioral of ipbus_bfm_tb is
   constant C_HITMAP : t_ipbus_slv_array(0 to 0)
     := (0 => X"0016ab54");
   constant C_FRAME_NUM : t_ipbus_slv_array(0 to 0)
-    := (0 => X"00000002");
+    := (0 => X"00000006");
   constant C_GS_PULSE_DELAY_CNT : t_ipbus_slv_array(0 to 0)
     := (0 => X"00000001");
   constant C_GS_PULSE_WIDTH_CNT_LOW : t_ipbus_slv_array(0 to 0)
@@ -691,7 +691,7 @@ begin
     --gen_valid(clk_cache, 0.3, 14, 1, VALID_IN);
 
 
-	VALID_IN <= 4X"F";
+	VALID_IN <= "1100";
 	DATA_IN <= 8X"FF";
 
     wait for 15*CLK_IPB_PERIOD;

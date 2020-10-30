@@ -75,6 +75,11 @@ architecture behv of jadepix_status_buffer is
 
   signal rbof : std_logic_vector(RBOF_WIDTH-1 downto 0) := (others => '0');
 
+  signal row_in_data   : std_logic_vector(ROW_WIDTH-1 downto 0)       := (others => '0');
+  signal frame_in_data : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0) := (others => '0');
+
+  signal buffer_full_reg : std_logic := '0';
+
   -- DEBUG
   attribute mark_debug                      : string;
   attribute mark_debug of state_reg         : signal is "true";
@@ -93,69 +98,37 @@ architecture behv of jadepix_status_buffer is
 
 begin
 
-  process(clk, rst)
-  begin
-    if rst = '1' then
-      state_reg <= INITIAL;
-    elsif rising_edge(clk) then
-      state_reg <= state_next;
+	row_in_data <= row - 1;             -- Write operation happens at next row
+
+  process(all)
+  begin  
+	if row_in_data = N_ROW-1 and frame_num > 0 then
+      frame_in_data <= frame_num - 1;
+    else
+      frame_in_data <= frame_num;
     end if;
   end process;
 
-  process(all)
-  begin
-		state_next <= state_reg;
+  wr_en   <= '0' when buffer_full else buffer_w_en;
+  wr_data <= frame_in_data &
+             row_in_data &
+             sector_counters_v(0).valid_counter & sector_counters_v(0).overflow_counter &
+             sector_counters_v(1).valid_counter & sector_counters_v(1).overflow_counter &
+             sector_counters_v(2).valid_counter & sector_counters_v(2).overflow_counter &
+             sector_counters_v(3).valid_counter & sector_counters_v(3).overflow_counter &
+             rbof;
 
-    case state_reg is
-      when INITIAL =>
-        state_next <= IDLE;
-      when IDLE =>
-        if buffer_w_en = '1' then
-          state_next <= W_RECORD;
-        end if;
-      when others =>
-        state_next <= IDLE;
-    end case;
-  end process;
+  rd_en <= buffer_read_en;
 
-  process(clk)
-  begin
-    if rising_edge(clk) then
-
-      case(state_next) is
-        when INITIAL =>
-          rbof <= (others => '0');
-
-        when IDLE =>
-          wr_en   <= '0';
-          wr_data <= (others => '0');
-
-        when W_RECORD =>
-          if buffer_full = '1' then
-            rbof <= rbof + 1;
-          else
-            wr_en   <= '1';
-            wr_data <= frame_num &
-                       row-1 &
-                       sector_counters_v(0).valid_counter & sector_counters_v(0).overflow_counter &
-                       sector_counters_v(1).valid_counter & sector_counters_v(1).overflow_counter &
-                       sector_counters_v(2).valid_counter & sector_counters_v(2).overflow_counter &
-                       sector_counters_v(3).valid_counter & sector_counters_v(3).overflow_counter &
-                       rbof;
-          end if;
-
-        when others => null;
-      end case;
-    end if;
-  end process;
+  buffer_full <= buffer_full_reg;
 
   process(all)
   begin
-    if rising_edge(clk) then
-      if buffer_read_en = '1' then
-        rd_en <= '1';
-      else
-        rd_en <= '0';
+    if ?? rst then
+      rbof <= (others => '0');
+    elsif falling_edge(clk) then
+      if buffer_full_reg and buffer_w_en then
+        rbof <= rbof + 1;
       end if;
     end if;
   end process;
@@ -182,7 +155,7 @@ begin
       -- Flags
       empty      => buffer_empty,
       empty_next => buffer_empty_next,
-      full       => buffer_full,
+      full       => buffer_full_reg,
       full_next  => buffer_full_next,
 
       -- The number of elements in the FIFO

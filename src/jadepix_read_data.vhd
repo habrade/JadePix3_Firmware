@@ -96,8 +96,8 @@ architecture behv of jadepix_read_data is
 
   signal fifo_oc          : std_logic_vector(OC_WIDTH-1 downto 0);
   signal blk_select_delay : std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
-  signal read_frame_start : std_logic;
-  signal read_frame_stop  : std_logic;
+--  signal read_frame_start : std_logic;
+--  signal read_frame_stop  : std_logic;
 
   -- DEBUG
   attribute mark_debug                     : string;
@@ -199,8 +199,8 @@ begin
       fifo_read_en_v => fifo_read_en_v,
       blk_select     => blk_select_reg,
 
-      read_frame_start => read_frame_start,
-      read_frame_stop  => read_frame_stop,
+--      read_frame_start => read_frame_start,
+--      read_frame_stop  => read_frame_stop,
 
 --      INQUIRY => INQUIRY,
 
@@ -213,8 +213,8 @@ begin
       clk => clk,
       rst => rst,
 
-      read_frame_start => read_frame_start,
-      read_frame_stop  => read_frame_stop,
+--      read_frame_start => read_frame_start,
+--      read_frame_stop  => read_frame_stop,
 
       blk_select_delay => blk_select_delay,
 
