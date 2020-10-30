@@ -1,3 +1,8 @@
+-- Note: this module is copied from: https://vhdlwhiz.com/ring-buffer-fifo/
+-- The copyright of this moduls belongs to the author(Jonas Julian Jensen).
+-- We ues this code in scientific research.
+-- Comment by s.dong<s.dong@mails.ccnu.edu.cn>
+
 library ieee;
 use ieee.std_logic_1164.all;
 
