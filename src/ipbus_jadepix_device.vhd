@@ -110,7 +110,7 @@ architecture behv of ipbus_jadepix_device is
   -- IPbus reg
   constant SYNC_REG_ENA               : boolean := false;
   constant N_STAT                     : integer := 2;
-  constant N_CTRL                     : integer := 9;
+  constant N_CTRL                     : integer := 10;
   constant N_WFIFO                    : integer := 1;
   constant N_RFIFO                    : integer := 1;
   signal stat                         : ipb_reg_v(N_STAT-1 downto 0);
@@ -131,6 +131,8 @@ architecture behv of ipbus_jadepix_device is
   signal cache_bit_set_tmp : std_logic_vector(3 downto 0);
   signal hitmap_en_tmp     : std_logic;
   signal load_tmp          : std_logic;
+  
+  signal rst_rfifo : std_logic := '0';
 
   -- IPbus drp
 --  signal ram_rst : std_logic_vector(N_FIFO-1 downto 0);
@@ -163,7 +165,7 @@ begin
   rfifo_wr_en(RFIFO_ADDR_DATA_FIFO)                                          <= data_fifo_wr_en;
   data_fifo_full                                                             <= rfifo_full(RFIFO_ADDR_DATA_FIFO);
   rfifo_wr_din((RFIFO_ADDR_DATA_FIFO+1)*32-1 downto RFIFO_ADDR_DATA_FIFO*32) <= data_fifo_wr_din;
-
+  
   ipbus_slave_reg_fifo : entity work.ipbus_slave_reg_fifo
     generic map(
       SYNC_REG_ENA => SYNC_REG_ENA,
@@ -195,7 +197,7 @@ begin
       wfifo_valid   => wfifo_valid,
       wfifo_empty   => wfifo_empty,
       wfifo_rd_dout => wfifo_rd_dout,
-      rfifo_rst     => data_fifo_rst,
+      rfifo_rst     => data_fifo_rst or rst_rfifo,
       rfifo_wr_clk  => rfifo_wr_clk,
       rfifo_wr_en   => rfifo_wr_en,
       rfifo_full    => rfifo_full,
@@ -237,6 +239,8 @@ begin
       gs_pulse_width_cnt_high <= ctrl(6)(1 downto 0);
       gs_pulse_deassert_cnt   <= ctrl(7)(8 downto 0);
       gs_deassert_cnt         <= ctrl(8)(8 downto 0);
+      
+      rst_rfifo               <= ctrl(9)(0);
 
 
       ctrl_reg_stb_r <= ctrl_reg_stb;
