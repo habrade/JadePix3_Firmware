@@ -229,13 +229,10 @@ begin
         when READ_ROW =>
           buffer_read_en <= '0';
 
-          if read_row_cnt = N_ROW-1 then
-            read_row_cnt <= 0;
-          else
-            read_row_cnt <= read_row_cnt + 1;
-          end if;
-
-          read_frame_start <= '1' when read_row_cnt = 0 else '0';
+					read_row_cnt <= (read_row_cnt rem N_ROW) + 1;
+          
+          read_frame_start <= '1' when read_row_cnt = 1 else '0';
+          read_frame_stop <= '0';
 
           /* Yeah, ugly code here... */
           buffer_data_record.frame_num                   <= buffer_data_flat(BUFFER_DATA_FRAME_WIDTH-1 downto BUFFER_DATA_FRAME_WIDTH-FRAME_CNT_WIDTH);
@@ -256,6 +253,8 @@ begin
 
         -- Read FIFO 0
         when READ_FIFO0_HALF1 =>
+					read_frame_start <= '0';
+
           blk_select     <= "00";
           fifo_read_en_v <= "0001";
           if cnt_sec0 > 0 then
@@ -265,6 +264,7 @@ begin
 
         -- Read FIFO 1
         when READ_FIFO1_HALF1 =>
+					read_frame_start <= '0';
           blk_select     <= "01";
           fifo_read_en_v <= "0010";
 
@@ -275,6 +275,7 @@ begin
 
         -- Read FIFO 2
         when READ_FIFO2_HALF1 =>
+					read_frame_start <= '0';
           blk_select     <= "10";
           fifo_read_en_v <= "0100";
 
@@ -285,6 +286,7 @@ begin
 
         -- Read FIFO 3
         when READ_FIFO3_HALF1 =>
+					read_frame_start <= '0';
           blk_select     <= "11";
           fifo_read_en_v <= "1000";
 
@@ -296,7 +298,9 @@ begin
         when READ_ROW_END =>
           blk_select      <= "ZZ";
           fifo_read_en_v  <= (others => '0');
-          read_frame_stop <= '1' when read_row_cnt = 512 else '0';
+          
+					read_frame_start <= '0';
+          read_frame_stop <= '1' when read_row_cnt = N_ROW else '0';
 
         when others =>
           null;
