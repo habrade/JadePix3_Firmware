@@ -55,15 +55,16 @@ entity jadepix_read_data is
 
     FIFO_READ_EN : out std_logic;
     BLK_SELECT   : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
-    
-    INQUIRY      : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
+
+    INQUIRY : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
 
     -- DATA FIFO
-    data_fifo_rst    : out std_logic;
-    data_fifo_wr_clk : out std_logic;
-    data_fifo_wr_en  : out std_logic;
-    data_fifo_wr_din : out std_logic_vector(31 downto 0);
-    data_fifo_full   : in  std_logic
+    data_fifo_rst         : out std_logic;
+    data_fifo_wr_clk      : out std_logic;
+    data_fifo_wr_en       : out std_logic;
+    data_fifo_wr_din      : out std_logic_vector(31 downto 0);
+    data_fifo_full        : in  std_logic;
+    data_fifo_almost_full : in  std_logic
     );
 
 end jadepix_read_data;
@@ -225,11 +226,12 @@ begin
       fifo_data_valid => fifo_data_valid,
       DATA_IN         => DATA_IN,
 
-      data_fifo_rst    => data_fifo_rst,
-      data_fifo_wr_clk => data_fifo_wr_clk,
-      data_fifo_wr_en  => data_fifo_wr_en,
-      data_fifo_wr_din => data_fifo_wr_din,
-      data_fifo_full   => data_fifo_full
+      data_fifo_rst         => data_fifo_rst,
+      data_fifo_wr_clk      => data_fifo_wr_clk,
+      data_fifo_wr_en       => data_fifo_wr_en,
+      data_fifo_wr_din      => data_fifo_wr_din,
+      data_fifo_full        => data_fifo_full,
+      data_fifo_almost_full => data_fifo_almost_full
       );
 
 

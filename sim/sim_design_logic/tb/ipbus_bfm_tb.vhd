@@ -25,9 +25,9 @@ use work.ipbus_reg_types.all;
 
 library uvvm_util;
 context uvvm_util.uvvm_util_context;
-library OSVVM ; 
-  use OSVVM.RandomBasePkg.all ; 
-  use OSVVM.RandomPkg.all ;
+library OSVVM;
+use OSVVM.RandomBasePkg.all;
+use OSVVM.RandomPkg.all;
 
 library work;
 use work.ipbus_bfm_pkg.all;
@@ -50,12 +50,12 @@ architecture behavioral of ipbus_bfm_tb is
   signal clk_ipb : std_logic := '0';
   signal rst_ipb : std_logic := '0';
 
-  signal sysclk    : std_logic := '0';
+  signal sysclk : std_logic := '0';
 
-  signal clk_sys       : std_logic := '0';
-  signal clk_rx        : std_logic := '0';
-  signal clk_sys_rst   : std_logic := '0';
-  signal clk_dac_rst   : std_logic := '0';
+  signal clk_sys     : std_logic := '0';
+  signal clk_rx      : std_logic := '0';
+  signal clk_sys_rst : std_logic := '0';
+  signal clk_dac_rst : std_logic := '0';
 
   signal clk_cache_delay : std_logic := '0';
 
@@ -237,10 +237,11 @@ architecture behavioral of ipbus_bfm_tb is
   signal slow_ctrl_fifo_empty         : std_logic                     := '0';
   signal slow_ctrl_fifo_rd_dout       : std_logic_vector(31 downto 0) := (others => '0');
 
-  signal data_fifo_wr_clk : std_logic                     := '0';
-  signal data_fifo_wr_en  : std_logic                     := '0';
-  signal data_fifo_full   : std_logic                     := '0';
-  signal data_fifo_wr_din : std_logic_vector(31 downto 0) := (others => '0');
+  signal data_fifo_wr_clk      : std_logic                     := '0';
+  signal data_fifo_wr_en       : std_logic                     := '0';
+  signal data_fifo_full        : std_logic                     := '0';
+  signal data_fifo_almost_full : std_logic                     := '0';
+  signal data_fifo_wr_din      : std_logic_vector(31 downto 0) := (others => '0');
 
   signal clk_cache     : std_logic;
   signal start_cache   : std_logic;
@@ -269,8 +270,8 @@ architecture behavioral of ipbus_bfm_tb is
   signal spi_trans_end : std_logic;
 
   -- data readout
-  signal frame_num      : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0) := (others => '0');
-  signal row_num        : std_logic_vector(ROW_WIDTH-1 downto 0)       := (others => '0');
+  signal frame_num : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0) := (others => '0');
+  signal row_num   : std_logic_vector(ROW_WIDTH-1 downto 0)       := (others => '0');
 
   signal VALID_IN : std_logic_vector(SECTOR_NUM-1 downto 0) := (others => '0');
   signal DATA_IN  : std_logic_vector(7 downto 0)            := (others => '0');
@@ -324,15 +325,15 @@ begin
 
   jadepix_clocks : entity work.jadepix_clock_gen
     port map(
-      sysclk        => sysclk,
-      clk_ref       => REFCLK,
-      clk_dac       => DACCLK,
-      clk_sys       => clk_sys,
-      clk_rx        => clk_rx,
-      clk_dac_rst   => clk_dac_rst,
-      clk_ref_rst   => clk_ref_rst,
-      clk_sys_rst   => clk_sys_rst,
-      locked        => locked_jadepix_mmcm
+      sysclk      => sysclk,
+      clk_ref     => REFCLK,
+      clk_dac     => DACCLK,
+      clk_sys     => clk_sys,
+      clk_rx      => clk_rx,
+      clk_dac_rst => clk_dac_rst,
+      clk_ref_rst => clk_ref_rst,
+      clk_sys_rst => clk_sys_rst,
+      locked      => locked_jadepix_mmcm
       );
 
 
@@ -417,6 +418,7 @@ begin
       data_fifo_wr_clk       => data_fifo_wr_clk,
       data_fifo_wr_en        => data_fifo_wr_en,
       data_fifo_full         => data_fifo_full,
+      data_fifo_almost_full  => data_fifo_almost_full,
       data_fifo_wr_din       => data_fifo_wr_din,
 
       -- SPI master
@@ -506,28 +508,29 @@ begin
       clk => clk_sys,
       rst => clk_sys_rst,
 
-	  clk_rx => clk_rx,
+      clk_rx => clk_rx,
 
       start_cache     => start_cache,
       clk_cache       => clk_cache,
       clk_cache_delay => clk_cache_delay,
       is_busy_cache   => is_busy_cache,
 
-      frame_num      => rs_frame_cnt,
-      row            => row_num,
+      frame_num => rs_frame_cnt,
+      row       => row_num,
 
       VALID_IN => VALID_IN,
       DATA_IN  => DATA_IN,
 
-      FIFO_READ_EN     => FIFO_READ_EN,
-      BLK_SELECT       => BLK_SELECT,
-      INQUIRY          => INQUIRY,
+      FIFO_READ_EN          => FIFO_READ_EN,
+      BLK_SELECT            => BLK_SELECT,
+      INQUIRY               => INQUIRY,
       -- DATA FIFO
-      data_fifo_rst    => data_fifo_rst,
-      data_fifo_wr_clk => data_fifo_wr_clk,
-      data_fifo_wr_en  => data_fifo_wr_en,
-      data_fifo_wr_din => data_fifo_wr_din,
-      data_fifo_full   => data_fifo_full
+      data_fifo_rst         => data_fifo_rst,
+      data_fifo_wr_clk      => data_fifo_wr_clk,
+      data_fifo_wr_en       => data_fifo_wr_en,
+      data_fifo_wr_din      => data_fifo_wr_din,
+      data_fifo_full        => data_fifo_full,
+      data_fifo_almost_full => data_fifo_almost_full
       );
 
   -- Instantiate the IPbus transactor wrapper. It is necessary.
@@ -540,8 +543,8 @@ begin
       );
 
   main : process
-	variable RV : RandomPType ;
-    variable RV_SLV : std_logic_vector(7 downto 0) ;
+    variable RV     : RandomPType;
+    variable RV_SLV : std_logic_vector(7 downto 0);
   begin
     wait for 2*CLK_IPB_PERIOD;
 
@@ -565,12 +568,12 @@ begin
 
     wait for 5*CLK_IPB_PERIOD;
 /*
-    ipbus_transact(hitmap_transaction,
-                   response_transaction,
-                   ipbus_transactor_inputs,
-                   ipbus_transactor_outputs,
-                   clk_ipb);
-*/
+      ipbus_transact(hitmap_transaction,
+                     response_transaction,
+                     ipbus_transactor_inputs,
+                     ipbus_transactor_outputs,
+                     clk_ipb);
+    */
 
     wait for 5*CLK_IPB_PERIOD;
     ipbus_transact(frame_num_transaction,
@@ -661,46 +664,46 @@ begin
     --check_value(ipb_control_regs(3), X"00000003", FAILURE,
     --            "Checking read/modify/write sum transaction.");
 
-	--RV.InitSeed (RV'instance_name) ;
-	--RV_SLV := RV.RandSlv(0, 255, 8) ;
-	--DATA_IN <= RV_SLV;
+    --RV.InitSeed (RV'instance_name) ;
+    --RV_SLV := RV.RandSlv(0, 255, 8) ;
+    --DATA_IN <= RV_SLV;
 
     --wait for 15*SYS_CLK_PERIOD;
     ---- channel 0
     --gen_valid(clk_cache, 0.2, 6, 0, VALID_IN);
-	--
-	--RV_SLV := RV.RandSlv(0, 255, 8) ;
-	--DATA_IN <= RV_SLV;
+    --
+    --RV_SLV := RV.RandSlv(0, 255, 8) ;
+    --DATA_IN <= RV_SLV;
     --gen_valid(clk_cache, 0.1, 12, 0, VALID_IN);
 
-	--RV_SLV := RV.RandSlv(0, 255, 8) ;
-	--DATA_IN <= RV_SLV;
+    --RV_SLV := RV.RandSlv(0, 255, 8) ;
+    --DATA_IN <= RV_SLV;
     --gen_valid(clk_cache, 0.1, 16, 0, VALID_IN);
 
-	--RV_SLV := RV.RandSlv(0, 255, 8) ;
-	--DATA_IN <= RV_SLV;
+    --RV_SLV := RV.RandSlv(0, 255, 8) ;
+    --DATA_IN <= RV_SLV;
     --gen_valid(clk_cache, 0.1, 16, 0, VALID_IN);
 
-	--RV_SLV := RV.RandSlv(0, 255, 8) ;
-	--DATA_IN <= RV_SLV;
+    --RV_SLV := RV.RandSlv(0, 255, 8) ;
+    --DATA_IN <= RV_SLV;
     --gen_valid(clk_cache, 0.2, 14, 0, VALID_IN);
 
     ---- channel 1
-	--RV_SLV := RV.RandSlv(0, 255, 8) ;
-	--DATA_IN <= RV_SLV;
+    --RV_SLV := RV.RandSlv(0, 255, 8) ;
+    --DATA_IN <= RV_SLV;
     --gen_valid(clk_cache, 0.3, 14, 1, VALID_IN);
 
 
-	VALID_IN <= "1100";
-	DATA_IN <= 8X"FF";
+    VALID_IN <= (others => clk_cache);
+    DATA_IN  <= 8X"FF";
 
     wait for 15*CLK_IPB_PERIOD;
-	wait on clk_cache until clk_cache = '1';
-	wait for 0.1*SYS_PERIOD;
+    wait on clk_cache until clk_cache = '1';
+    wait for 0.1*SYS_PERIOD;
     wait on rs_busy until rs_busy = '0';
     wait for 15*CLK_IPB_PERIOD;
 
-	
+
     ipbus_transact(read_rfifo_len,
                    response_transaction,
                    ipbus_transactor_inputs,

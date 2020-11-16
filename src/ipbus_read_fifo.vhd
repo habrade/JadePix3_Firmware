@@ -58,11 +58,12 @@ entity ipbus_read_fifo is
     ipbus_out : out ipb_rbus;
 
     --read  FIFO
-    rfifo_wr_clk : in  std_logic;
-    rfifo_wr_en  : in  std_logic;
-    rfifo_wr_din : in  std_logic_vector(31 downto 0);
-    rfifo_full   : out std_logic;
-    debug        : out std_logic
+    rfifo_wr_clk      : in  std_logic;
+    rfifo_wr_en       : in  std_logic;
+    rfifo_wr_din      : in  std_logic_vector(31 downto 0);
+    rfifo_full        : out std_logic;
+    rfifo_almost_full : out std_logic;
+    debug             : out std_logic
     );
 
 end ipbus_read_fifo;
@@ -81,6 +82,7 @@ architecture rtl of ipbus_read_fifo is
       rd_en         : in  std_logic;
       dout          : out std_logic_vector(31 downto 0);
       full          : out std_logic;
+      almost_full   : out std_logic;
       empty         : out std_logic;
       valid         : out std_logic;
       rd_data_count : out std_logic_vector(RDFIFO_ADD_NUM downto 0);
@@ -219,6 +221,7 @@ begin
       rd_en         => rd_en,
       dout          => rd_din,
       full          => rfifo_full,
+      almost_full   => rfifo_almost_full,
       empty         => empty,
       valid         => valid,
       rd_data_count => rd_data_count

@@ -24,7 +24,7 @@ use IEEE.STD_LOGIC_1164.all;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+use IEEE.NUMERIC_STD.all;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx leaf cells in this code.
@@ -102,7 +102,11 @@ entity ipbus_jadepix_device is
     data_fifo_wr_clk       : in  std_logic;
     data_fifo_wr_en        : in  std_logic;
     data_fifo_wr_din       : in  std_logic_vector(31 downto 0);
-    data_fifo_full         : out std_logic
+    data_fifo_full         : out std_logic;
+    data_fifo_almost_full  : out std_logic;
+
+    -- Test pattern
+    valid_len : out integer range 0 to 16
     );
 end ipbus_jadepix_device;
 
@@ -119,8 +123,8 @@ architecture behv of ipbus_jadepix_device is
   signal stat_reg_stb, stat_reg_stb_r : std_logic_vector(N_STAT-1 downto 0);
 
   --IPbus slave fifo
-  signal rfifo_wr_din                          : std_logic_vector(32*integer_max(N_RFIFO, 1)-1 downto 0);
-  signal rfifo_wr_clk, rfifo_wr_en, rfifo_full : std_logic_vector(integer_max(N_RFIFO, 1)-1 downto 0);
+  signal rfifo_wr_din                                             : std_logic_vector(32*integer_max(N_RFIFO, 1)-1 downto 0);
+  signal rfifo_wr_clk, rfifo_wr_en, rfifo_full, rfifo_almost_full : std_logic_vector(integer_max(N_RFIFO, 1)-1 downto 0);
 
   signal wfifo_rd_clk, wfifo_rd_en, wfifo_valid, wfifo_empty : std_logic_vector(integer_max(N_WFIFO, 1)-1 downto 0);
   signal wfifo_rd_dout                                       : std_logic_vector(32*integer_max(N_WFIFO, 1)-1 downto 0);
@@ -131,7 +135,7 @@ architecture behv of ipbus_jadepix_device is
   signal cache_bit_set_tmp : std_logic_vector(3 downto 0);
   signal hitmap_en_tmp     : std_logic;
   signal load_tmp          : std_logic;
-  
+
   signal rst_rfifo : std_logic := '0';
 
   -- IPbus drp
@@ -164,8 +168,9 @@ begin
   rfifo_wr_clk(RFIFO_ADDR_DATA_FIFO)                                         <= data_fifo_wr_clk;
   rfifo_wr_en(RFIFO_ADDR_DATA_FIFO)                                          <= data_fifo_wr_en;
   data_fifo_full                                                             <= rfifo_full(RFIFO_ADDR_DATA_FIFO);
+  data_fifo_almost_full                                                      <= rfifo_almost_full(RFIFO_ADDR_DATA_FIFO);
   rfifo_wr_din((RFIFO_ADDR_DATA_FIFO+1)*32-1 downto RFIFO_ADDR_DATA_FIFO*32) <= data_fifo_wr_din;
-  
+
   ipbus_slave_reg_fifo : entity work.ipbus_slave_reg_fifo
     generic map(
       SYNC_REG_ENA => SYNC_REG_ENA,
@@ -191,17 +196,18 @@ begin
       stat_reg_stb => open,
 
       -- FIFO
-      wfifo_rst     => ctrl_fifo_rst,
-      wfifo_rd_clk  => wfifo_rd_clk,
-      wfifo_rd_en   => wfifo_rd_en,
-      wfifo_valid   => wfifo_valid,
-      wfifo_empty   => wfifo_empty,
-      wfifo_rd_dout => wfifo_rd_dout,
-      rfifo_rst     => data_fifo_rst or rst_rfifo,
-      rfifo_wr_clk  => rfifo_wr_clk,
-      rfifo_wr_en   => rfifo_wr_en,
-      rfifo_full    => rfifo_full,
-      rfifo_wr_din  => rfifo_wr_din
+      wfifo_rst         => ctrl_fifo_rst,
+      wfifo_rd_clk      => wfifo_rd_clk,
+      wfifo_rd_en       => wfifo_rd_en,
+      wfifo_valid       => wfifo_valid,
+      wfifo_empty       => wfifo_empty,
+      wfifo_rd_dout     => wfifo_rd_dout,
+      rfifo_rst         => data_fifo_rst or rst_rfifo,
+      rfifo_wr_clk      => rfifo_wr_clk,
+      rfifo_wr_en       => rfifo_wr_en,
+      rfifo_full        => rfifo_full,
+      rfifo_almost_full => rfifo_almost_full,
+      rfifo_wr_din      => rfifo_wr_din
       );
 
   -- control
@@ -239,8 +245,10 @@ begin
       gs_pulse_width_cnt_high <= ctrl(6)(1 downto 0);
       gs_pulse_deassert_cnt   <= ctrl(7)(8 downto 0);
       gs_deassert_cnt         <= ctrl(8)(8 downto 0);
-      
-      rst_rfifo               <= ctrl(9)(0);
+
+      rst_rfifo <= ctrl(9)(0);
+
+      valid_len <= to_integer(unsigned(ctrl(9)(4 downto 1)));
 
 
       ctrl_reg_stb_r <= ctrl_reg_stb;

@@ -49,8 +49,8 @@ entity ipbus_payload is
     hitmap_en       : out std_logic;
     hitmap_num      : out std_logic_vector(3 downto 0);
 
-    rs_busy             : in  std_logic;
-    rs_start            : out std_logic;
+    rs_busy          : in  std_logic;
+    rs_start         : out std_logic;
     rs_frame_num_set : out std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
 
     gs_start      : out std_logic;
@@ -74,25 +74,29 @@ entity ipbus_payload is
     spi_trans_end : out std_logic;
 
     PDB : out std_logic;
-    
-		-- FIFO
-		ctrl_fifo_rst               : in  std_logic;
-		slow_ctrl_fifo_rd_clk       : in  std_logic;
-		slow_ctrl_fifo_rd_en        : in  std_logic;
-		slow_ctrl_fifo_valid        : out std_logic;
-		slow_ctrl_fifo_empty        : out std_logic;
-		slow_ctrl_fifo_rd_dout      : out std_logic_vector(31 downto 0);
-		data_fifo_rst               : in  std_logic;
-		data_fifo_wr_clk            : in  std_logic;
-		data_fifo_wr_en             : in  std_logic;
-		data_fifo_wr_din            : in  std_logic_vector(31 downto 0);
-		data_fifo_full              : out std_logic;
+
+    -- FIFO
+    ctrl_fifo_rst          : in  std_logic;
+    slow_ctrl_fifo_rd_clk  : in  std_logic;
+    slow_ctrl_fifo_rd_en   : in  std_logic;
+    slow_ctrl_fifo_valid   : out std_logic;
+    slow_ctrl_fifo_empty   : out std_logic;
+    slow_ctrl_fifo_rd_dout : out std_logic_vector(31 downto 0);
+    data_fifo_rst          : in  std_logic;
+    data_fifo_wr_clk       : in  std_logic;
+    data_fifo_wr_en        : in  std_logic;
+    data_fifo_wr_din       : in  std_logic_vector(31 downto 0);
+    data_fifo_full         : out std_logic;
+    data_fifo_almost_full  : out std_logic;
 
     -- SPI Master
     ss   : out std_logic_vector(N_SS - 1 downto 0);
     mosi : out std_logic;
     miso : in  std_logic;
-    sclk : out std_logic
+    sclk : out std_logic;
+
+    valid_len : out integer range 0 to 16
+
     );
 
 end ipbus_payload;
@@ -102,8 +106,8 @@ architecture rtl of ipbus_payload is
   signal ipbw : ipb_wbus_array(N_SLAVES - 1 downto 0);
   signal ipbr : ipb_rbus_array(N_SLAVES - 1 downto 0);
 
-  signal spi_rst  : std_logic;  -- from ipbus control module
-  signal rst_spi  : std_logic;  -- to SPI module
+  signal spi_rst  : std_logic;          -- from ipbus control module
+  signal rst_spi  : std_logic;          -- to SPI module
   signal spi_busy : std_logic;
 
 begin
@@ -146,7 +150,7 @@ begin
       );
 
 
-	rst_spi <= spi_rst or ipb_rst;
+  rst_spi <= spi_rst or ipb_rst;
   slave2 : entity work.ipbus_spi
     generic map(
       N_SS => N_SS
@@ -193,8 +197,8 @@ begin
       hitmap_en       => hitmap_en,
       hitmap_num      => hitmap_num,
 
-      rs_busy             => rs_busy,
-      rs_start            => rs_start,
+      rs_busy          => rs_busy,
+      rs_start         => rs_start,
       rs_frame_num_set => rs_frame_num_set,
 
       gs_sel_pulse => gs_sel_pulse,
@@ -218,19 +222,22 @@ begin
       load_soft      => load_soft,
 
       PDB => PDB,
-      
-			--FIFO
-			ctrl_fifo_rst               => ctrl_fifo_rst,
-			slow_ctrl_fifo_rd_clk       => slow_ctrl_fifo_rd_clk,
-			slow_ctrl_fifo_rd_en        => slow_ctrl_fifo_rd_en,
-			slow_ctrl_fifo_valid        => slow_ctrl_fifo_valid,
-			slow_ctrl_fifo_empty        => slow_ctrl_fifo_empty,
-			slow_ctrl_fifo_rd_dout      => slow_ctrl_fifo_rd_dout,
-			data_fifo_rst               => data_fifo_rst,
-			data_fifo_wr_clk            => data_fifo_wr_clk,
-			data_fifo_wr_en             => data_fifo_wr_en,
-			data_fifo_full              => data_fifo_full,
-			data_fifo_wr_din            => data_fifo_wr_din
+
+      --FIFO
+      ctrl_fifo_rst          => ctrl_fifo_rst,
+      slow_ctrl_fifo_rd_clk  => slow_ctrl_fifo_rd_clk,
+      slow_ctrl_fifo_rd_en   => slow_ctrl_fifo_rd_en,
+      slow_ctrl_fifo_valid   => slow_ctrl_fifo_valid,
+      slow_ctrl_fifo_empty   => slow_ctrl_fifo_empty,
+      slow_ctrl_fifo_rd_dout => slow_ctrl_fifo_rd_dout,
+      data_fifo_rst          => data_fifo_rst,
+      data_fifo_wr_clk       => data_fifo_wr_clk,
+      data_fifo_wr_en        => data_fifo_wr_en,
+      data_fifo_full         => data_fifo_full,
+      data_fifo_almost_full  => data_fifo_almost_full,
+      data_fifo_wr_din       => data_fifo_wr_din,
+
+      valid_len => valid_len
 
       );
 

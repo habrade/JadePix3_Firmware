@@ -67,11 +67,12 @@ entity ipbus_slave_reg_fifo is
     wfifo_rd_dout : out std_logic_vector(32*integer_max(N_WFIFO, 1)-1 downto 0) := (others => '0');
 
     --for read  FIFO
-    rfifo_rst    : in  std_logic                                               := '0';
-    rfifo_wr_clk : in  std_logic_vector(integer_max(N_RFIFO, 1)-1 downto 0)    := (others => '0');
-    rfifo_wr_en  : in  std_logic_vector(integer_max(N_RFIFO, 1)-1 downto 0)    := (others => '0');
-		rfifo_wr_din : in  std_logic_vector(32*integer_max(N_RFIFO, 1)-1 downto 0) := (others => '0');
-    rfifo_full   : out std_logic_vector(integer_max(N_RFIFO, 1)-1 downto 0)    := (others => '0');
+    rfifo_rst         : in  std_logic                                               := '0';
+    rfifo_wr_clk      : in  std_logic_vector(integer_max(N_RFIFO, 1)-1 downto 0)    := (others => '0');
+    rfifo_wr_en       : in  std_logic_vector(integer_max(N_RFIFO, 1)-1 downto 0)    := (others => '0');
+    rfifo_wr_din      : in  std_logic_vector(32*integer_max(N_RFIFO, 1)-1 downto 0) := (others => '0');
+    rfifo_full        : out std_logic_vector(integer_max(N_RFIFO, 1)-1 downto 0)    := (others => '0');
+    rfifo_almost_full : out std_logic_vector(integer_max(N_RFIFO, 1)-1 downto 0)    := (others => '0');
 
     debug : out std_logic_vector(N_WFIFO+N_RFIFO+7 downto 0)
     );
@@ -181,11 +182,12 @@ begin
           ipbus_in  => ipbw(REG_NSLV+N_WFIFO+i),
           ipbus_out => ipbr(REG_NSLV+N_WFIFO+i),
 
-          rfifo_wr_clk => rfifo_wr_clk(i),
-          rfifo_wr_en  => rfifo_wr_en(i),
-          rfifo_full   => rfifo_full(i),
-          rfifo_wr_din => rfifo_wr_din(32*(i+1)-1 downto 32*i),
-          debug        => debug(i+N_WFIFO+8)
+          rfifo_wr_clk      => rfifo_wr_clk(i),
+          rfifo_wr_en       => rfifo_wr_en(i),
+          rfifo_full        => rfifo_full(i),
+          rfifo_almost_full => rfifo_almost_full(i),
+          rfifo_wr_din      => rfifo_wr_din(32*(i+1)-1 downto 32*i),
+          debug             => debug(i+N_WFIFO+8)
           );
     end generate;
   end generate;

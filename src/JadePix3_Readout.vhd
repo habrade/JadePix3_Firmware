@@ -34,7 +34,7 @@ entity JadePix3_Readout is port(
   DATA_IN      : in  std_logic_vector(7 downto 0);
   --MATRIX_DIN : in std_logic_vector(15 downto 0);
 
-  -- SDRAM
+--  -- SDRAM
 --  ddr3_dq    : inout std_logic_vector(63 downto 0);
 --  ddr3_dqs_p : inout std_logic_vector(7 downto 0);
 --  ddr3_dqs_n : inout std_logic_vector(7 downto 0);
@@ -61,10 +61,10 @@ entity JadePix3_Readout is port(
 --  DAC_BUSY : out std_logic
 
   -- JadePix3
-  REFCLK        : out std_logic;
-  CACHE_CLK     : out std_logic;
-  RX_CLK        : out std_logic;
-  
+  REFCLK    : out std_logic;
+  CACHE_CLK : out std_logic;
+  RX_CLK    : out std_logic;
+
 --  LVDS_RX_OUT_P : out std_logic;
 --  LVDS_RX_OUT_N : out std_logic;
 
@@ -186,10 +186,11 @@ architecture rtl of JadePix3_Readout is
   signal slow_ctrl_fifo_empty         : std_logic;
   signal slow_ctrl_fifo_rd_dout       : std_logic_vector(31 downto 0);
 
-  signal data_fifo_wr_clk : std_logic;
-  signal data_fifo_wr_en  : std_logic;
-  signal data_fifo_wr_din : std_logic_vector(31 downto 0);
-  signal data_fifo_full   : std_logic;
+  signal data_fifo_wr_clk      : std_logic;
+  signal data_fifo_wr_en       : std_logic;
+  signal data_fifo_wr_din      : std_logic_vector(31 downto 0);
+  signal data_fifo_full        : std_logic;
+  signal data_fifo_almost_full : std_logic;
 
   -- Readout
   signal clk_cache_delay : std_logic;
@@ -199,6 +200,11 @@ architecture rtl of JadePix3_Readout is
   -- SPI 
   signal load_soft     : std_logic;
   signal spi_trans_end : std_logic;
+
+
+  -- Generate valid signal for testing
+  signal valid_test : std_logic_vector(3 downto 0);
+  signal valid_len  : integer range 0 to 16 := 0;
 
 begin
 
@@ -212,15 +218,15 @@ begin
       I => clk_cache                    -- Buffer input 
       );
 
-   OBUF_RX_CLK : OBUF
-   generic map (
-      DRIVE => 12,
+  OBUF_RX_CLK : OBUF
+    generic map (
+      DRIVE      => 12,
       IOSTANDARD => "DEFAULT",
-      SLEW => "SLOW")
-   port map (
-      O => RX_CLK,     -- Buffer output (connect directly to top-level port)
-      I => clk_rx      -- Buffer input 
-   );
+      SLEW       => "SLOW")
+    port map (
+      O => RX_CLK,  -- Buffer output (connect directly to top-level port)
+      I => clk_rx                       -- Buffer input 
+      );
 
 
   ibufgds0 : IBUFGDS port map(
@@ -361,6 +367,7 @@ begin
       data_fifo_wr_clk       => data_fifo_wr_clk,
       data_fifo_wr_en        => data_fifo_wr_en,
       data_fifo_full         => data_fifo_full,
+			data_fifo_almost_full  => data_fifo_almost_full,
       data_fifo_wr_din       => data_fifo_wr_din,
 
       -- SPI master
@@ -459,24 +466,27 @@ begin
   DPLSE     <= dplse_gs and dplse_soft;
 
   RA <= row_num;
-  
-	rd_data_rst <= rs_start or gs_start or clk_sys_rst; -- when start rolling shutter or global shutter, reset data readout
+
+
+  valid_test  <= (others => clk_cache);
+  rd_data_rst <= rs_start or gs_start or clk_sys_rst;  -- when start rolling shutter or global shutter, reset data readout
   jadepix_read_data : entity work.jadepix_read_data
     port map(
       clk => clk_sys,
       rst => rd_data_rst,
-			
-			clk_rx => clk_rx,
-			
+
+      clk_rx => clk_rx,
+
       start_cache     => start_cache,
       clk_cache       => clk_cache,
       clk_cache_delay => clk_cache_delay,
-			is_busy_cache   => is_busy_cache,
+      is_busy_cache   => is_busy_cache,
 
       frame_num => rs_frame_cnt,
       row       => row_num,
 
-      VALID_IN => "1100", -- for test
+      VALID_IN => valid_test,           -- for test
+--      VALID_IN => "1100", -- for test
       DATA_IN  => 8X"FF",
 
       FIFO_READ_EN => FIFO_READ_EN,
@@ -484,59 +494,15 @@ begin
 --      INQUIRY      => INQUIRY,
 
       -- DATA FIFO
-      data_fifo_rst    => data_fifo_rst,
-      data_fifo_wr_clk => data_fifo_wr_clk,
-      data_fifo_wr_en  => data_fifo_wr_en,
-      data_fifo_wr_din => data_fifo_wr_din,
-      data_fifo_full   => data_fifo_full
+      data_fifo_rst         => data_fifo_rst,
+      data_fifo_wr_clk      => data_fifo_wr_clk,
+      data_fifo_wr_en       => data_fifo_wr_en,
+      data_fifo_wr_din      => data_fifo_wr_din,
+      data_fifo_full        => data_fifo_full,
+      data_fifo_almost_full => data_fifo_almost_full
       );
 
 
---  u_mig_7series_0 : entity work.mig_7series_0_1
---    port map (
---      -- Memory interface ports
---      ddr3_addr           => ddr3_addr,
---      ddr3_ba             => ddr3_ba,
---      ddr3_cas_n          => ddr3_cas_n,
---      ddr3_ck_n           => ddr3_ck_n,
---      ddr3_ck_p           => ddr3_ck_p,
---      ddr3_cke            => ddr3_cke,
---      ddr3_ras_n          => ddr3_ras_n,
---      ddr3_reset_n        => ddr3_reset_n,
---      ddr3_we_n           => ddr3_we_n,
---      ddr3_dq             => ddr3_dq,
---      ddr3_dqs_n          => ddr3_dqs_n,
---      ddr3_dqs_p          => ddr3_dqs_p,
---      init_calib_complete => init_calib_complete,
---      ddr3_cs_n           => ddr3_cs_n,
---      ddr3_dm             => ddr3_dm,
---      ddr3_odt            => ddr3_odt,
---      -- Application interface ports
---      app_addr            => app_addr,
---      app_cmd             => app_cmd,
---      app_en              => app_en,
---      app_wdf_data        => app_wdf_data,
---      app_wdf_end         => app_wdf_end,
---      app_wdf_wren        => app_wdf_wren,
---      app_rd_data         => app_rd_data,
---      app_rd_data_end     => app_rd_data_end,
---      app_rd_data_valid   => app_rd_data_valid,
---      app_rdy             => app_rdy,
---      app_wdf_rdy         => app_wdf_rdy,
---      app_sr_req          => app_sr_req,
---      app_ref_req         => app_ref_req,
---      app_zq_req          => app_zq_req,
---      app_sr_active       => app_sr_active,
---      app_ref_ack         => app_ref_ack,
---      app_zq_ack          => app_zq_ack,
---      ui_clk              => ui_clk,
---      ui_clk_sync_rst     => ui_clk_sync_rst,
---      app_wdf_mask        => app_wdf_mask,
---      -- System Clock Ports
---      sys_clk_p           => sysclk_p,
---      sys_clk_n           => sysclk_n,
---      device_temp_i       => device_temp_i,
---      sys_rst             => open
---      );
+  
 
 end rtl;
