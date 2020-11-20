@@ -92,7 +92,7 @@ architecture rtl of ipbus_read_fifo is
 
 
 
-  constant DUMMY_DATA    : std_logic_vector(31 downto 0) := X"00000000";
+  constant DUMMY_DATA    : std_logic_vector(31 downto 0) := X"FFFFFFFF";
   constant TIMEOUT_COUNT : integer                       := 32;
 
   signal ipb_rd_ack, rd_addr_match   : std_logic;
