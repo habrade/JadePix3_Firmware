@@ -273,12 +273,17 @@ architecture behavioral of ipbus_bfm_tb is
   signal frame_num : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0) := (others => '0');
   signal row_num   : std_logic_vector(ROW_WIDTH-1 downto 0)       := (others => '0');
 
+  signal rd_data_rst : std_logic := '0';
+
   signal VALID_IN : std_logic_vector(SECTOR_NUM-1 downto 0) := (others => '0');
   signal DATA_IN  : std_logic_vector(7 downto 0)            := (others => '0');
 
   signal FIFO_READ_EN : std_logic;
   signal BLK_SELECT   : std_logic_vector(BLK_SELECT_WIDTH-1 downto 0) := "00";
   signal INQUIRY      : std_logic_vector(BLK_SELECT_WIDTH-1 downto 0) := "00";
+
+  -- for test
+  signal test_data_in : unsigned(7 downto 0) := (others => '0');
 
   constant SYS_PERIOD : time := 12 ns;
   procedure gen_valid(
@@ -502,6 +507,8 @@ begin
 
   RA <= row_num;
 
+  VALID_IN    <= (others => clk_cache);
+  rd_data_rst <= rs_start or gs_start or clk_sys_rst;  -- when start rolling shutter or global shutter, reset data readout
   jadepix_read_data : entity work.jadepix_read_data
     port map(
 
@@ -519,7 +526,7 @@ begin
       row       => row_num,
 
       VALID_IN => VALID_IN,
-      DATA_IN  => DATA_IN,
+      DATA_IN  => std_logic_vector(test_data_in),
 
       FIFO_READ_EN          => FIFO_READ_EN,
       BLK_SELECT            => BLK_SELECT,
@@ -694,8 +701,6 @@ begin
     --gen_valid(clk_cache, 0.3, 14, 1, VALID_IN);
 
 
-    VALID_IN <= (others => clk_cache);
-    DATA_IN  <= 8X"FF";
 
     wait for 15*CLK_IPB_PERIOD;
     wait on clk_cache until clk_cache = '1';
@@ -714,5 +719,19 @@ begin
 
     std.env.stop;
   end process;
+
+  gen_test : process(all)
+    variable cnt : integer range 0 to 1 := 0;
+  begin
+    if ?? rd_data_rst then
+      test_data_in <= 8X"FF";
+    elsif rising_edge(clk_rx) then
+      if ?? clk_cache then
+        test_data_in <= test_data_in + cnt;
+      end if;
+      cnt := (cnt + 1) rem 2;
+    end if;
+  end process;
+
 
 end behavioral;
