@@ -44,13 +44,13 @@ entity ipbus_ctrl is
 		IP_CFG: ipb_ip_cfg := EXTERNAL;
 -- Number of address bits to select RX or TX buffer in UDP I/F
 -- Number of RX and TX buffers is 2**BUFWIDTH
-		BUFWIDTH: natural := 4;
+		BUFWIDTH: natural := 6;
 -- Numer of address bits to select internal buffer in UDP I/F
 -- Number of internal buffers is 2**INTERNALWIDTH
 		INTERNALWIDTH: natural := 1;
 -- Number of address bits within each buffer in UDP I/F
 -- Size of each buffer is 2**ADDRWIDTH
-		ADDRWIDTH: natural := 11;
+		ADDRWIDTH: natural := 13;
 -- UDP port for IPbus traffic in this instance of UDP I/F
 		IPBUSPORT: std_logic_vector(15 DOWNTO 0) := x"C351";
 -- Flag whether this UDP I/F instance ignores everything except IPBus traffic

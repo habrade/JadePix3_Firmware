@@ -1,5 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
+use IEEE.NUMERIC_STD.ALL;
 
 library UNISIM;
 use UNISIM.vcomponents.all;
@@ -205,6 +206,11 @@ architecture rtl of JadePix3_Readout is
   -- Generate valid signal for testing
   signal valid_test : std_logic_vector(3 downto 0);
   signal valid_len  : integer range 0 to 16 := 0;
+  
+  
+  -- for test
+--  signal test_data_in_16 : unsigned(15 downto 0);
+--  signal test_data_in_8  : unsigned(7 downto 0);
 
 begin
 
@@ -503,6 +509,21 @@ begin
       );
 
 
-  
+--	gen_test: process(all)
+--	variable cnt : integer range 0 to 1 := 0;
+--	begin
+--		if ?? rd_data_rst then
+--			test_data_in_16 <= 16X"FFFF";
+--		elsif rising_edge(clk_rx) then
+			
+--			if ?? clk_cache then
+--				test_data_in_16 <= test_data_in_16 + 1;
+--			end if;
+			
+--			cnt := (cnt + 1) rem 2;
+			
+--		end if;
+--	end process;
+
 
 end rtl;

@@ -154,6 +154,11 @@ architecture behv of ipbus_jadepix_device is
   attribute mark_debug of spi_rst         : signal is "true";
   attribute mark_debug of spi_busy        : signal is "true";
 
+  attribute mark_debug of rfifo_full        : signal is "true";
+  attribute mark_debug of rfifo_wr_en       : signal is "true";
+  attribute mark_debug of rfifo_almost_full : signal is "true";
+  attribute mark_debug of rfifo_wr_din      : signal is "true";
+
 begin
   --------------------------------------------------------------
   -- fifo signals and registers
