@@ -39,7 +39,7 @@ entity jadepix_read_data is
     clk : in std_logic;
     rst : in std_logic;
 
-    clk_rx : in std_logic;
+    clk_fpga : in std_logic;
 
     start_cache     : in std_logic;
     clk_cache       : in std_logic;
@@ -71,8 +71,8 @@ end jadepix_read_data;
 
 architecture behv of jadepix_read_data is
 --  signal fifo_read_en_reg : std_logic;
-  signal fifo_read_en_v : std_logic_vector(SECTOR_NUM-1 downto 0);
-  signal blk_select_reg : std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
+  signal fifo_read_en_v  : std_logic_vector(SECTOR_NUM-1 downto 0);
+  signal blk_select_obuf : std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
 
   signal sector_counters_v : sector_counters_v (SECTOR_NUM-1 downto 0);
   signal fifo_status_v     : sector_status_v (SECTOR_NUM-1 downto 0)(BLK_SELECT_WIDTH-1 downto 0);
@@ -122,7 +122,7 @@ begin
 
   INQUIRY <= 2b"00";
 
-  BLK_SELECT  <= blk_select_reg;
+  BLK_SELECT  <= blk_select_obuf;
 --  FIFO_READ_EN <= fifo_read_en_reg;
   buffer_w_en <= clk_cache_delay;
 
@@ -133,7 +133,7 @@ begin
 
       fifo_read_en_v    => fifo_read_en_v,
       sector_counters_v => sector_counters_v,
-      blk_select        => blk_select_reg,
+      blk_select        => blk_select_obuf,
       fifo_read_en      => FIFO_READ_EN,
       fifo_data_valid   => fifo_data_valid,
       fifo_oc           => fifo_oc,
@@ -145,7 +145,7 @@ begin
       clk => clk,
       rst => rst,
 
-      clk_rx => clk_rx,
+      clk_fpga => clk_fpga,
 
       start_cache       => start_cache,
       clk_cache         => clk_cache,
@@ -198,7 +198,7 @@ begin
       buffer_fill_count => buffer_fill_count,
 
       fifo_read_en_v => fifo_read_en_v,
-      blk_select     => blk_select_reg,
+      blk_select     => blk_select_obuf,
 
 --      read_frame_start => read_frame_start,
 --      read_frame_stop  => read_frame_stop,

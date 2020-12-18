@@ -38,7 +38,7 @@ entity jadepix_fifo_monitor is
     clk : in std_logic;
     rst : in std_logic;
 
-    clk_rx : in std_logic;
+    clk_fpga : in std_logic;
 
     start_cache   : in std_logic;
     clk_cache     : in std_logic;
@@ -116,7 +116,7 @@ begin
   begin
     if ?? rst then
       state_reg <= INITIAL;
-    elsif rising_edge(clk_rx) then
+    elsif rising_edge(clk_fpga) then
       state_reg <= state_next;
     end if;
   end process;
@@ -156,19 +156,19 @@ begin
 
   process(all)
   begin
-    if rising_edge(clk_rx) then
+    if rising_edge(clk_fpga) then
       case(state_next) is
         when INITIAL =>
-          valid_cnt <= 0;
+          valid_cnt    <= 0;
           overflow_cnt <= 0;
-          fifo_cnt  <= 0;
+          fifo_cnt     <= 0;
 
         when IDLE =>
           valid_cnt <= 0;
-          
-					if ?? clk_cache then
+
+          if ?? clk_cache then
             overflow_cnt <= 0;
-         	end if;
+          end if;
 
         when W_FIFO =>
           if ?? clk_cache then
@@ -180,10 +180,10 @@ begin
           if fifo_cnt < FIFO_DEPTH then
             fifo_cnt <= fifo_cnt + 1;
           end if;
-        
-					if ?? clk_cache then
+
+          if ?? clk_cache then
             overflow_cnt <= 0;
-         	end if;
+          end if;
 
         when WR_FIFO =>
           if ?? clk_cache then
@@ -191,21 +191,21 @@ begin
           else
             valid_cnt <= (valid_cnt rem VALID_MAX) + 1;
           end if;
-				
-					if ?? clk_cache then
+
+          if ?? clk_cache then
             overflow_cnt <= 0;
-         	end if;
-          
+          end if;
+
         when R_FIFO =>
           valid_cnt     <= 0;
           fifo_read_cnt <= (fifo_read_cnt + 1) rem 2;
           if fifo_cnt > 0 and fifo_read_cnt = 1 then
             fifo_cnt <= fifo_cnt - 1;
           end if;
-          
-					if ?? clk_cache then
+
+          if ?? clk_cache then
             overflow_cnt <= 0;
-         	end if;
+          end if;
 
         when FIFO_OVERFLOW =>
           valid_cnt <= 0;
@@ -239,7 +239,7 @@ begin
   get_valid_cnt_max : process(all)
   begin
 
-    if clk_cache and clk_rx then
+    if clk_cache and clk_fpga then
       valid_num    <= 0;
       overflow_num <= 0;
     else

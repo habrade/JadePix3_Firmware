@@ -39,7 +39,7 @@ entity fifo_monitor_wrapper is
     clk : in std_logic;
     rst : in std_logic;
 
-    clk_rx : in std_logic;
+    clk_fpga : in std_logic;
 
     start_cache   : in std_logic;
     clk_cache     : in std_logic;
@@ -62,7 +62,7 @@ begin
       port map(
         clk           => clk,
         rst           => rst,
-        clk_rx        => clk_rx,
+        clk_fpga      => clk_fpga,
         clk_cache     => clk_cache,
         start_cache   => start_cache,
         is_busy_cache => is_busy_cache,

@@ -214,102 +214,102 @@ begin
     if rising_edge(clk) then
       case(state_next) is
         when INITIAL =>
-          buffer_data_record <= DATA_FRAME_NULL;
+      buffer_data_record <= DATA_FRAME_NULL;
 
-        when IDLE =>
-          buffer_read_en   <= '0';
-          blk_select       <= "ZZ";
-          fifo_read_en_v   <= (others => '0');
+      when IDLE =>
+      buffer_read_en <= '0';
+      blk_select     <= "00";
+      fifo_read_en_v <= (others => '0');
 --          read_frame_start <= '0';
 --          read_frame_stop  <= '0';
 
-        when READ_BUFFER =>
-          buffer_read_en <= '1';
+      when READ_BUFFER =>
+      buffer_read_en <= '1';
 
-        when READ_ROW =>
-          buffer_read_en <= '0';
-          
+      when READ_ROW =>
+      buffer_read_en <= '0';
+
 --          read_frame_start <= '1' when read_row_cnt = 0 else '0';
 --          read_frame_stop <= '0';
 
-          /* Yeah, ugly code here... */
-          buffer_data_record.frame_num                   <= buffer_data_flat(BUFFER_DATA_FRAME_WIDTH-1 downto BUFFER_DATA_FRAME_WIDTH-FRAME_CNT_WIDTH);
-          buffer_data_record.row                         <= buffer_data_flat(BUFFER_DATA_FRAME_WIDTH-FRAME_CNT_WIDTH-1 downto BUFFER_DATA_FRAME_WIDTH-FRAME_CNT_WIDTH-ROW_WIDTH);
-         
-				  cnt_sec0                                       <= to_integer(unsigned(buffer_data_flat(4*VC_WIDTH+4*OC_WIDTH+RBOF_WIDTH-1 downto 3*VC_WIDTH+4*OC_WIDTH+RBOF_WIDTH)));
-          buffer_data_record.sectors(0).valid_counter    <= buffer_data_flat(4*VC_WIDTH+4*OC_WIDTH+RBOF_WIDTH-1 downto 3*VC_WIDTH+4*OC_WIDTH+RBOF_WIDTH);
-          buffer_data_record.sectors(0).overflow_counter <= buffer_data_flat(3*VC_WIDTH+4*OC_WIDTH+RBOF_WIDTH-1 downto 3*VC_WIDTH+3*OC_WIDTH+RBOF_WIDTH);
-          
-          cnt_sec1                                       <= to_integer(unsigned(buffer_data_flat(3*VC_WIDTH+3*OC_WIDTH+RBOF_WIDTH-1 downto 2*VC_WIDTH+3*OC_WIDTH+RBOF_WIDTH)));
-          buffer_data_record.sectors(1).valid_counter    <= buffer_data_flat(3*VC_WIDTH+3*OC_WIDTH+RBOF_WIDTH-1 downto 2*VC_WIDTH+3*OC_WIDTH+RBOF_WIDTH);
-          buffer_data_record.sectors(1).overflow_counter <= buffer_data_flat(2*VC_WIDTH+3*OC_WIDTH+RBOF_WIDTH-1 downto 2*VC_WIDTH+2*OC_WIDTH+RBOF_WIDTH);
-         
-          cnt_sec2                                       <= to_integer(unsigned(buffer_data_flat(2*VC_WIDTH+2*OC_WIDTH+RBOF_WIDTH-1 downto VC_WIDTH+2*OC_WIDTH+RBOF_WIDTH)));
-          buffer_data_record.sectors(2).valid_counter    <= buffer_data_flat(2*VC_WIDTH+2*OC_WIDTH+RBOF_WIDTH-1 downto VC_WIDTH+2*OC_WIDTH+RBOF_WIDTH);
-          buffer_data_record.sectors(2).overflow_counter <= buffer_data_flat(VC_WIDTH+2*OC_WIDTH+RBOF_WIDTH-1 downto VC_WIDTH+OC_WIDTH+RBOF_WIDTH);
-          
-          cnt_sec3                                       <= to_integer(unsigned(buffer_data_flat(VC_WIDTH+OC_WIDTH+RBOF_WIDTH-1 downto OC_WIDTH+RBOF_WIDTH)));
-          buffer_data_record.sectors(3).valid_counter    <= buffer_data_flat(VC_WIDTH+OC_WIDTH+RBOF_WIDTH-1 downto OC_WIDTH+RBOF_WIDTH);
-          buffer_data_record.sectors(3).overflow_counter <= buffer_data_flat(OC_WIDTH+RBOF_WIDTH-1 downto RBOF_WIDTH);
-          
-          buffer_data_record.rbof                        <= buffer_data_flat(RBOF_WIDTH-1 downto 0);
+      /* Yeah, ugly code here... */
+        buffer_data_record.frame_num <= buffer_data_flat(BUFFER_DATA_FRAME_WIDTH-1 downto BUFFER_DATA_FRAME_WIDTH-FRAME_CNT_WIDTH);
+      buffer_data_record.row <= buffer_data_flat(BUFFER_DATA_FRAME_WIDTH-FRAME_CNT_WIDTH-1 downto BUFFER_DATA_FRAME_WIDTH-FRAME_CNT_WIDTH-ROW_WIDTH);
 
-        -- Read FIFO 0
-        when READ_FIFO0_HALF1 =>
---					read_frame_start <= '0';
+      cnt_sec0                                       <= to_integer(unsigned(buffer_data_flat(4*VC_WIDTH+4*OC_WIDTH+RBOF_WIDTH-1 downto 3*VC_WIDTH+4*OC_WIDTH+RBOF_WIDTH)));
+      buffer_data_record.sectors(0).valid_counter    <= buffer_data_flat(4*VC_WIDTH+4*OC_WIDTH+RBOF_WIDTH-1 downto 3*VC_WIDTH+4*OC_WIDTH+RBOF_WIDTH);
+      buffer_data_record.sectors(0).overflow_counter <= buffer_data_flat(3*VC_WIDTH+4*OC_WIDTH+RBOF_WIDTH-1 downto 3*VC_WIDTH+3*OC_WIDTH+RBOF_WIDTH);
 
-          blk_select     <= "00";
-          fifo_read_en_v <= "0001";
-          if cnt_sec0 > 0 then
-            cnt_sec0 <= cnt_sec0 - 1;
-          end if;
-        when READ_FIFO0_HALF2 => null;
+      cnt_sec1                                       <= to_integer(unsigned(buffer_data_flat(3*VC_WIDTH+3*OC_WIDTH+RBOF_WIDTH-1 downto 2*VC_WIDTH+3*OC_WIDTH+RBOF_WIDTH)));
+      buffer_data_record.sectors(1).valid_counter    <= buffer_data_flat(3*VC_WIDTH+3*OC_WIDTH+RBOF_WIDTH-1 downto 2*VC_WIDTH+3*OC_WIDTH+RBOF_WIDTH);
+      buffer_data_record.sectors(1).overflow_counter <= buffer_data_flat(2*VC_WIDTH+3*OC_WIDTH+RBOF_WIDTH-1 downto 2*VC_WIDTH+2*OC_WIDTH+RBOF_WIDTH);
 
-        -- Read FIFO 1
-        when READ_FIFO1_HALF1 =>
---					read_frame_start <= '0';
-          blk_select     <= "01";
-          fifo_read_en_v <= "0010";
+      cnt_sec2                                       <= to_integer(unsigned(buffer_data_flat(2*VC_WIDTH+2*OC_WIDTH+RBOF_WIDTH-1 downto VC_WIDTH+2*OC_WIDTH+RBOF_WIDTH)));
+      buffer_data_record.sectors(2).valid_counter    <= buffer_data_flat(2*VC_WIDTH+2*OC_WIDTH+RBOF_WIDTH-1 downto VC_WIDTH+2*OC_WIDTH+RBOF_WIDTH);
+      buffer_data_record.sectors(2).overflow_counter <= buffer_data_flat(VC_WIDTH+2*OC_WIDTH+RBOF_WIDTH-1 downto VC_WIDTH+OC_WIDTH+RBOF_WIDTH);
 
-          if cnt_sec1 > 0 then
-            cnt_sec1 <= cnt_sec1 - 1;
-          end if;
-        when READ_FIFO1_HALF2 => null;
+      cnt_sec3                                       <= to_integer(unsigned(buffer_data_flat(VC_WIDTH+OC_WIDTH+RBOF_WIDTH-1 downto OC_WIDTH+RBOF_WIDTH)));
+      buffer_data_record.sectors(3).valid_counter    <= buffer_data_flat(VC_WIDTH+OC_WIDTH+RBOF_WIDTH-1 downto OC_WIDTH+RBOF_WIDTH);
+      buffer_data_record.sectors(3).overflow_counter <= buffer_data_flat(OC_WIDTH+RBOF_WIDTH-1 downto RBOF_WIDTH);
 
-        -- Read FIFO 2
-        when READ_FIFO2_HALF1 =>
---					read_frame_start <= '0';
-          blk_select     <= "10";
-          fifo_read_en_v <= "0100";
+      buffer_data_record.rbof <= buffer_data_flat(RBOF_WIDTH-1 downto 0);
 
-          if cnt_sec2 > 0 then
-            cnt_sec2 <= cnt_sec2 - 1;
-          end if;
-        when READ_FIFO2_HALF2 => null;
+      -- Read FIFO 0
+      when READ_FIFO0_HALF1 =>
+--                                      read_frame_start <= '0';
 
-        -- Read FIFO 3
-        when READ_FIFO3_HALF1 =>
---					read_frame_start <= '0';
-          blk_select     <= "11";
-          fifo_read_en_v <= "1000";
+      blk_select     <= "00";
+      fifo_read_en_v <= "0001";
+      if cnt_sec0 > 0 then
+        cnt_sec0 <= cnt_sec0 - 1;
+      end if;
+      when READ_FIFO0_HALF2 => null;
 
-          if cnt_sec3 > 0 then
-            cnt_sec3 <= cnt_sec3 - 1;
-          end if;
-        when READ_FIFO3_HALF2 => null;
+      -- Read FIFO 1
+      when READ_FIFO1_HALF1 =>
+--                                      read_frame_start <= '0';
+      blk_select     <= "01";
+      fifo_read_en_v <= "0010";
 
-        when READ_ROW_END =>
-          blk_select      <= "ZZ";
-          fifo_read_en_v  <= (others => '0');
-          
---					read_row_cnt <= 0 when read_row_cnt = N_ROW else (read_row_cnt + 1);
-					
---					read_frame_start <= '0';
+      if cnt_sec1 > 0 then
+        cnt_sec1 <= cnt_sec1 - 1;
+      end if;
+      when READ_FIFO1_HALF2 => null;
+
+      -- Read FIFO 2
+      when READ_FIFO2_HALF1 =>
+--                                      read_frame_start <= '0';
+      blk_select     <= "10";
+      fifo_read_en_v <= "0100";
+
+      if cnt_sec2 > 0 then
+        cnt_sec2 <= cnt_sec2 - 1;
+      end if;
+      when READ_FIFO2_HALF2 => null;
+
+      -- Read FIFO 3
+      when READ_FIFO3_HALF1 =>
+--                                      read_frame_start <= '0';
+      blk_select     <= "11";
+      fifo_read_en_v <= "1000";
+
+      if cnt_sec3 > 0 then
+        cnt_sec3 <= cnt_sec3 - 1;
+      end if;
+      when READ_FIFO3_HALF2 => null;
+
+      when READ_ROW_END =>
+      blk_select     <= "00";
+      fifo_read_en_v <= (others => '0');
+
+--                                      read_row_cnt <= 0 when read_row_cnt = N_ROW else (read_row_cnt + 1);
+
+--                                      read_frame_start <= '0';
 --          read_frame_stop <= '1' when read_row_cnt = N_ROW else '0';
 
-        when others =>
-          null;
-      end case;
+      when others =>
+      null;
+    end case;
 
     end if;
   end process;

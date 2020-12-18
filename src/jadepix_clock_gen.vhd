@@ -44,7 +44,7 @@ entity jadepix_clock_gen is
     clk_ref     : out std_logic;
     clk_dac     : out std_logic;
     clk_sys     : out std_logic;
-    clk_rx      : out std_logic;
+    clk_fpga    : out std_logic;
     clk_ref_rst : out std_logic;
     clk_dac_rst : out std_logic;
     clk_sys_rst : out std_logic;
@@ -55,10 +55,10 @@ end jadepix_clock_gen;
 
 architecture behv of jadepix_clock_gen is
 
-  signal clkfb                                 : std_logic;
-  signal clkdac_i, clkref_i, clksys_i, clkrx_i : std_logic;
-  signal mmcm_locked                           : std_logic;
-  signal rst                                   : std_logic;
+  signal clkfb                                   : std_logic;
+  signal clkdac_i, clkref_i, clksys_i, clkfpga_i : std_logic;
+  signal mmcm_locked                             : std_logic;
+  signal rst                                     : std_logic;
 
 begin
 
@@ -91,7 +91,7 @@ begin
     port map (
       -- Clock Outputs: 1-bit (each) output: User configurable clock outputs
       CLKOUT0  => clksys_i,             -- 1-bit output: CLKOUT0
-      CLKOUT0B => clkrx_i,              -- 1-bit output: CLKOUT0
+      CLKOUT0B => clkfpga_i,            -- 1-bit output: CLKOUT0
       CLKOUT1  => clkdac_i,             -- 1-bit output: CLKOUT1
       CLKOUT2  => clkref_i,             -- 1-bit output: CLKOUT2
       -- Feedback Clocks: 1-bit (each) output: Clock feedback ports
@@ -123,8 +123,8 @@ begin
     );
 
   bufg3 : BUFG port map(
-    i => clkrx_i,
-    o => clk_rx
+    i => clkfpga_i,
+    o => clk_fpga
     );
 
 

@@ -1,6 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
-use IEEE.NUMERIC_STD.ALL;
+use IEEE.NUMERIC_STD.all;
 
 library UNISIM;
 use UNISIM.vcomponents.all;
@@ -33,7 +33,9 @@ entity JadePix3_Readout is port(
   BLK_SELECT   : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
   INQUIRY      : out std_logic_vector(1 downto 0);
   DATA_IN      : in  std_logic_vector(7 downto 0);
-  --MATRIX_DIN : in std_logic_vector(15 downto 0);
+
+
+--  MATRIX_DIN : in std_logic_vector(15 downto 0);
 
 --  -- SDRAM
 --  ddr3_dq    : inout std_logic_vector(63 downto 0);
@@ -55,19 +57,19 @@ entity JadePix3_Readout is port(
 
   -- DAC70004
   DAC_SCLK : out std_logic;
-  DAC_LOAD : out std_logic;
+  DAC_LDAC : out std_logic;
   DAC_SYNC : out std_logic;
   DAC_SDIN : out std_logic;
   DAC_CLR  : out std_logic;
 --  DAC_BUSY : out std_logic
 
   -- JadePix3
-  REFCLK    : out std_logic;
+  REFCLK    : in  std_logic;
   CACHE_CLK : out std_logic;
-  RX_CLK    : out std_logic;
+  RX_FPGA   : out std_logic;
 
---  LVDS_RX_OUT_P : out std_logic;
---  LVDS_RX_OUT_N : out std_logic;
+--  LVDS_RX_IN_P : in std_logic;
+--  LVDS_RX_IN_N : in std_logic;
 
   RA    : out std_logic_vector(ROW_WIDTH-1 downto 0);
   RA_EN : out std_logic;
@@ -89,8 +91,15 @@ entity JadePix3_Readout is port(
   DPLSE       : out std_logic;
   APLSE       : out std_logic;
 
-  PDB  : out std_logic;
-  LOAD : out std_logic;
+  PDB            : out std_logic;
+  LOAD           : out std_logic;
+  POR            : out std_logic;       -- dac70004 power-on-reset
+  SN_OEn         : out std_logic;  -- enabel clock level shift output, low active
+  EN_diff        : out std_logic;
+  Ref_clk_1G_f   : out std_logic;
+  CLK_SEL        : out std_logic;
+  D_RST          : out std_logic;
+  SERIALIZER_RST : out std_logic;
 
   -- SPI Master
   ss   : out std_logic_vector(N_SS - 1 downto 0);
@@ -104,7 +113,7 @@ architecture rtl of JadePix3_Readout is
 
   signal sysclk                                               : std_logic;
   signal clk_sys                                              : std_logic;
-  signal clk_rx                                               : std_logic;
+  signal clk_fpga                                             : std_logic;
   signal clk_wfifo                                            : std_logic;
   signal clk_ref_rst, clk_dac_rst, clk_sys_rst, clk_wfifo_rst : std_logic;
 
@@ -206,8 +215,8 @@ architecture rtl of JadePix3_Readout is
   -- Generate valid signal for testing
   signal valid_test : std_logic_vector(3 downto 0);
   signal valid_len  : integer range 0 to 16 := 0;
-  
-  
+
+
   -- for test
 --  signal test_data_in_16 : unsigned(15 downto 0);
 --  signal test_data_in_8  : unsigned(7 downto 0);
@@ -230,8 +239,8 @@ begin
       IOSTANDARD => "DEFAULT",
       SLEW       => "SLOW")
     port map (
-      O => RX_CLK,  -- Buffer output (connect directly to top-level port)
-      I => clk_rx                       -- Buffer input 
+      O => RX_FPGA,  -- Buffer output (connect directly to top-level port)
+      I => clk_fpga                     -- Buffer input 
       );
 
 
@@ -244,10 +253,10 @@ begin
   jadepix_clocks : entity work.jadepix_clock_gen
     port map(
       sysclk      => sysclk,
-      clk_ref     => REFCLK,
+      clk_ref     => open,
       clk_dac     => DACCLK,
       clk_sys     => clk_sys,
-      clk_rx      => clk_rx,
+      clk_fpga    => clk_fpga,
       clk_dac_rst => clk_dac_rst,
       clk_ref_rst => clk_ref_rst,
       clk_sys_rst => clk_sys_rst,
@@ -360,7 +369,15 @@ begin
 
       spi_trans_end => spi_trans_end,
 
-      PDB => PDB,
+      PDB            => PDB,
+      SN_OEn         => SN_OEn,
+      POR            => POR,
+      EN_diff        => EN_diff,
+      Ref_clk_1G_f   => Ref_clk_1G_f,
+      CLK_SEL        => CLK_SEL,
+      D_RST          => D_RST,
+      SERIALIZER_RST => SERIALIZER_RST,
+
 
       -- FIFOs
       ctrl_fifo_rst          => ctrl_fifo_rst,
@@ -373,7 +390,7 @@ begin
       data_fifo_wr_clk       => data_fifo_wr_clk,
       data_fifo_wr_en        => data_fifo_wr_en,
       data_fifo_full         => data_fifo_full,
-			data_fifo_almost_full  => data_fifo_almost_full,
+      data_fifo_almost_full  => data_fifo_almost_full,
       data_fifo_wr_din       => data_fifo_wr_din,
 
       -- SPI master
@@ -391,7 +408,7 @@ begin
       DAC_WE     => DAC_WE,
       DAC_DATA   => DAC_DATA,
       DAC_SCLK   => DAC_SCLK,
-      DAC_LOAD   => DAC_LOAD,
+      DAC_LOAD   => DAC_LDAC,
       DAC_SYNC   => DAC_SYNC,
       DAC_SDIN   => DAC_SDIN,
       DAC_CLR    => DAC_CLR,
@@ -481,7 +498,7 @@ begin
       clk => clk_sys,
       rst => rd_data_rst,
 
-      clk_rx => clk_rx,
+      clk_fpga => clk_fpga,
 
       start_cache     => start_cache,
       clk_cache       => clk_cache,
@@ -509,21 +526,21 @@ begin
       );
 
 
---	gen_test: process(all)
---	variable cnt : integer range 0 to 1 := 0;
---	begin
---		if ?? rd_data_rst then
---			test_data_in_16 <= 16X"FFFF";
---		elsif rising_edge(clk_rx) then
-			
---			if ?? clk_cache then
---				test_data_in_16 <= test_data_in_16 + 1;
---			end if;
-			
---			cnt := (cnt + 1) rem 2;
-			
---		end if;
---	end process;
+--      gen_test: process(all)
+--      variable cnt : integer range 0 to 1 := 0;
+--      begin
+--              if ?? rd_data_rst then
+--                      test_data_in_16 <= 16X"FFFF";
+--              elsif rising_edge(clk_rx) then
+
+--                      if ?? clk_cache then
+--                              test_data_in_16 <= test_data_in_16 + 1;
+--                      end if;
+
+--                      cnt := (cnt + 1) rem 2;
+
+--              end if;
+--      end process;
 
 
 end rtl;

@@ -89,7 +89,14 @@ entity ipbus_jadepix_device is
     digsel_en_soft : out std_logic;
     load_soft      : out std_logic;
 
-    PDB : out std_logic;
+    PDB            : out std_logic;
+    SN_OEn         : out std_logic;
+    POR            : out std_logic;
+    EN_diff        : out std_logic;
+    Ref_clk_1G_f   : out std_logic;
+    CLK_SEL        : out std_logic;
+    D_RST          : out std_logic;
+    SERIALIZER_RST : out std_logic;
 
     -- FIFO
     ctrl_fifo_rst          : in  std_logic;
@@ -148,6 +155,13 @@ architecture behv of ipbus_jadepix_device is
   attribute mark_debug of load_soft       : signal is "true";
   attribute mark_debug of CACHE_BIT_SET   : signal is "true";
   attribute mark_debug of PDB             : signal is "true";
+  attribute mark_debug of SN_OEn          : signal is "true";
+  attribute mark_debug of POR             : signal is "true";
+  attribute mark_debug of D_RST           : signal is "true";
+  attribute mark_debug of SERIALIZER_RST  : signal is "true";
+  attribute mark_debug of CLK_SEL         : signal is "true";
+  attribute mark_debug of EN_diff         : signal is "true";
+  attribute mark_debug of Ref_clk_1G_f    : signal is "true";
   attribute mark_debug of hitmap_col_low  : signal is "true";
   attribute mark_debug of hitmap_col_high : signal is "true";
   attribute mark_debug of hitmap_en       : signal is "true";
@@ -226,10 +240,12 @@ begin
       rs_start_tmp   <= ctrl(1)(1);
       gs_start_tmp   <= ctrl(1)(2);
       spi_rst        <= ctrl(1)(3);
+      CLK_SEL        <= ctrl(1)(4);
       PDB            <= ctrl(1)(5);
       load_tmp       <= ctrl(1)(6);
       cfg_fifo_rst   <= ctrl(1)(7);
       cache_bit_set  <= ctrl(1)(11 downto 8);
+      D_RST          <= ctrl(1)(12);
       gs_col         <= ctrl(1)(21 downto 13);
       anasel_en_soft <= ctrl(1)(22);
       digsel_en_soft <= ctrl(1)(23);
@@ -237,6 +253,10 @@ begin
       aplse_soft     <= ctrl(1)(25);
       dplse_soft     <= ctrl(1)(26);
       gshutter_soft  <= ctrl(1)(27);
+      SN_OEn         <= ctrl(1)(28);
+      POR            <= ctrl(1)(29);
+      EN_diff        <= ctrl(1)(30);
+      Ref_clk_1G_f   <= ctrl(1)(31);
 
       rs_frame_num_set <= ctrl(2)(FRAME_CNT_WIDTH-1 downto 0);
 
@@ -251,7 +271,8 @@ begin
       gs_pulse_deassert_cnt   <= ctrl(7)(8 downto 0);
       gs_deassert_cnt         <= ctrl(8)(8 downto 0);
 
-      rst_rfifo <= ctrl(9)(0);
+      rst_rfifo      <= ctrl(9)(0);
+      SERIALIZER_RST <= ctrl(9)(1);
 
       valid_len <= to_integer(unsigned(ctrl(9)(4 downto 1)));
 

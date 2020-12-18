@@ -82,7 +82,7 @@ entity jadepix_ctrl_wrapper is
     start_cache     : out std_logic;
     clk_cache       : out std_logic;
     clk_cache_delay : out std_logic;
-		is_busy_cache   : out std_logic;
+    is_busy_cache   : out std_logic;
 
 
     hitmap_col_low  : in std_logic_vector(COL_WIDTH-1 downto 0);

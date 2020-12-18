@@ -73,7 +73,14 @@ entity ipbus_payload is
 
     spi_trans_end : out std_logic;
 
-    PDB : out std_logic;
+    PDB            : out std_logic;
+    SN_OEn         : out std_logic;
+    POR            : out std_logic;
+    EN_diff        : out std_logic;
+    Ref_clk_1G_f   : out std_logic;
+    CLK_SEL        : out std_logic;
+    D_RST          : out std_logic;
+    SERIALIZER_RST : out std_logic;
 
     -- FIFO
     ctrl_fifo_rst          : in  std_logic;
@@ -221,7 +228,14 @@ begin
       digsel_en_soft => digsel_en_soft,
       load_soft      => load_soft,
 
-      PDB => PDB,
+      PDB            => PDB,
+      SN_OEn         => SN_OEn,
+      POR            => POR,
+      EN_diff        => EN_diff,
+      Ref_clk_1G_f   => Ref_clk_1G_f,
+      CLK_SEL        => CLK_SEL,
+      D_RST          => D_RST,
+      SERIALIZER_RST => SERIALIZER_RST,
 
       --FIFO
       ctrl_fifo_rst          => ctrl_fifo_rst,
