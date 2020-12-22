@@ -60,6 +60,7 @@ entity ipbus_jadepix_device is
     cfg_fifo_count : in  std_logic_vector(CFG_FIFO_COUNT_WITDH-1 downto 0);
 
     CACHE_BIT_SET : out std_logic_vector(3 downto 0);
+		INQUIRY       : out std_logic_vector(1 downto 0);
 
     hitmap_col_low  : out std_logic_vector(COL_WIDTH-1 downto 0);
     hitmap_col_high : out std_logic_vector(COL_WIDTH-1 downto 0);
@@ -173,6 +174,11 @@ architecture behv of ipbus_jadepix_device is
   attribute mark_debug of rfifo_almost_full : signal is "true";
   attribute mark_debug of rfifo_wr_din      : signal is "true";
 
+  attribute mark_debug of anasel_en_soft : signal is "true";
+  attribute mark_debug of digsel_en_soft : signal is "true";
+  attribute mark_debug of gs_sel_pulse   : signal is "true";
+
+
 begin
   --------------------------------------------------------------
   -- fifo signals and registers
@@ -273,6 +279,7 @@ begin
 
       rst_rfifo      <= ctrl(9)(0);
       SERIALIZER_RST <= ctrl(9)(1);
+      INQUIRY        <= ctrl(9)(3 downto 2);
 
       valid_len <= to_integer(unsigned(ctrl(9)(4 downto 1)));
 

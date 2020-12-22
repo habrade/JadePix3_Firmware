@@ -41,7 +41,8 @@ entity ipbus_payload is
     cfg_fifo_empty : in  std_logic;
     cfg_fifo_pfull : in  std_logic;
     cfg_fifo_count : in  std_logic_vector(CFG_FIFO_COUNT_WITDH-1 downto 0);
-
+ 
+		INQUIRY       : out std_logic_vector(1 downto 0);
     CACHE_BIT_SET : out std_logic_vector(3 downto 0);
 
     hitmap_col_low  : out std_logic_vector(COL_WIDTH-1 downto 0);
@@ -197,6 +198,7 @@ begin
       cfg_fifo_pfull => cfg_fifo_pfull,
       cfg_fifo_count => cfg_fifo_count,
 
+      INQUIRY       => INQUIRY,
       CACHE_BIT_SET => CACHE_BIT_SET,
 
       hitmap_col_low  => hitmap_col_low,

@@ -1,4 +1,4 @@
-----------------------------------------------------------------------------------
+---------------------------------------------------------------------------------
 -- Generic IPBus "write FIFO interface" slave V2.0
 --
 --
@@ -56,19 +56,21 @@ entity ipbus_write_fifo is
     ipbus_out : out ipb_rbus;
 
     -- write FIFO
-    wfifo_rd_clk  : in  std_logic;
-    wfifo_rd_en   : in  std_logic;
-    wfifo_valid   : out std_logic;
-    wfifo_empty   : out std_logic;
-    wfifo_rd_dout : out std_logic_vector(31 downto 0);
-    debug         : out std_logic
+    wfifo_rd_clk        : in  std_logic;
+    wfifo_rd_en         : in  std_logic;
+    wfifo_valid         : out std_logic;
+    wfifo_empty         : out std_logic;
+    wfifo_prog_full     : out std_logic;
+    wfifo_wr_data_count : out std_logic_vector(17 downto 0);
+    wfifo_rd_dout       : out std_logic_vector(31 downto 0);
+    debug               : out std_logic
     );
 
 end ipbus_write_fifo;
 
 architecture rtl of ipbus_write_fifo is
 
-  component fwft_fifo_32_512 is
+  component fwft_fifo_32_512
     port (
       rst           : in  std_logic;
       wr_clk        : in  std_logic;
@@ -80,16 +82,36 @@ architecture rtl of ipbus_write_fifo is
       full          : out std_logic;
       empty         : out std_logic;
       valid         : out std_logic;
-      rd_data_count : out std_logic_vector(9 downto 0);
-      wr_data_count : out std_logic_vector(9 downto 0)
+      rd_data_count : out std_logic_vector(17 downto 0);
+      wr_data_count : out std_logic_vector(17 downto 0);
+      prog_full     : out std_logic;
+      wr_rst_busy   : out std_logic;
+      rd_rst_busy   : out std_logic
       );
-  end component fwft_fifo_32_512;
+  end component;
+
+--  component fwft_fifo_32_512 is
+--    port (
+--      rst           : in  std_logic;
+--      wr_clk        : in  std_logic;
+--      rd_clk        : in  std_logic;
+--      din           : in  std_logic_vector(31 downto 0);
+--      wr_en         : in  std_logic;
+--      rd_en         : in  std_logic;
+--      dout          : out std_logic_vector(31 downto 0);
+--      full          : out std_logic;
+--      empty         : out std_logic;
+--      valid         : out std_logic;
+--      rd_data_count : out std_logic_vector(9 downto 0);
+--      wr_data_count : out std_logic_vector(9 downto 0)
+--      );
+--  end component fwft_fifo_32_512;
 
 --  attribute black_box : string;
 --  attribute black_box of fifo_with_count: component is "yes";
 
 
-  constant WRFIFO_ADD_NUM : natural := 9;  -- the depth of the write fifo is 2**WRFIFO_ADD_NUM
+  constant WRFIFO_ADD_NUM : natural := 17;  -- the depth of the write fifo is 2**WRFIFO_ADD_NUM
 
   constant DUMMY_DATA    : std_logic_vector(31 downto 0) := X"00000000";
   constant TIMEOUT_COUNT : integer                       := 32;
@@ -98,8 +120,8 @@ architecture rtl of ipbus_write_fifo is
   signal wr_clk, wr_en, full                   : std_logic;
   signal wr_dout                               : std_logic_vector(31 downto 0);
   signal wr_data_count                         : std_logic_vector(WRFIFO_ADD_NUM downto 0);
-                                                                        -- the address width for FWFT FIFO with "More Accurate Data Counts" option is WRFIFO_ADD_NUM+1 !        
-  signal valid_wdata_count                     : unsigned(8 downto 0);  -- Acturally, Only 255 words will be used in IPBus software
+                                                                         -- the address width for FWFT FIFO with "More Accurate Data Counts" option is WRFIFO_ADD_NUM+1 !        
+  signal valid_wdata_count                     : unsigned(16 downto 0);  -- Acturally, Only 255 words will be used in IPBus software
   signal valid_wdata_en                        : std_logic;
   signal valid_wdata_port                      : std_logic_vector(31 downto 0);
 
@@ -209,8 +231,8 @@ begin
       full          => full,
       empty         => wfifo_empty,
       valid         => wfifo_valid,
-      wr_data_count => wr_data_count
+      prog_full     => wfifo_prog_full,
+      wr_data_count => wfifo_wr_data_count
       );
 
 end rtl;
-

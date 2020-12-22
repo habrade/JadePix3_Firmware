@@ -68,6 +68,8 @@ entity JadePix3_Readout is port(
   CACHE_CLK : out std_logic;
   RX_FPGA   : out std_logic;
 
+  HITMAP_IN : in std_logic_vector(15 downto 0);
+
 --  LVDS_RX_IN_P : in std_logic;
 --  LVDS_RX_IN_N : in std_logic;
 
@@ -91,7 +93,7 @@ entity JadePix3_Readout is port(
   DPLSE       : out std_logic;
   APLSE       : out std_logic;
 
-  PDB            : out std_logic;
+--  PDB            : out std_logic;
   LOAD           : out std_logic;
   POR            : out std_logic;       -- dac70004 power-on-reset
   SN_OEn         : out std_logic;  -- enabel clock level shift output, low active
@@ -218,10 +220,33 @@ architecture rtl of JadePix3_Readout is
 
 
   -- for test
+  signal hitmap_r                    : std_logic_vector(15 downto 0);
+  signal data_in_r                   : std_logic_vector(7 downto 0);
+  signal valid_in_r                  : std_logic_vector(3 downto 0);
+  attribute mark_debug of hitmap_r   : signal is "true";
+  attribute mark_debug of DPLSE      : signal is "true";
+  attribute mark_debug of APLSE      : signal is "true";
+  attribute mark_debug of DIGSEL_EN  : signal is "true";
+  attribute mark_debug of ANASEL_EN  : signal is "true";
+  attribute mark_debug of GSHUTTER   : signal is "true";
+  attribute mark_debug of LOAD       : signal is "true";
+  attribute mark_debug of data_in_r  : signal is "true";
+  attribute mark_debug of valid_in_r : signal is "true";
+
 --  signal test_data_in_16 : unsigned(15 downto 0);
 --  signal test_data_in_8  : unsigned(7 downto 0);
 
 begin
+
+  process(clk_sys)
+  begin
+    if rising_edge(clk_sys) then
+      hitmap_r   <= HITMAP_IN;
+      data_in_r  <= DATA_IN;
+      valid_in_r <= VALID_IN;
+    end if;
+  end process;
+
 
   OBUFDS_CACHE_CLK : OBUF
     generic map (
@@ -336,6 +361,7 @@ begin
       cfg_fifo_pfull => cfg_fifo_pfull,
       cfg_fifo_count => cfg_fifo_count,
 
+      INQUIRY       => INQUIRY,
       CACHE_BIT_SET => CACHE_BIT_SET,
 
       rs_start         => rs_start,
@@ -369,7 +395,7 @@ begin
 
       spi_trans_end => spi_trans_end,
 
-      PDB            => PDB,
+      PDB            => open,
       SN_OEn         => SN_OEn,
       POR            => POR,
       EN_diff        => EN_diff,
@@ -445,7 +471,7 @@ begin
       hitmap_en       => hitmap_en,
       hitmap_num      => hitmap_num,
 
-      RA       => RA,
+      RA       => row_num,
       RA_EN    => RA_EN,
       CA       => CA,
       CA_EN    => CA_EN,
@@ -482,11 +508,12 @@ begin
       anasel_en_gs => anasel_en_gs
       );
 
-  DIGSEL_EN <= digsel_en_rs and digsel_en_soft;
-  ANASEL_EN <= anasel_en_gs and anasel_en_soft;
+  DIGSEL_EN <= digsel_en_rs when digsel_en_soft = '1' else '0';
+  ANASEL_EN <= anasel_en_gs when anasel_en_soft = '1' else '0';
+  APLSE     <= aplse_gs     when aplse_soft = '1'     else '0';
+  DPLSE     <= dplse_gs     when dplse_soft = '1' else '0';
   GSHUTTER  <= gshutter_gs or gshutter_soft;
-  APLSE     <= aplse_gs and aplse_soft;
-  DPLSE     <= dplse_gs and dplse_soft;
+
 
   RA <= row_num;
 
@@ -508,9 +535,9 @@ begin
       frame_num => rs_frame_cnt,
       row       => row_num,
 
-      VALID_IN => valid_test,           -- for test
+      VALID_IN => valid_in_r,           -- for test
 --      VALID_IN => "1100", -- for test
-      DATA_IN  => 8X"FF",
+      DATA_IN  => data_in_r,
 
       FIFO_READ_EN => FIFO_READ_EN,
       BLK_SELECT   => BLK_SELECT,

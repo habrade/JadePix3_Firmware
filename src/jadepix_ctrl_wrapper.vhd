@@ -58,7 +58,7 @@ entity jadepix_ctrl_wrapper is
     CON_SELM : out std_logic;
     CON_SELP : out std_logic;
     CON_DATA : out std_logic;
-
+    
     -- chip config fifo
     cfg_sync       : in  jadepix_cfg;
     cfg_fifo_rst   : in  std_logic;
