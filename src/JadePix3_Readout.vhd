@@ -213,6 +213,12 @@ architecture rtl of JadePix3_Readout is
   signal load_soft     : std_logic;
   signal spi_trans_end : std_logic;
 
+  -- DEBUG
+  signal debug       : std_logic;
+  signal ca_en_soft  : std_logic;
+  signal ca_en_logic : std_logic;
+  signal ca_soft     : std_logic_vector(COL_WIDTH-1 downto 0);
+  signal ca_logic    : std_logic_vector(COL_WIDTH-1 downto 0);
 
   -- Generate valid signal for testing
   signal valid_test : std_logic_vector(3 downto 0);
@@ -220,18 +226,33 @@ architecture rtl of JadePix3_Readout is
 
 
   -- for test
-  signal hitmap_r                    : std_logic_vector(15 downto 0);
-  signal data_in_r                   : std_logic_vector(7 downto 0);
-  signal valid_in_r                  : std_logic_vector(3 downto 0);
-  attribute mark_debug of hitmap_r   : signal is "true";
-  attribute mark_debug of DPLSE      : signal is "true";
-  attribute mark_debug of APLSE      : signal is "true";
-  attribute mark_debug of DIGSEL_EN  : signal is "true";
-  attribute mark_debug of ANASEL_EN  : signal is "true";
-  attribute mark_debug of GSHUTTER   : signal is "true";
-  attribute mark_debug of LOAD       : signal is "true";
-  attribute mark_debug of data_in_r  : signal is "true";
-  attribute mark_debug of valid_in_r : signal is "true";
+  signal hitmap_r                      : std_logic_vector(15 downto 0);
+  signal data_in_r                     : std_logic_vector(7 downto 0);
+  signal valid_in_r                    : std_logic_vector(3 downto 0);
+  attribute mark_debug of hitmap_r     : signal is "true";
+  attribute mark_debug of DPLSE        : signal is "true";
+  attribute mark_debug of APLSE        : signal is "true";
+  attribute mark_debug of DIGSEL_EN    : signal is "true";
+  attribute mark_debug of ANASEL_EN    : signal is "true";
+  attribute mark_debug of GSHUTTER     : signal is "true";
+  attribute mark_debug of LOAD         : signal is "true";
+  attribute mark_debug of data_in_r    : signal is "true";
+  attribute mark_debug of valid_in_r   : signal is "true";
+  attribute mark_debug of BLK_SELECT   : signal is "true";
+  attribute mark_debug of FIFO_READ_EN : signal is "true";
+  attribute mark_debug of CACHE_CLK    : signal is "true";
+
+  attribute mark_debug of CA             : signal is "true";
+  attribute mark_debug of CA_EN          : signal is "true";
+  attribute mark_debug of ca_soft        : signal is "true";
+  attribute mark_debug of ca_logic       : signal is "true";
+  attribute mark_debug of ca_en_soft     : signal is "true";
+  attribute mark_debug of ca_en_logic    : signal is "true";
+  attribute mark_debug of debug          : signal is "true";
+  attribute mark_debug of digsel_en_soft : signal is "true";
+  attribute mark_debug of anasel_en_soft : signal is "true";
+  attribute mark_debug of aplse_soft     : signal is "true";
+  attribute mark_debug of dplse_soft     : signal is "true";
 
 --  signal test_data_in_16 : unsigned(15 downto 0);
 --  signal test_data_in_8  : unsigned(7 downto 0);
@@ -404,7 +425,6 @@ begin
       D_RST          => D_RST,
       SERIALIZER_RST => SERIALIZER_RST,
 
-
       -- FIFOs
       ctrl_fifo_rst          => ctrl_fifo_rst,
       slow_ctrl_fifo_rd_clk  => slow_ctrl_fifo_rd_clk,
@@ -423,7 +443,12 @@ begin
       ss   => open,
       mosi => mosi,
       miso => miso,
-      sclk => sclk
+      sclk => sclk,
+
+      -- DEBUG
+      debug   => debug,
+      ca_en   => ca_en_soft,
+      ca_soft => ca_soft
       );
 
 
@@ -473,8 +498,8 @@ begin
 
       RA       => row_num,
       RA_EN    => RA_EN,
-      CA       => CA,
-      CA_EN    => CA_EN,
+      CA       => ca_logic,
+      CA_EN    => ca_en_logic,
       CON_SELM => CON_SELM,
       CON_SELP => CON_SELP,
       CON_DATA => CON_DATA,
@@ -508,15 +533,27 @@ begin
       anasel_en_gs => anasel_en_gs
       );
 
-  DIGSEL_EN <= digsel_en_rs when digsel_en_soft = '1' else '0';
-  ANASEL_EN <= anasel_en_gs when anasel_en_soft = '1' else '0';
-  APLSE     <= aplse_gs     when aplse_soft = '1'     else '0';
-  DPLSE     <= dplse_gs     when dplse_soft = '1' else '0';
-  GSHUTTER  <= gshutter_gs or gshutter_soft;
 
+  for_debug: process(all)
+  begin
+    if debug = '0' then
+      DIGSEL_EN <= digsel_en_rs when digsel_en_soft = '1' else '0';
+      ANASEL_EN <= anasel_en_gs when anasel_en_soft = '1' else '0';
+      APLSE     <= aplse_gs     when aplse_soft = '1'     else '0';
+      DPLSE     <= dplse_gs     when dplse_soft = '1' else '0';
+      GSHUTTER  <= gshutter_gs or gshutter_soft;
+    else
+      DIGSEL_EN <= digsel_en_soft;
+      ANASEL_EN <= anasel_en_soft;
+      APLSE     <= aplse_soft;
+      DPLSE     <= dplse_soft;
+      GSHUTTER  <= gshutter_gs;
+    end if;
+  end process;
 
-  RA <= row_num;
-
+  RA    <= row_num;
+  CA    <= ca_soft    when debug = '1' else ca_logic;
+  CA_EN <= ca_en_soft when debug = '1' else ca_en_logic;
 
   valid_test  <= (others => clk_cache);
   rd_data_rst <= rs_start or gs_start or clk_sys_rst;  -- when start rolling shutter or global shutter, reset data readout
@@ -541,7 +578,6 @@ begin
 
       FIFO_READ_EN => FIFO_READ_EN,
       BLK_SELECT   => BLK_SELECT,
---      INQUIRY      => INQUIRY,
 
       -- DATA FIFO
       data_fifo_rst         => data_fifo_rst,

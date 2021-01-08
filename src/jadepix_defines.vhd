@@ -40,11 +40,17 @@ package JADEPIX_DEFINES is
   constant ROW_WIDTH : integer := 9;
   constant COL_WIDTH : integer := 9;
 
-  constant DACCLK_PERIOD               : real := 20.0;   -- unit: ns
-  constant JADEPIX_SYS_PERIOD          : real := 12.0;   -- unit: ns
-  constant JADEPIX_REF_PERIOD          : real := 25.0;   -- unit: ns
-  constant JADEPIX_CFG_PERIOD          : real := 192.0;  -- unit: ns
-  constant JADEPIX_RS_NO_HITMAP_PERIOD : real := 192.0;  -- unit: ns
+  constant DACCLK_PERIOD      : real := 20.0;  -- unit: ns
+  constant JADEPIX_SYS_PERIOD : real := 50.0;  -- unit: ns
+  constant JADEPIX_REF_PERIOD : real := 25.0;  -- unit: ns
+
+  constant JADEPIX_CFG_CNT_MAX    : integer := 16;
+  constant JADEPIX_RS_CNT_MAX     : integer := 16;
+  constant JADEPIX_HITMAP_CNT_MAX : integer := 4;
+
+
+--  constant JADEPIX_CFG_PERIOD          : real := JADEPIX_SYS_PERIOD * JADEPIX_CFG_CNT_MAX;  -- unit: ns
+--  constant JADEPIX_RS_NO_HITMAP_PERIOD : real := JADEPIX_SYS_PERIOD * JADEPIX_RS_CNT_MAX;  -- unit: ns
 
   type jadepix_cfg is
   record
@@ -52,9 +58,6 @@ package JADEPIX_DEFINES is
     din   : std_logic_vector(2 downto 0);
   end record;
 
-  constant JADEPIX_CFG_CNT_MAX    : integer                                           := natural(JADEPIX_CFG_PERIOD/JADEPIX_SYS_PERIOD);
-  constant JADEPIX_RS_CNT_MAX     : integer                                           := natural(JADEPIX_RS_NO_HITMAP_PERIOD/JADEPIX_SYS_PERIOD);
-  constant JADEPIX_HITMAP_CNT_MAX : integer                                           := natural(48.0/JADEPIX_SYS_PERIOD);
   constant JADEPIX_HITMAP_CHN_MAX : integer                                           := 12;  -- COL Address from 340 to 351
   constant HITMAP_NUM_WIDTH       : integer                                           := 4;  -- COL Address from 340 to 351
   constant JADEPIX_CFG_NULL       : jadepix_cfg                                       := ('0', (others => '0'));

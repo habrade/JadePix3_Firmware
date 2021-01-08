@@ -60,7 +60,7 @@ entity ipbus_jadepix_device is
     cfg_fifo_count : in  std_logic_vector(CFG_FIFO_COUNT_WITDH-1 downto 0);
 
     CACHE_BIT_SET : out std_logic_vector(3 downto 0);
-		INQUIRY       : out std_logic_vector(1 downto 0);
+    INQUIRY       : out std_logic_vector(1 downto 0);
 
     hitmap_col_low  : out std_logic_vector(COL_WIDTH-1 downto 0);
     hitmap_col_high : out std_logic_vector(COL_WIDTH-1 downto 0);
@@ -112,6 +112,11 @@ entity ipbus_jadepix_device is
     data_fifo_wr_din       : in  std_logic_vector(31 downto 0);
     data_fifo_full         : out std_logic;
     data_fifo_almost_full  : out std_logic;
+
+    -- DEBUG
+    debug   : out std_logic;
+    ca_en   : out std_logic;
+    ca_soft : out std_logic_vector(COL_WIDTH-1 downto 0);
 
     -- Test pattern
     valid_len : out integer range 0 to 16
@@ -177,6 +182,10 @@ architecture behv of ipbus_jadepix_device is
   attribute mark_debug of anasel_en_soft : signal is "true";
   attribute mark_debug of digsel_en_soft : signal is "true";
   attribute mark_debug of gs_sel_pulse   : signal is "true";
+
+  attribute mark_debug of debug   : signal is "true";
+  attribute mark_debug of ca_en   : signal is "true";
+  attribute mark_debug of ca_soft : signal is "true";
 
 
 begin
@@ -280,6 +289,9 @@ begin
       rst_rfifo      <= ctrl(9)(0);
       SERIALIZER_RST <= ctrl(9)(1);
       INQUIRY        <= ctrl(9)(3 downto 2);
+      debug          <= ctrl(9)(4);
+      ca_soft        <= ctrl(9)(13 downto 5);
+      ca_en          <= ctrl(9)(14);
 
       valid_len <= to_integer(unsigned(ctrl(9)(4 downto 1)));
 

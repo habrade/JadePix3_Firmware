@@ -53,7 +53,8 @@ end gen_clk_cache_delay;
 architecture behv of gen_clk_cache_delay is
 
 
-  constant n_rs_period : integer := natural(JADEPIX_RS_NO_HITMAP_PERIOD/JADEPIX_SYS_PERIOD);
+--  constant n_rs_period : integer := natural(JADEPIX_RS_NO_HITMAP_PERIOD/JADEPIX_SYS_PERIOD);
+  constant n_rs_period : integer := JADEPIX_RS_CNT_MAX;
 
   signal n_delay_unit : integer                       := n_rs_period;
   signal tmp          : std_logic_vector(64 downto 0) := (others => '0');
