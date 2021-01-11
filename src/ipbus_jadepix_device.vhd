@@ -115,6 +115,7 @@ entity ipbus_jadepix_device is
 
     -- DEBUG
     debug   : out std_logic;
+    hit_rst : out std_logic;
     ca_en   : out std_logic;
     ca_soft : out std_logic_vector(COL_WIDTH-1 downto 0);
 
@@ -292,6 +293,7 @@ begin
       debug          <= ctrl(9)(4);
       ca_soft        <= ctrl(9)(13 downto 5);
       ca_en          <= ctrl(9)(14);
+      hit_rst        <= ctrl(9)(15);
 
       valid_len <= to_integer(unsigned(ctrl(9)(4 downto 1)));
 

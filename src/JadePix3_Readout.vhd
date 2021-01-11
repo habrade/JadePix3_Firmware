@@ -214,11 +214,13 @@ architecture rtl of JadePix3_Readout is
   signal spi_trans_end : std_logic;
 
   -- DEBUG
-  signal debug       : std_logic;
-  signal ca_en_soft  : std_logic;
-  signal ca_en_logic : std_logic;
-  signal ca_soft     : std_logic_vector(COL_WIDTH-1 downto 0);
-  signal ca_logic    : std_logic_vector(COL_WIDTH-1 downto 0);
+  signal debug         : std_logic;
+  signal ca_en_soft    : std_logic;
+  signal ca_en_logic   : std_logic;
+  signal ca_soft       : std_logic_vector(COL_WIDTH-1 downto 0);
+  signal ca_logic      : std_logic_vector(COL_WIDTH-1 downto 0);
+  signal hit_rst_soft  : std_logic;
+  signal hit_rst_logic : std_logic;
 
   -- Generate valid signal for testing
   signal valid_test : std_logic_vector(3 downto 0);
@@ -241,10 +243,13 @@ architecture rtl of JadePix3_Readout is
   attribute mark_debug of BLK_SELECT   : signal is "true";
   attribute mark_debug of FIFO_READ_EN : signal is "true";
   attribute mark_debug of CACHE_CLK    : signal is "true";
+  attribute mark_debug of HIT_RST      : signal is "true";
 
   attribute mark_debug of CA             : signal is "true";
   attribute mark_debug of CA_EN          : signal is "true";
   attribute mark_debug of ca_soft        : signal is "true";
+  attribute mark_debug of hit_rst_soft   : signal is "true";
+  attribute mark_debug of hit_rst_logic  : signal is "true";
   attribute mark_debug of ca_logic       : signal is "true";
   attribute mark_debug of ca_en_soft     : signal is "true";
   attribute mark_debug of ca_en_logic    : signal is "true";
@@ -448,7 +453,8 @@ begin
       -- DEBUG
       debug   => debug,
       ca_en   => ca_en_soft,
-      ca_soft => ca_soft
+      ca_soft => ca_soft,
+      hit_rst => hit_rst_soft
       );
 
 
@@ -509,7 +515,7 @@ begin
       rs_frame_num_set => rs_frame_num_set,
       rs_frame_cnt     => rs_frame_cnt,
 
-      HIT_RST => HIT_RST,
+      HIT_RST => hit_rst_logic,
       RD_EN   => RD_EN,
 
       MATRIX_GRST => MATRIX_GRST,
@@ -534,7 +540,7 @@ begin
       );
 
 
-  for_debug: process(all)
+  for_debug : process(all)
   begin
     if debug = '0' then
       DIGSEL_EN <= digsel_en_rs when digsel_en_soft = '1' else '0';
@@ -551,9 +557,10 @@ begin
     end if;
   end process;
 
-  RA    <= row_num;
-  CA    <= ca_soft    when debug = '1' else ca_logic;
-  CA_EN <= ca_en_soft when debug = '1' else ca_en_logic;
+  RA      <= row_num;
+  CA      <= ca_soft      when debug = '1' else ca_logic;
+  CA_EN   <= ca_en_soft   when debug = '1' else ca_en_logic;
+  HIT_RST <= hit_rst_soft when debug = '1' else hit_rst_logic;
 
   valid_test  <= (others => clk_cache);
   rd_data_rst <= rs_start or gs_start or clk_sys_rst;  -- when start rolling shutter or global shutter, reset data readout

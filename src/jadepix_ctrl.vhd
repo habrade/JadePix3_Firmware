@@ -605,6 +605,7 @@ begin
 
         when GS_GO =>
           CA           <= gs_col;
+					CA_EN        <= '1';
           anasel_en_gs <= '1';
           gs_busy      <= '1';
           is_gs        <= '1';
@@ -641,6 +642,7 @@ begin
           gs_deassert_counter       <= (others => '0');
 
           CA <= (others => '0');
+					CA_EN        <= '0';
 
         when others => null;
       end case;

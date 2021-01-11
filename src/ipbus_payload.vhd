@@ -105,6 +105,7 @@ entity ipbus_payload is
 
     -- DEBUG
     debug   : out std_logic;
+    hit_rst : out std_logic;
     ca_en   : out std_logic;
     ca_soft : out std_logic_vector(COL_WIDTH-1 downto 0);
 
@@ -262,6 +263,7 @@ begin
       debug   => debug,
       ca_en   => ca_en,
       ca_soft => ca_soft,
+      hit_rst => hit_rst,
 
       valid_len => valid_len
 
