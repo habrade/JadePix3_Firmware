@@ -76,9 +76,10 @@ architecture behv of jadepix_fifo_data is
   signal read_frame_start : std_logic := '0';
   signal read_frame_stop  : std_logic := '0';
 
-  signal row_in_data       : std_logic_vector(ROW_WIDTH-1 downto 0)       := (others => '0');
-  signal frame_in_data     : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0) := (others => '0');
-  signal frame_in_data_reg : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0) := (others => '0');
+  signal row_in_data        : std_logic_vector(ROW_WIDTH-1 downto 0)       := (others => '0');
+  signal frame_in_data      : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0) := (others => '0');
+  signal frame_in_data_reg1 : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0) := (others => '0');
+  signal frame_in_data_reg2 : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0) := (others => '0');
 
   -- DEBUG
   attribute mark_debug                          : string;
@@ -94,6 +95,9 @@ architecture behv of jadepix_fifo_data is
   attribute mark_debug of data_fifo_wr_din      : signal is "true";
   attribute mark_debug of data_fifo_full        : signal is "true";
   attribute mark_debug of data_fifo_almost_full : signal is "true";
+  attribute mark_debug of frame_in_data         : signal is "true";
+  attribute mark_debug of frame_in_data_reg1    : signal is "true";
+  attribute mark_debug of frame_in_data_reg2    : signal is "true";
 
 
 begin
@@ -107,9 +111,11 @@ begin
   process(all)
   begin
     if ?? rst then
-      frame_in_data_reg <= (others => '0');
+      frame_in_data_reg1 <= (others => '0');
+      frame_in_data_reg2 <= (others => '0');
     elsif rising_edge(clk) then
-      frame_in_data_reg <= frame_in_data;
+      frame_in_data_reg1 <= frame_in_data;
+      frame_in_data_reg2 <= frame_in_data_reg1;
     end if;
   end process;
 
@@ -120,7 +126,7 @@ begin
       read_frame_stop  <= '0';
     elsif rising_edge(clk) then
       if frame_in_data > 22X"0" then
-        read_frame_stop  <= '1' when (frame_in_data > frame_in_data_reg) else '0';
+        read_frame_stop  <= '1' when (frame_in_data_reg1 > frame_in_data_reg2) else '0';
         read_frame_start <= read_frame_stop;
       end if;
     end if;

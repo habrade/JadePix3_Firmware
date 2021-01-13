@@ -56,8 +56,6 @@ entity jadepix_read_data is
     FIFO_READ_EN : out std_logic;
     BLK_SELECT   : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
 
-    INQUIRY : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
-
     -- DATA FIFO
     data_fifo_rst         : out std_logic;
     data_fifo_wr_clk      : out std_logic;
@@ -120,8 +118,6 @@ architecture behv of jadepix_read_data is
 
 begin
 
-  INQUIRY <= 2b"00";
-
   BLK_SELECT  <= blk_select_obuf;
 --  FIFO_READ_EN <= fifo_read_en_reg;
   buffer_w_en <= clk_cache_delay;
@@ -137,7 +133,7 @@ begin
       fifo_read_en      => FIFO_READ_EN,
       fifo_data_valid   => fifo_data_valid,
       fifo_oc           => fifo_oc,
-      blk_select_delay  => blk_select_delay
+      blk_select_delay  => open
       );
 
   fifo_monitor_wrapper : entity work.fifo_monitor_wrapper
@@ -202,8 +198,6 @@ begin
 
 --      read_frame_start => read_frame_start,
 --      read_frame_stop  => read_frame_stop,
-
---      INQUIRY => INQUIRY,
 
       buffer_data_record => buffer_data_record
 

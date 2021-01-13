@@ -229,8 +229,7 @@ architecture rtl of JadePix3_Readout is
 
   -- for test
   signal hitmap_r                      : std_logic_vector(15 downto 0);
-  signal data_in_r                     : std_logic_vector(7 downto 0);
-  signal valid_in_r                    : std_logic_vector(3 downto 0);
+
   attribute mark_debug of hitmap_r     : signal is "true";
   attribute mark_debug of DPLSE        : signal is "true";
   attribute mark_debug of APLSE        : signal is "true";
@@ -238,8 +237,9 @@ architecture rtl of JadePix3_Readout is
   attribute mark_debug of ANASEL_EN    : signal is "true";
   attribute mark_debug of GSHUTTER     : signal is "true";
   attribute mark_debug of LOAD         : signal is "true";
-  attribute mark_debug of data_in_r    : signal is "true";
-  attribute mark_debug of valid_in_r   : signal is "true";
+  attribute mark_debug of VALID_IN     : signal is "true";
+  attribute mark_debug of DATA_IN      : signal is "true";
+
   attribute mark_debug of BLK_SELECT   : signal is "true";
   attribute mark_debug of FIFO_READ_EN : signal is "true";
   attribute mark_debug of CACHE_CLK    : signal is "true";
@@ -259,8 +259,6 @@ architecture rtl of JadePix3_Readout is
   attribute mark_debug of aplse_soft     : signal is "true";
   attribute mark_debug of dplse_soft     : signal is "true";
 
---  signal test_data_in_16 : unsigned(15 downto 0);
---  signal test_data_in_8  : unsigned(7 downto 0);
 
 begin
 
@@ -268,8 +266,6 @@ begin
   begin
     if rising_edge(clk_sys) then
       hitmap_r   <= HITMAP_IN;
-      data_in_r  <= DATA_IN;
-      valid_in_r <= VALID_IN;
     end if;
   end process;
 
@@ -579,9 +575,8 @@ begin
       frame_num => rs_frame_cnt,
       row       => row_num,
 
-      VALID_IN => valid_in_r,           -- for test
---      VALID_IN => "1100", -- for test
-      DATA_IN  => data_in_r,
+      VALID_IN => VALID_IN,
+      DATA_IN  => DATA_IN,
 
       FIFO_READ_EN => FIFO_READ_EN,
       BLK_SELECT   => BLK_SELECT,

@@ -58,7 +58,6 @@ entity jadepix_fifo_ctrl is
 
 --    read_frame_start : out std_logic;
 --    read_frame_stop  : out std_logic;
---    INQUIRY : out std_logic_vector(1 downto 0);
 
     buffer_data_record : out buffer_data_frame
 
