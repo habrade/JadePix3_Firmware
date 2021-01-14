@@ -41,7 +41,7 @@ package JADEPIX_DEFINES is
   constant COL_WIDTH : integer := 9;
 
   constant DACCLK_PERIOD      : real := 20.0;  -- unit: ns
-  constant JADEPIX_SYS_PERIOD : real := 50.0;  -- unit: ns
+  constant JADEPIX_SYS_PERIOD : real := 12.0;  -- unit: ns
   constant JADEPIX_REF_PERIOD : real := 25.0;  -- unit: ns
 
   constant JADEPIX_CFG_CNT_MAX    : integer := 16;
