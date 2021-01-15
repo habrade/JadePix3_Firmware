@@ -98,6 +98,7 @@ entity ipbus_jadepix_device is
     CLK_SEL        : out std_logic;
     D_RST          : out std_logic;
     SERIALIZER_RST : out std_logic;
+    sel_chip_clk   : out std_logic;
 
     -- FIFO
     ctrl_fifo_rst          : in  std_logic;
@@ -294,6 +295,7 @@ begin
       ca_soft        <= ctrl(9)(13 downto 5);
       ca_en          <= ctrl(9)(14);
       hit_rst        <= ctrl(9)(15);
+      sel_chip_clk   <= ctrl(9)(16);
 
       valid_len <= to_integer(unsigned(ctrl(9)(4 downto 1)));
 

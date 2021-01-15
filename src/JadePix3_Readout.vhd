@@ -228,17 +228,19 @@ architecture rtl of JadePix3_Readout is
 
 
   -- for test
-  signal hitmap_r                      : std_logic_vector(15 downto 0);
+  signal hitmap_r     : std_logic_vector(15 downto 0);
+  signal sel_chip_clk : std_logic := '0';
+  signal rx_fpga_tmp : std_logic := '0';
 
-  attribute mark_debug of hitmap_r     : signal is "true";
-  attribute mark_debug of DPLSE        : signal is "true";
-  attribute mark_debug of APLSE        : signal is "true";
-  attribute mark_debug of DIGSEL_EN    : signal is "true";
-  attribute mark_debug of ANASEL_EN    : signal is "true";
-  attribute mark_debug of GSHUTTER     : signal is "true";
-  attribute mark_debug of LOAD         : signal is "true";
-  attribute mark_debug of VALID_IN     : signal is "true";
-  attribute mark_debug of DATA_IN      : signal is "true";
+  attribute mark_debug of hitmap_r  : signal is "true";
+  attribute mark_debug of DPLSE     : signal is "true";
+  attribute mark_debug of APLSE     : signal is "true";
+  attribute mark_debug of DIGSEL_EN : signal is "true";
+  attribute mark_debug of ANASEL_EN : signal is "true";
+  attribute mark_debug of GSHUTTER  : signal is "true";
+  attribute mark_debug of LOAD      : signal is "true";
+  attribute mark_debug of VALID_IN  : signal is "true";
+  attribute mark_debug of DATA_IN   : signal is "true";
 
   attribute mark_debug of BLK_SELECT   : signal is "true";
   attribute mark_debug of FIFO_READ_EN : signal is "true";
@@ -258,6 +260,7 @@ architecture rtl of JadePix3_Readout is
   attribute mark_debug of anasel_en_soft : signal is "true";
   attribute mark_debug of aplse_soft     : signal is "true";
   attribute mark_debug of dplse_soft     : signal is "true";
+  attribute mark_debug of sel_chip_clk   : signal is "true";
 
 
 begin
@@ -265,10 +268,9 @@ begin
   process(clk_sys)
   begin
     if rising_edge(clk_sys) then
-      hitmap_r   <= HITMAP_IN;
+      hitmap_r <= HITMAP_IN;
     end if;
   end process;
-
 
   OBUFDS_CACHE_CLK : OBUF
     generic map (
@@ -286,9 +288,18 @@ begin
       IOSTANDARD => "DEFAULT",
       SLEW       => "SLOW")
     port map (
-      O => RX_FPGA,  -- Buffer output (connect directly to top-level port)
-      I => clk_fpga                     -- Buffer input 
+      O => RX_FPGA,     -- Buffer output (connect directly to top-level port)
+      I => rx_fpga_tmp                  -- Buffer input 
       );
+
+  BUFGMUX_CTRL_inst : BUFGMUX_CTRL
+    port map (
+      O  => rx_fpga_tmp,                -- 1-bit output: Clock output
+      I0 => clk_fpga,                   -- 1-bit input: Clock input (S=0)
+      I1 => clk_sys,                    -- 1-bit input: Clock input (S=1)
+      S  => sel_chip_clk                -- 1-bit input: Clock select
+      );
+
 
 
   ibufgds0 : IBUFGDS port map(
@@ -425,6 +436,7 @@ begin
       CLK_SEL        => CLK_SEL,
       D_RST          => D_RST,
       SERIALIZER_RST => SERIALIZER_RST,
+      sel_chip_clk   => sel_chip_clk,
 
       -- FIFOs
       ctrl_fifo_rst          => ctrl_fifo_rst,
