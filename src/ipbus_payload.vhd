@@ -109,6 +109,7 @@ entity ipbus_payload is
     ca_en        : out std_logic;
     sel_chip_clk : out std_logic;
     ca_soft      : out std_logic_vector(COL_WIDTH-1 downto 0);
+    blk_sel_def  : out std_logic_vector(1 downto 0);
 
     valid_len : out integer range 0 to 16
 
@@ -246,6 +247,7 @@ begin
       D_RST          => D_RST,
       SERIALIZER_RST => SERIALIZER_RST,
       sel_chip_clk   => sel_chip_clk,
+      blk_sel_def    => blk_sel_def,
 
       --FIFO
       ctrl_fifo_rst          => ctrl_fifo_rst,

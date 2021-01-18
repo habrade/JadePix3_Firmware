@@ -99,6 +99,7 @@ entity ipbus_jadepix_device is
     D_RST          : out std_logic;
     SERIALIZER_RST : out std_logic;
     sel_chip_clk   : out std_logic;
+    blk_sel_def    : out std_logic_vector(1 downto 0);
 
     -- FIFO
     ctrl_fifo_rst          : in  std_logic;
@@ -185,9 +186,11 @@ architecture behv of ipbus_jadepix_device is
   attribute mark_debug of digsel_en_soft : signal is "true";
   attribute mark_debug of gs_sel_pulse   : signal is "true";
 
-  attribute mark_debug of debug   : signal is "true";
-  attribute mark_debug of ca_en   : signal is "true";
-  attribute mark_debug of ca_soft : signal is "true";
+  attribute mark_debug of debug        : signal is "true";
+  attribute mark_debug of ca_en        : signal is "true";
+  attribute mark_debug of ca_soft      : signal is "true";
+  attribute mark_debug of blk_sel_def  : signal is "true";
+  attribute mark_debug of sel_chip_clk : signal is "true";
 
 
 begin
@@ -296,6 +299,7 @@ begin
       ca_en          <= ctrl(9)(14);
       hit_rst        <= ctrl(9)(15);
       sel_chip_clk   <= ctrl(9)(16);
+      blk_sel_def    <= ctrl(9)(18 downto 17);
 
       valid_len <= to_integer(unsigned(ctrl(9)(4 downto 1)));
 

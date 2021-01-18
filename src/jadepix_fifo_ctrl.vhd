@@ -55,6 +55,7 @@ entity jadepix_fifo_ctrl is
     -- To Jadepix FIFO
     fifo_read_en_v : out std_logic_vector(SECTOR_NUM-1 downto 0);
     blk_select     : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
+    blk_sel_def    : in  std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
 
 --    read_frame_start : out std_logic;
 --    read_frame_stop  : out std_logic;
@@ -217,7 +218,7 @@ begin
 
       when IDLE =>
       buffer_read_en <= '0';
-      blk_select     <= "00";
+      blk_select     <= blk_sel_def;
       fifo_read_en_v <= (others => '0');
 --          read_frame_start <= '0';
 --          read_frame_stop  <= '0';
