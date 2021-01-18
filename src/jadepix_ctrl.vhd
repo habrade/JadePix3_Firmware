@@ -122,7 +122,7 @@ architecture behv of jadepix_ctrl is
   signal cfg_dout                   : std_logic_vector(2 downto 0);
   signal cfg_rd_en, cfg_dout_valid  : std_logic;
   signal pix_cnt                    : integer range 0 to (N_ROW * N_COL - 1) := 0;
-  signal cfg_cnt                    : integer range 0 to JADEPIX_CFG_CNT_MAX := 0;
+  signal cfg_cnt                    : integer := 0;
 
   -- RS
 --  signal start_cache   : std_logic                                 := '0';

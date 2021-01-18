@@ -299,7 +299,7 @@ begin
       when READ_FIFO3_HALF2 => null;
 
       when READ_ROW_END =>
-      blk_select     <= "00";
+      blk_select     <= blk_sel_def;
       fifo_read_en_v <= (others => '0');
 
 --                                      read_row_cnt <= 0 when read_row_cnt = N_ROW else (read_row_cnt + 1);
