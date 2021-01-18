@@ -228,10 +228,13 @@ architecture rtl of JadePix3_Readout is
 
 
   -- for test
-  signal hitmap_r     : std_logic_vector(15 downto 0);
-  signal sel_chip_clk : std_logic := '0';
-  signal rx_fpga_tmp  : std_logic := '0';
-  signal blk_sel_def  : std_logic_vector(1 downto 0);
+  signal hitmap_r            : std_logic_vector(15 downto 0);
+  signal sel_chip_clk        : std_logic := '0';
+  signal rx_fpga_tmp         : std_logic := '0';
+  signal blk_sel_def         : std_logic_vector(1 downto 0);
+  signal cfg_multi_factor_t0 : std_logic_vector(7 downto 0);
+  signal cfg_multi_factor_t1 : std_logic_vector(15 downto 0);
+  signal cfg_multi_factor_t2 : std_logic_vector(7 downto 0);
 
   attribute mark_debug of hitmap_r  : signal is "true";
   attribute mark_debug of DPLSE     : signal is "true";
@@ -429,16 +432,19 @@ begin
 
       spi_trans_end => spi_trans_end,
 
-      PDB            => open,
-      SN_OEn         => SN_OEn,
-      POR            => POR,
-      EN_diff        => EN_diff,
-      Ref_clk_1G_f   => Ref_clk_1G_f,
-      CLK_SEL        => CLK_SEL,
-      D_RST          => D_RST,
-      SERIALIZER_RST => SERIALIZER_RST,
-      sel_chip_clk   => sel_chip_clk,
-      blk_sel_def    => blk_sel_def,
+      PDB                 => open,
+      SN_OEn              => SN_OEn,
+      POR                 => POR,
+      EN_diff             => EN_diff,
+      Ref_clk_1G_f        => Ref_clk_1G_f,
+      CLK_SEL             => CLK_SEL,
+      D_RST               => D_RST,
+      SERIALIZER_RST      => SERIALIZER_RST,
+      sel_chip_clk        => sel_chip_clk,
+      blk_sel_def         => blk_sel_def,
+      cfg_multi_factor_t0 => cfg_multi_factor_t0,
+      cfg_multi_factor_t1 => cfg_multi_factor_t1,
+      cfg_multi_factor_t2 => cfg_multi_factor_t2,
 
       -- FIFOs
       ctrl_fifo_rst          => ctrl_fifo_rst,
@@ -494,13 +500,16 @@ begin
       load_soft     => load_soft,
       LOAD          => LOAD,
 
-      cfg_sync       => cfg_sync,
-      cfg_fifo_rst   => cfg_fifo_rst,
-      cfg_fifo_empty => cfg_fifo_empty,
-      cfg_fifo_pfull => cfg_fifo_pfull,
-      cfg_fifo_count => cfg_fifo_count,
-      cfg_busy       => cfg_busy,
-      cfg_start      => cfg_start,
+      cfg_sync            => cfg_sync,
+      cfg_fifo_rst        => cfg_fifo_rst,
+      cfg_fifo_empty      => cfg_fifo_empty,
+      cfg_fifo_pfull      => cfg_fifo_pfull,
+      cfg_fifo_count      => cfg_fifo_count,
+      cfg_busy            => cfg_busy,
+      cfg_start           => cfg_start,
+      cfg_multi_factor_t0 => cfg_multi_factor_t0,
+      cfg_multi_factor_t1 => cfg_multi_factor_t1,
+      cfg_multi_factor_t2 => cfg_multi_factor_t2,
 
       start_cache     => start_cache,
       clk_cache       => clk_cache,

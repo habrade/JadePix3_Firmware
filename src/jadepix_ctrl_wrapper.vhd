@@ -58,14 +58,17 @@ entity jadepix_ctrl_wrapper is
     CON_SELM : out std_logic;
     CON_SELP : out std_logic;
     CON_DATA : out std_logic;
-    
+
     -- chip config fifo
-    cfg_sync       : in  jadepix_cfg;
-    cfg_fifo_rst   : in  std_logic;
-    cfg_busy       : out std_logic;
-    cfg_fifo_empty : out std_logic;
-    cfg_fifo_pfull : out std_logic;
-    cfg_fifo_count : out std_logic_vector(16 downto 0);
+    cfg_sync         : in  jadepix_cfg;
+    cfg_fifo_rst     : in  std_logic;
+    cfg_busy         : out std_logic;
+    cfg_fifo_empty   : out std_logic;
+    cfg_fifo_pfull   : out std_logic;
+    cfg_fifo_count   : out std_logic_vector(16 downto 0);
+    cfg_multi_factor_t0 : in  std_logic_vector(7 downto 0);
+    cfg_multi_factor_t1 : in  std_logic_vector(15 downto 0);
+    cfg_multi_factor_t2 : in  std_logic_vector(7 downto 0);
 
     digsel_en_rs : out std_logic;
     anasel_en_gs : out std_logic;
@@ -120,13 +123,16 @@ begin
       clk => clk,
       rst => rst,
 
-      cfg_sync       => cfg_sync,
-      cfg_fifo_rst   => cfg_fifo_rst,
-      cfg_fifo_empty => cfg_fifo_empty,
-      cfg_fifo_pfull => cfg_fifo_pfull,
-      cfg_fifo_count => cfg_fifo_count,
-      cfg_busy       => cfg_busy,
-      cfg_start      => cfg_start,
+      cfg_sync         => cfg_sync,
+      cfg_fifo_rst     => cfg_fifo_rst,
+      cfg_fifo_empty   => cfg_fifo_empty,
+      cfg_fifo_pfull   => cfg_fifo_pfull,
+      cfg_fifo_count   => cfg_fifo_count,
+      cfg_busy         => cfg_busy,
+      cfg_start        => cfg_start,
+      cfg_multi_factor_t0 => cfg_multi_factor_t0,
+      cfg_multi_factor_t1 => cfg_multi_factor_t1,
+      cfg_multi_factor_t2 => cfg_multi_factor_t2,
 
       start_cache   => start_cache,
       clk_cache     => clk_cache,

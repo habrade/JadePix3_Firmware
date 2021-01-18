@@ -52,14 +52,17 @@ entity jadepix_ctrl is
     CON_SELM : out std_logic;
     CON_SELP : out std_logic;
     CON_DATA : out std_logic;
-    
+
     -- chip config fifo
-    cfg_sync       : in  jadepix_cfg;
-    cfg_fifo_rst   : in  std_logic;
-    cfg_busy       : out std_logic;
-    cfg_fifo_empty : out std_logic;
-    cfg_fifo_pfull : out std_logic;
-    cfg_fifo_count : out std_logic_vector(16 downto 0);
+    cfg_sync            : in  jadepix_cfg;
+    cfg_fifo_rst        : in  std_logic;
+    cfg_busy            : out std_logic;
+    cfg_fifo_empty      : out std_logic;
+    cfg_fifo_pfull      : out std_logic;
+    cfg_fifo_count      : out std_logic_vector(16 downto 0);
+    cfg_multi_factor_t0 : in  std_logic_vector(7 downto 0);
+    cfg_multi_factor_t1 : in  std_logic_vector(15 downto 0);
+    cfg_multi_factor_t2 : in  std_logic_vector(7 downto 0);
 
     digsel_en_rs : out std_logic;
     anasel_en_gs : out std_logic;
@@ -168,6 +171,7 @@ architecture behv of jadepix_ctrl is
   attribute mark_debug of rs_cnt         : signal is "true";
   attribute mark_debug of cfg_busy       : signal is "true";
   attribute mark_debug of rs_busy        : signal is "true";
+  attribute mark_debug of gs_busy        : signal is "true";
   attribute mark_debug of cfg_start      : signal is "true";
   attribute mark_debug of rs_start       : signal is "true";
   attribute mark_debug of gs_start       : signal is "true";
@@ -278,17 +282,17 @@ begin
         end if;
 
       when CFG_EN_DATA =>
-        if cfg_cnt = 2 then
+        if cfg_cnt = 2*cfg_multi_factor_t0 then
           state_next <= CFG_EN_SEL;
         end if;
 
       when CFG_EN_SEL =>
-        if cfg_cnt = 14 then
+        if cfg_cnt = 2*cfg_multi_factor_t0 + 12*cfg_multi_factor_t1 then
           state_next <= CFG_DIS_SEL;
         end if;
 
       when CFG_DIS_SEL =>
-        if cfg_cnt = (JADEPIX_CFG_CNT_MAX) then
+        if cfg_cnt = 2*cfg_multi_factor_t0 + 12*cfg_multi_factor_t1 + 2*cfg_multi_factor_t2 then
           state_next <= CFG_NEXT_PIX;
         end if;
 
@@ -605,7 +609,7 @@ begin
 
         when GS_GO =>
           CA           <= gs_col;
-					CA_EN        <= '1';
+          CA_EN        <= '1';
           anasel_en_gs <= '1';
           gs_busy      <= '1';
           is_gs        <= '1';
@@ -641,8 +645,8 @@ begin
           gs_pulse_deassert_counter <= (others => '0');
           gs_deassert_counter       <= (others => '0');
 
-          CA <= (others => '0');
-					CA_EN        <= '0';
+          CA    <= (others => '0');
+          CA_EN <= '0';
 
         when others => null;
       end case;
