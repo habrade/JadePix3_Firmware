@@ -1,4 +1,4 @@
-// (c) Copyright 1995-2020 Xilinx, Inc. All rights reserved.
+// (c) Copyright 1995-2021 Xilinx, Inc. All rights reserved.
 // 
 // This file contains confidential and proprietary information
 // of Xilinx, Inc. and is protected under U.S. and
@@ -64,7 +64,7 @@ fifo_generator_0 your_instance_name (
   .full(full),              // output wire full
   .empty(empty),            // output wire empty
   .valid(valid),            // output wire valid
-  .data_count(data_count),  // output wire [16 : 0] data_count
+  .data_count(data_count),  // output wire [17 : 0] data_count
   .prog_full(prog_full)    // output wire prog_full
 );
 // INST_TAG_END ------ End INSTANTIATION Template ---------

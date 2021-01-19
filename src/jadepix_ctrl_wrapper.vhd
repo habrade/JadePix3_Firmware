@@ -65,7 +65,7 @@ entity jadepix_ctrl_wrapper is
     cfg_busy          : out std_logic;
     cfg_fifo_empty    : out std_logic;
     cfg_fifo_pfull    : out std_logic;
-    cfg_fifo_count    : out std_logic_vector(16 downto 0);
+    cfg_fifo_count    : out std_logic_vector(CFG_FIFO_COUNT_WITDH-1 downto 0);
     cfg_add_factor_t0 : in  std_logic_vector(7 downto 0);
     cfg_add_factor_t1 : in  std_logic_vector(15 downto 0);
     cfg_add_factor_t2 : in  std_logic_vector(7 downto 0);

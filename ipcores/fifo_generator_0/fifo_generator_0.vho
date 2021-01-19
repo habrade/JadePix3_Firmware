@@ -1,4 +1,4 @@
--- (c) Copyright 1995-2020 Xilinx, Inc. All rights reserved.
+-- (c) Copyright 1995-2021 Xilinx, Inc. All rights reserved.
 -- 
 -- This file contains confidential and proprietary information
 -- of Xilinx, Inc. and is protected under U.S. and
@@ -63,7 +63,7 @@ COMPONENT fifo_generator_0
     full : OUT STD_LOGIC;
     empty : OUT STD_LOGIC;
     valid : OUT STD_LOGIC;
-    data_count : OUT STD_LOGIC_VECTOR(16 DOWNTO 0);
+    data_count : OUT STD_LOGIC_VECTOR(17 DOWNTO 0);
     prog_full : OUT STD_LOGIC
   );
 END COMPONENT;
