@@ -354,7 +354,7 @@ begin
 
       stat(1)(0)           <= cfg_fifo_empty;
       stat(1)(1)           <= cfg_fifo_pfull;
-      stat(1)(19 downto 2) <= cfg_fifo_count;
+      stat(1)(18 downto 2) <= cfg_fifo_count;
 
     end if;
   end process;

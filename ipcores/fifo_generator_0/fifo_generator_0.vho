@@ -63,7 +63,7 @@ COMPONENT fifo_generator_0
     full : OUT STD_LOGIC;
     empty : OUT STD_LOGIC;
     valid : OUT STD_LOGIC;
-    data_count : OUT STD_LOGIC_VECTOR(17 DOWNTO 0);
+    data_count : OUT STD_LOGIC_VECTOR(16 DOWNTO 0);
     prog_full : OUT STD_LOGIC
   );
 END COMPONENT;

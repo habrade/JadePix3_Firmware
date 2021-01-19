@@ -61,7 +61,7 @@ package JADEPIX_DEFINES is
   constant JADEPIX_HITMAP_CHN_MAX : integer                                           := 12;  -- COL Address from 340 to 351
   constant HITMAP_NUM_WIDTH       : integer                                           := 4;  -- COL Address from 340 to 351
   constant JADEPIX_CFG_NULL       : jadepix_cfg                                       := ('0', (others => '0'));
-  constant CFG_FIFO_COUNT_WITDH   : integer                                           := 18;
+  constant CFG_FIFO_COUNT_WITDH   : integer                                           := 17;
   constant CFG_FIFO_COUNT_ZERO    : std_logic_vector(CFG_FIFO_COUNT_WITDH-1 downto 0) := (others       => '0');
   constant JADEPIX_SUBSECTOR_NUM  : integer                                           := 16;
 
