@@ -217,9 +217,9 @@ architecture behavioral of ipbus_bfm_tb is
   signal rs_start            : std_logic;
   signal gs_start            : std_logic;
 
-  signal cfg_multi_factor_t0 : std_logic_vector(7 downto 0);
-  signal cfg_multi_factor_t1 : std_logic_vector(15 downto 0);
-  signal cfg_multi_factor_t2 : std_logic_vector(7 downto 0);
+  signal cfg_add_factor_t0 : std_logic_vector(7 downto 0);
+  signal cfg_add_factor_t1 : std_logic_vector(15 downto 0);
+  signal cfg_add_factor_t2 : std_logic_vector(7 downto 0);
 
   signal rs_frame_num_set : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
   signal rs_frame_cnt     : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
@@ -446,9 +446,9 @@ begin
       SERIALIZER_RST      => SERIALIZER_RST,
       sel_chip_clk        => sel_chip_clk,
       blk_sel_def         => blk_sel_def,
-      cfg_multi_factor_t0 => cfg_multi_factor_t0,
-      cfg_multi_factor_t1 => cfg_multi_factor_t1,
-      cfg_multi_factor_t2 => cfg_multi_factor_t2,
+      cfg_add_factor_t0 => cfg_add_factor_t0,
+      cfg_add_factor_t1 => cfg_add_factor_t1,
+      cfg_add_factor_t2 => cfg_add_factor_t2,
 
       -- FIFOs
       ctrl_fifo_rst          => ctrl_fifo_rst,
@@ -495,9 +495,9 @@ begin
       cfg_fifo_count      => cfg_fifo_count,
       cfg_busy            => cfg_busy,
       cfg_start           => cfg_start,
-      cfg_multi_factor_t0 => cfg_multi_factor_t0,
-      cfg_multi_factor_t1 => cfg_multi_factor_t1,
-      cfg_multi_factor_t2 => cfg_multi_factor_t2,
+      cfg_add_factor_t0 => cfg_add_factor_t0,
+      cfg_add_factor_t1 => cfg_add_factor_t1,
+      cfg_add_factor_t2 => cfg_add_factor_t2,
 
       start_cache     => start_cache,
       clk_cache       => clk_cache,

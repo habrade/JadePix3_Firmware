@@ -54,15 +54,15 @@ entity jadepix_ctrl is
     CON_DATA : out std_logic;
 
     -- chip config fifo
-    cfg_sync            : in  jadepix_cfg;
-    cfg_fifo_rst        : in  std_logic;
-    cfg_busy            : out std_logic;
-    cfg_fifo_empty      : out std_logic;
-    cfg_fifo_pfull      : out std_logic;
-    cfg_fifo_count      : out std_logic_vector(16 downto 0);
-    cfg_multi_factor_t0 : in  std_logic_vector(7 downto 0);
-    cfg_multi_factor_t1 : in  std_logic_vector(15 downto 0);
-    cfg_multi_factor_t2 : in  std_logic_vector(7 downto 0);
+    cfg_sync          : in  jadepix_cfg;
+    cfg_fifo_rst      : in  std_logic;
+    cfg_busy          : out std_logic;
+    cfg_fifo_empty    : out std_logic;
+    cfg_fifo_pfull    : out std_logic;
+    cfg_fifo_count    : out std_logic_vector(16 downto 0);
+    cfg_add_factor_t0 : in  std_logic_vector(7 downto 0);
+    cfg_add_factor_t1 : in  std_logic_vector(15 downto 0);
+    cfg_add_factor_t2 : in  std_logic_vector(7 downto 0);
 
     digsel_en_rs : out std_logic;
     anasel_en_gs : out std_logic;
@@ -122,7 +122,7 @@ architecture behv of jadepix_ctrl is
   signal cfg_dout                   : std_logic_vector(2 downto 0);
   signal cfg_rd_en, cfg_dout_valid  : std_logic;
   signal pix_cnt                    : integer range 0 to (N_ROW * N_COL - 1) := 0;
-  signal cfg_cnt                    : std_logic_vector(19 downto 0) := (others=> '0');
+  signal cfg_cnt                    : std_logic_vector(19 downto 0)          := (others => '0');
 
   -- RS
 --  signal start_cache   : std_logic                                 := '0';
@@ -282,17 +282,17 @@ begin
         end if;
 
       when CFG_EN_DATA =>
-        if cfg_cnt = 2*cfg_multi_factor_t0 then
+        if cfg_cnt = cfg_add_factor_t0 + 2 then
           state_next <= CFG_EN_SEL;
         end if;
 
       when CFG_EN_SEL =>
-        if cfg_cnt = 2*cfg_multi_factor_t0 + 12*cfg_multi_factor_t1 then
+        if cfg_cnt = cfg_add_factor_t0 + cfg_add_factor_t1 + 14 then
           state_next <= CFG_DIS_SEL;
         end if;
 
       when CFG_DIS_SEL =>
-        if cfg_cnt = 2*cfg_multi_factor_t0 + 12*cfg_multi_factor_t1 + 2*cfg_multi_factor_t2 then
+        if cfg_cnt = cfg_add_factor_t0 + cfg_add_factor_t1 + cfg_add_factor_t2 + 16 then
           state_next <= CFG_NEXT_PIX;
         end if;
 
@@ -440,7 +440,7 @@ begin
           cfg_rd_en <= '0';
           cfg_busy  <= '0';
           pix_cnt   <= 0;
-          cfg_cnt   <= (others=> '0');
+          cfg_cnt   <= (others => '0');
           CON_SELM  <= '0';
           CON_SELP  <= '0';
           CON_DATA  <= '0';
@@ -497,7 +497,7 @@ begin
 
         when CFG_NEXT_PIX =>
           pix_cnt  <= pix_cnt + 1;
-          cfg_cnt  <= (others=> '0');
+          cfg_cnt  <= (others => '0');
           CON_DATA <= '0';
           RA_EN    <= '0';
           CA_EN    <= '0';
@@ -512,7 +512,7 @@ begin
           cfg_rd_en   <= '0';
           cfg_busy    <= '0';
           pix_cnt     <= 0;
-          cfg_cnt     <= (others=> '0');
+          cfg_cnt     <= (others => '0');
           CON_SELM    <= '0';
           CON_SELP    <= '0';
           CON_DATA    <= '0';
