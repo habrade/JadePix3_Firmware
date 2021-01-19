@@ -122,7 +122,7 @@ architecture behv of jadepix_ctrl is
   signal cfg_dout                   : std_logic_vector(2 downto 0);
   signal cfg_rd_en, cfg_dout_valid  : std_logic;
   signal pix_cnt                    : integer range 0 to (N_ROW * N_COL - 1) := 0;
-  signal cfg_cnt                    : integer := 0;
+  signal cfg_cnt                    : std_logic_vector(19 downto 0) := (others=> '0');
 
   -- RS
 --  signal start_cache   : std_logic                                 := '0';
@@ -440,7 +440,7 @@ begin
           cfg_rd_en <= '0';
           cfg_busy  <= '0';
           pix_cnt   <= 0;
-          cfg_cnt   <= 0;
+          cfg_cnt   <= (others=> '0');
           CON_SELM  <= '0';
           CON_SELP  <= '0';
           CON_DATA  <= '0';
@@ -497,7 +497,7 @@ begin
 
         when CFG_NEXT_PIX =>
           pix_cnt  <= pix_cnt + 1;
-          cfg_cnt  <= 0;
+          cfg_cnt  <= (others=> '0');
           CON_DATA <= '0';
           RA_EN    <= '0';
           CA_EN    <= '0';
@@ -512,7 +512,7 @@ begin
           cfg_rd_en   <= '0';
           cfg_busy    <= '0';
           pix_cnt     <= 0;
-          cfg_cnt     <= 0;
+          cfg_cnt     <= (others=> '0');
           CON_SELM    <= '0';
           CON_SELP    <= '0';
           CON_DATA    <= '0';

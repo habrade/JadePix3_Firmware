@@ -134,7 +134,7 @@ begin
       fifo_read_en      => FIFO_READ_EN,
       fifo_data_valid   => fifo_data_valid,
       fifo_oc           => fifo_oc,
-      blk_select_delay  => open
+      blk_select_delay  => blk_select_delay
       );
 
   fifo_monitor_wrapper : entity work.fifo_monitor_wrapper

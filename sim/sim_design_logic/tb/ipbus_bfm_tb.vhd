@@ -53,7 +53,7 @@ architecture behavioral of ipbus_bfm_tb is
   signal sysclk : std_logic := '0';
 
   signal clk_sys     : std_logic := '0';
-  signal clk_rx      : std_logic := '0';
+  signal clk_fpga      : std_logic := '0';
   signal clk_sys_rst : std_logic := '0';
   signal clk_dac_rst : std_logic := '0';
 
@@ -194,8 +194,15 @@ architecture behavioral of ipbus_bfm_tb is
   signal DPLSE       : std_logic;
   signal APLSE       : std_logic;
 
-  signal PDB  : std_logic;
+  signal POR  : std_logic;
   signal LOAD : std_logic;
+  signal SN_OEn         :  std_logic;  -- enabel clock level shift output, low active
+  signal EN_diff        :  std_logic;
+  signal Ref_clk_1G_f   :  std_logic;
+  signal CLK_SEL        :  std_logic;
+  signal D_RST          :  std_logic;
+  signal SERIALIZER_RST :  std_logic;
+
 
   -- SPI Master
   signal ss   : std_logic_vector(N_SS - 1 downto 0);
@@ -209,6 +216,10 @@ architecture behavioral of ipbus_bfm_tb is
   signal cfg_start           : std_logic;
   signal rs_start            : std_logic;
   signal gs_start            : std_logic;
+
+  signal cfg_multi_factor_t0 : std_logic_vector(7 downto 0);
+  signal cfg_multi_factor_t1 : std_logic_vector(15 downto 0);
+  signal cfg_multi_factor_t2 : std_logic_vector(7 downto 0);
 
   signal rs_frame_num_set : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
   signal rs_frame_cnt     : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0);
@@ -266,6 +277,11 @@ architecture behavioral of ipbus_bfm_tb is
   signal dplse_soft     : std_logic;
   signal gshutter_soft  : std_logic;
 
+  signal sel_chip_clk        : std_logic := '0';
+  signal rx_fpga_tmp         : std_logic := '0';
+  signal blk_sel_def         : std_logic_vector(1 downto 0);
+
+
   signal load_soft     : std_logic;
   signal spi_trans_end : std_logic;
 
@@ -281,6 +297,15 @@ architecture behavioral of ipbus_bfm_tb is
   signal FIFO_READ_EN : std_logic;
   signal BLK_SELECT   : std_logic_vector(BLK_SELECT_WIDTH-1 downto 0) := "00";
   signal INQUIRY      : std_logic_vector(BLK_SELECT_WIDTH-1 downto 0) := "00";
+
+  -- debug
+  signal debug         : std_logic;
+  signal ca_en_soft    : std_logic;
+  signal ca_en_logic   : std_logic;
+  signal ca_soft       : std_logic_vector(COL_WIDTH-1 downto 0);
+  signal ca_logic      : std_logic_vector(COL_WIDTH-1 downto 0);
+  signal hit_rst_soft  : std_logic;
+  signal hit_rst_logic : std_logic;
 
   -- for test
   signal test_data_in : unsigned(7 downto 0) := (others => '0');
@@ -334,12 +359,13 @@ begin
       clk_ref     => REFCLK,
       clk_dac     => DACCLK,
       clk_sys     => clk_sys,
-      clk_rx      => clk_rx,
+      clk_fpga      => clk_fpga,
       clk_dac_rst => clk_dac_rst,
       clk_ref_rst => clk_ref_rst,
       clk_sys_rst => clk_sys_rst,
       locked      => locked_jadepix_mmcm
       );
+
 
 
   ipbus_payload : entity work.ipbus_payload
@@ -376,6 +402,7 @@ begin
       cfg_fifo_pfull => cfg_fifo_pfull,
       cfg_fifo_count => cfg_fifo_count,
 
+      INQUIRY       => INQUIRY,
       CACHE_BIT_SET => CACHE_BIT_SET,
 
       rs_start         => rs_start,
@@ -409,8 +436,19 @@ begin
 
       spi_trans_end => spi_trans_end,
 
-
-      PDB => PDB,
+      PDB                 => open,
+      SN_OEn              => SN_OEn,
+      POR                 => POR,
+      EN_diff             => EN_diff,
+      Ref_clk_1G_f        => Ref_clk_1G_f,
+      CLK_SEL             => CLK_SEL,
+      D_RST               => D_RST,
+      SERIALIZER_RST      => SERIALIZER_RST,
+      sel_chip_clk        => sel_chip_clk,
+      blk_sel_def         => blk_sel_def,
+      cfg_multi_factor_t0 => cfg_multi_factor_t0,
+      cfg_multi_factor_t1 => cfg_multi_factor_t1,
+      cfg_multi_factor_t2 => cfg_multi_factor_t2,
 
       -- FIFOs
       ctrl_fifo_rst          => ctrl_fifo_rst,
@@ -430,7 +468,13 @@ begin
       ss   => open,
       mosi => mosi,
       miso => miso,
-      sclk => sclk
+      sclk => sclk,
+
+      -- DEBUG
+      debug   => debug,
+      ca_en   => ca_en_soft,
+      ca_soft => ca_soft,
+      hit_rst => hit_rst_soft
       );
 
   jadepix_ctrl_wrapper : entity work.jadepix_ctrl_wrapper
@@ -444,16 +488,19 @@ begin
       load_soft     => load_soft,
       LOAD          => LOAD,
 
-      cfg_sync       => cfg_sync,
-      cfg_fifo_rst   => cfg_fifo_rst,
-      cfg_fifo_empty => cfg_fifo_empty,
-      cfg_fifo_pfull => cfg_fifo_pfull,
-      cfg_fifo_count => cfg_fifo_count,
-      cfg_busy       => cfg_busy,
-      cfg_start      => cfg_start,
+      cfg_sync            => cfg_sync,
+      cfg_fifo_rst        => cfg_fifo_rst,
+      cfg_fifo_empty      => cfg_fifo_empty,
+      cfg_fifo_pfull      => cfg_fifo_pfull,
+      cfg_fifo_count      => cfg_fifo_count,
+      cfg_busy            => cfg_busy,
+      cfg_start           => cfg_start,
+      cfg_multi_factor_t0 => cfg_multi_factor_t0,
+      cfg_multi_factor_t1 => cfg_multi_factor_t1,
+      cfg_multi_factor_t2 => cfg_multi_factor_t2,
 
-      clk_cache       => clk_cache,
       start_cache     => start_cache,
+      clk_cache       => clk_cache,
       clk_cache_delay => clk_cache_delay,
       is_busy_cache   => is_busy_cache,
 
@@ -464,8 +511,8 @@ begin
 
       RA       => row_num,
       RA_EN    => RA_EN,
-      CA       => CA,
-      CA_EN    => CA_EN,
+      CA       => ca_logic,
+      CA_EN    => ca_en_logic,
       CON_SELM => CON_SELM,
       CON_SELP => CON_SELP,
       CON_DATA => CON_DATA,
@@ -475,7 +522,7 @@ begin
       rs_frame_num_set => rs_frame_num_set,
       rs_frame_cnt     => rs_frame_cnt,
 
-      HIT_RST => HIT_RST,
+      HIT_RST => hit_rst_logic,
       RD_EN   => RD_EN,
 
       MATRIX_GRST => MATRIX_GRST,
@@ -499,6 +546,7 @@ begin
       anasel_en_gs => anasel_en_gs
       );
 
+
   DIGSEL_EN <= digsel_en_rs and digsel_en_soft;
   ANASEL_EN <= anasel_en_gs and anasel_en_soft;
   GSHUTTER  <= gshutter_gs or gshutter_soft;
@@ -511,11 +559,10 @@ begin
   rd_data_rst <= rs_start or gs_start or clk_sys_rst;  -- when start rolling shutter or global shutter, reset data readout
   jadepix_read_data : entity work.jadepix_read_data
     port map(
-
       clk => clk_sys,
-      rst => clk_sys_rst,
+      rst => rd_data_rst,
 
-      clk_rx => clk_rx,
+      clk_fpga => clk_fpga,
 
       start_cache     => start_cache,
       clk_cache       => clk_cache,
@@ -526,11 +573,12 @@ begin
       row       => row_num,
 
       VALID_IN => VALID_IN,
-      DATA_IN  => std_logic_vector(test_data_in),
+      DATA_IN  => DATA_IN,
 
-      FIFO_READ_EN          => FIFO_READ_EN,
-      BLK_SELECT            => BLK_SELECT,
-      INQUIRY               => INQUIRY,
+      FIFO_READ_EN => FIFO_READ_EN,
+      BLK_SELECT   => BLK_SELECT,
+      blk_sel_def  => blk_sel_def,
+
       -- DATA FIFO
       data_fifo_rst         => data_fifo_rst,
       data_fifo_wr_clk      => data_fifo_wr_clk,
@@ -539,6 +587,7 @@ begin
       data_fifo_full        => data_fifo_full,
       data_fifo_almost_full => data_fifo_almost_full
       );
+
 
   -- Instantiate the IPbus transactor wrapper. It is necessary.
   ipbus_transactor_wrapper_0 : entity work.ipbus_transactor_wrapper
@@ -725,7 +774,7 @@ begin
   begin
     if ?? rd_data_rst then
       test_data_in <= 8X"FF";
-    elsif rising_edge(clk_rx) then
+    elsif rising_edge(clk_fpga) then
       if ?? clk_cache then
         test_data_in <= test_data_in + cnt;
       end if;
