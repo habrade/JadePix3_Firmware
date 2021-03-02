@@ -53,16 +53,18 @@ entity jadepix_ctrl is
     CON_SELP : out std_logic;
     CON_DATA : out std_logic;
 
-    -- chip config fifo
-    cfg_sync          : in  jadepix_cfg;
-    cfg_fifo_rst      : in  std_logic;
-    cfg_busy          : out std_logic;
-    cfg_fifo_empty    : out std_logic;
-    cfg_fifo_pfull    : out std_logic;
-    cfg_fifo_count    : out std_logic_vector(CFG_FIFO_COUNT_WITDH-1 downto 0);
-    cfg_add_factor_t0 : in  std_logic_vector(7 downto 0);
-    cfg_add_factor_t1 : in  std_logic_vector(15 downto 0);
-    cfg_add_factor_t2 : in  std_logic_vector(7 downto 0);
+    -- Chip config fifo
+    cfg_fifo_dout       : in  std_logic_vector(2 downto 0);
+    cfg_fifo_dout_valid : in  std_logic;
+    cfg_fifo_empty      : in  std_logic;
+    cfg_fifo_pfull      : in  std_logic;
+    cfg_fifo_count      : in  std_logic_vector(CFG_FIFO_COUNT_WITDH-1 downto 0);
+    cfg_fifo_rd_en      : out std_logic;
+    cfg_busy            : out std_logic;
+
+    cfg_add_factor_t0 : in std_logic_vector(7 downto 0);
+    cfg_add_factor_t1 : in std_logic_vector(15 downto 0);
+    cfg_add_factor_t2 : in std_logic_vector(7 downto 0);
 
     digsel_en_rs : out std_logic;
     anasel_en_gs : out std_logic;
@@ -118,9 +120,7 @@ architecture behv of jadepix_ctrl is
   signal rs_finished : std_logic;
 
   -- FIFO
-  signal empty, prog_full, fifo_rst : std_logic;
-  signal cfg_dout                   : std_logic_vector(2 downto 0);
-  signal cfg_rd_en, cfg_dout_valid  : std_logic;
+--  signal empty, prog_full, fifo_rst : std_logic;
   signal pix_cnt                    : integer range 0 to (N_ROW * N_COL - 1) := 0;
   signal cfg_cnt                    : std_logic_vector(19 downto 0)          := (others => '0');
 
@@ -148,35 +148,34 @@ architecture behv of jadepix_ctrl is
   signal rs_frame_stop : std_logic := '0';
 
   -- DEBUG
-  attribute mark_debug                   : string;
-  attribute mark_debug of cfg_fifo_empty : signal is "true";
-  attribute mark_debug of cfg_fifo_pfull : signal is "true";
-  attribute mark_debug of fifo_rst       : signal is "true";
-  attribute mark_debug of cfg_fifo_count : signal is "true";
-  attribute mark_debug of cfg_sync       : signal is "true";
-  attribute mark_debug of CON_SELM       : signal is "true";
-  attribute mark_debug of CON_SELP       : signal is "true";
-  attribute mark_debug of CON_DATA       : signal is "true";
-  attribute mark_debug of RA             : signal is "true";
-  attribute mark_debug of CA             : signal is "true";
-  attribute mark_debug of RA_EN          : signal is "true";
-  attribute mark_debug of CA_EN          : signal is "true";
-  attribute mark_debug of state_next     : signal is "true";
-  attribute mark_debug of state_reg      : signal is "true";
-  attribute mark_debug of cfg_rd_en      : signal is "true";
-  attribute mark_debug of cfg_dout       : signal is "true";
-  attribute mark_debug of cfg_dout_valid : signal is "true";
-  attribute mark_debug of pix_cnt        : signal is "true";
-  attribute mark_debug of cfg_cnt        : signal is "true";
-  attribute mark_debug of rs_cnt         : signal is "true";
-  attribute mark_debug of cfg_busy       : signal is "true";
-  attribute mark_debug of rs_busy        : signal is "true";
-  attribute mark_debug of gs_busy        : signal is "true";
-  attribute mark_debug of cfg_start      : signal is "true";
-  attribute mark_debug of rs_start       : signal is "true";
-  attribute mark_debug of gs_start       : signal is "true";
-  attribute mark_debug of HIT_RST        : signal is "true";
-  attribute mark_debug of RD_EN          : signal is "true";
+  attribute mark_debug                        : string;
+  attribute mark_debug of cfg_fifo_empty      : signal is "true";
+  attribute mark_debug of cfg_fifo_pfull      : signal is "true";
+--  attribute mark_debug of fifo_rst            : signal is "true";
+  attribute mark_debug of cfg_fifo_count      : signal is "true";
+  attribute mark_debug of CON_SELM            : signal is "true";
+  attribute mark_debug of CON_SELP            : signal is "true";
+  attribute mark_debug of CON_DATA            : signal is "true";
+  attribute mark_debug of RA                  : signal is "true";
+  attribute mark_debug of CA                  : signal is "true";
+  attribute mark_debug of RA_EN               : signal is "true";
+  attribute mark_debug of CA_EN               : signal is "true";
+  attribute mark_debug of state_next          : signal is "true";
+  attribute mark_debug of state_reg           : signal is "true";
+  attribute mark_debug of cfg_fifo_rd_en      : signal is "true";
+--  attribute mark_debug of cfg_dout            : signal is "true";
+  attribute mark_debug of cfg_fifo_dout_valid : signal is "true";
+  attribute mark_debug of pix_cnt             : signal is "true";
+  attribute mark_debug of cfg_cnt             : signal is "true";
+  attribute mark_debug of rs_cnt              : signal is "true";
+  attribute mark_debug of cfg_busy            : signal is "true";
+  attribute mark_debug of rs_busy             : signal is "true";
+  attribute mark_debug of gs_busy             : signal is "true";
+  attribute mark_debug of cfg_start           : signal is "true";
+  attribute mark_debug of rs_start            : signal is "true";
+  attribute mark_debug of gs_start            : signal is "true";
+  attribute mark_debug of HIT_RST             : signal is "true";
+  attribute mark_debug of RD_EN               : signal is "true";
 
 
   attribute mark_debug of pulse_out                 : signal is "true";
@@ -277,7 +276,7 @@ begin
         state_next <= CFG_GET_DATA;
 
       when CFG_GET_DATA =>
-        if cfg_dout_valid = '1' then
+        if cfg_fifo_dout_valid = '1' then
           state_next <= CFG_EN_DATA;
         end if;
 
@@ -437,13 +436,13 @@ begin
           RA    <= (others => '0');
           CA    <= (others => '0');
 
-          cfg_rd_en <= '0';
-          cfg_busy  <= '0';
-          pix_cnt   <= 0;
-          cfg_cnt   <= (others => '0');
-          CON_SELM  <= '0';
-          CON_SELP  <= '0';
-          CON_DATA  <= '0';
+          cfg_fifo_rd_en <= '0';
+          cfg_busy       <= '0';
+          pix_cnt        <= 0;
+          cfg_cnt        <= (others => '0');
+          CON_SELM       <= '0';
+          CON_SELP       <= '0';
+          CON_DATA       <= '0';
 
           MATRIX_GRST  <= '1';
           digsel_en_rs <= '0';
@@ -468,12 +467,12 @@ begin
           rs_busy   <= '0';
 
         when CFG_GO =>
-          cfg_rd_en   <= '1';
-          cfg_busy    <= '1';
-          MATRIX_GRST <= '1';
+          cfg_fifo_rd_en <= '1';
+          cfg_busy       <= '1';
+          MATRIX_GRST    <= '1';
 
         when CFG_GET_DATA =>
-          cfg_rd_en <= '0';
+          cfg_fifo_rd_en <= '0';
 
         when CFG_EN_DATA =>
           cfg_cnt <= cfg_cnt + 1;
@@ -483,12 +482,12 @@ begin
           RA    <= std_logic_vector(to_unsigned(pix_cnt / N_COL, ROW_WIDTH));
           CA    <= std_logic_vector(to_unsigned(pix_cnt rem N_COL, COL_WIDTH));
 
-          CON_DATA <= cfg_dout(0);
+          CON_DATA <= cfg_fifo_dout(0);
 
         when CFG_EN_SEL =>
           cfg_cnt  <= cfg_cnt + 1;
-          CON_SELM <= cfg_dout(2);
-          CON_SELP <= cfg_dout(1);
+          CON_SELM <= cfg_fifo_dout(2);
+          CON_SELP <= cfg_fifo_dout(1);
 
         when CFG_DIS_SEL =>
           cfg_cnt  <= cfg_cnt + 1;
@@ -505,18 +504,18 @@ begin
           CA       <= (others => '0');
 
         when CFG_STOP =>
-          RA_EN       <= '0';
-          CA_EN       <= '0';
-          RA          <= (others => '0');
-          CA          <= (others => '0');
-          cfg_rd_en   <= '0';
-          cfg_busy    <= '0';
-          pix_cnt     <= 0;
-          cfg_cnt     <= (others => '0');
-          CON_SELM    <= '0';
-          CON_SELP    <= '0';
-          CON_DATA    <= '0';
-          MATRIX_GRST <= '0';
+          RA_EN          <= '0';
+          CA_EN          <= '0';
+          RA             <= (others => '0');
+          CA             <= (others => '0');
+          cfg_fifo_rd_en <= '0';
+          cfg_busy       <= '0';
+          pix_cnt        <= 0;
+          cfg_cnt        <= (others => '0');
+          CON_SELM       <= '0';
+          CON_SELP       <= '0';
+          CON_DATA       <= '0';
+          MATRIX_GRST    <= '0';
 
         when RS_GO =>
           rs_busy      <= '1';
@@ -695,27 +694,27 @@ begin
     end if;
   end process;
 
-  fifo_rst_gen : process(clk)
-  begin
-    if rising_edge(clk) then
-      fifo_rst <= rst or cfg_fifo_rst;
-    end if;
-  end process;
+--  fifo_rst_gen : process(clk)
+--  begin
+--    if rising_edge(clk) then
+--      fifo_rst <= rst or cfg_fifo_rst;
+--    end if;
+--  end process;
 
-  conf_fifo : fifo_generator_0
-    port map (
-      clk        => clk,
-      srst       => fifo_rst,
-      din        => cfg_sync.din,
-      wr_en      => cfg_sync.wr_en,
-      rd_en      => cfg_rd_en,
-      dout       => cfg_dout,
-      full       => open,
-      empty      => cfg_fifo_empty,
-      valid      => cfg_dout_valid,
-      data_count => cfg_fifo_count,
-      prog_full  => cfg_fifo_pfull
-      );
+--  conf_fifo : fifo_generator_0
+--    port map (
+--      clk        => clk,
+--      srst       => fifo_rst,
+--      din        => cfg_sync.din,
+--      wr_en      => cfg_sync.wr_en,
+--      rd_en      => cfg_fifo_rd_en,
+--      dout       => cfg_dout,
+--      full       => open,
+--      empty      => cfg_fifo_empty,
+--      valid      => cfg_fifo_dout_valid,
+--      data_count => cfg_fifo_count,
+--      prog_full  => cfg_fifo_pfull
+--      );
 
 
 end behv;

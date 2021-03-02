@@ -59,12 +59,14 @@ entity ipbus_slave_reg_fifo is
     stat_reg_stb : out std_logic_vector(integer_max(N_STAT, 1)-1 downto 0);
 
     -- for write FIFO
-    wfifo_rst     : in  std_logic                                               := '0';
-    wfifo_rd_clk  : in  std_logic_vector(integer_max(N_WFIFO, 1)-1 downto 0)    := (others => '0');
-    wfifo_rd_en   : in  std_logic_vector(integer_max(N_WFIFO, 1)-1 downto 0)    := (others => '0');
-    wfifo_valid   : out std_logic_vector(integer_max(N_WFIFO, 1)-1 downto 0)    := (others => '0');
-    wfifo_empty   : out std_logic_vector(integer_max(N_WFIFO, 1)-1 downto 0)    := (others => '0');
-    wfifo_rd_dout : out std_logic_vector(32*integer_max(N_WFIFO, 1)-1 downto 0) := (others => '0');
+    wfifo_rst           : in  std_logic                                               := '0';
+    wfifo_rd_clk        : in  std_logic_vector(integer_max(N_WFIFO, 1)-1 downto 0)    := (others => '0');
+    wfifo_rd_en         : in  std_logic_vector(integer_max(N_WFIFO, 1)-1 downto 0)    := (others => '0');
+    wfifo_valid         : out std_logic_vector(integer_max(N_WFIFO, 1)-1 downto 0)    := (others => '0');
+    wfifo_empty         : out std_logic_vector(integer_max(N_WFIFO, 1)-1 downto 0)    := (others => '0');
+    wfifo_prog_full     : out std_logic_vector(integer_max(N_WFIFO, 1)-1 downto 0)    := (others => '0');
+    wfifo_wr_data_count : out std_logic_vector(18*integer_max(N_WFIFO, 1)-1 downto 0) := (others => '0');
+    wfifo_rd_dout       : out std_logic_vector(32*integer_max(N_WFIFO, 1)-1 downto 0) := (others => '0');
 
     --for read  FIFO
     rfifo_rst         : in  std_logic                                               := '0';
@@ -163,12 +165,14 @@ begin
           ipbus_in  => ipbw(REG_NSLV+i),
           ipbus_out => ipbr(REG_NSLV+i),
 
-          wfifo_rd_clk  => wfifo_rd_clk(i),
-          wfifo_rd_en   => wfifo_rd_en(i),
-          wfifo_valid   => wfifo_valid(i),
-          wfifo_empty   => wfifo_empty(i),
-          wfifo_rd_dout => wfifo_rd_dout(32*(i+1)-1 downto 32*i),
-          debug         => debug(i+8)
+          wfifo_rd_clk        => wfifo_rd_clk(i),
+          wfifo_rd_en         => wfifo_rd_en(i),
+          wfifo_valid         => wfifo_valid(i),
+          wfifo_empty         => wfifo_empty(i),
+          wfifo_prog_full     => wfifo_prog_full(i),
+          wfifo_wr_data_count => wfifo_wr_data_count(18*(i+1)-1 downto 18*i),
+          wfifo_rd_dout       => wfifo_rd_dout(32*(i+1)-1 downto 32*i),
+          debug               => debug(i+8)
           );
     end generate;
   end generate;

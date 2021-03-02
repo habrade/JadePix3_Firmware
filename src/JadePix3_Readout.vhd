@@ -171,12 +171,10 @@ architecture rtl of JadePix3_Readout is
   signal clk_cache     : std_logic;
   signal is_busy_cache : std_logic;
 
-  -- config FIFO signals
-  signal cfg_sync       : jadepix_cfg;
-  signal cfg_fifo_rst   : std_logic;
-  signal cfg_fifo_empty : std_logic;
-  signal cfg_fifo_pfull : std_logic;
-  signal cfg_fifo_count : std_logic_vector(CFG_FIFO_COUNT_WITDH-1 downto 0);
+  -- Config FIFO signals
+--  signal cfg_fifo_empty : std_logic;
+--  signal cfg_fifo_pfull : std_logic;
+--  signal cfg_fifo_count : std_logic_vector(CFG_FIFO_COUNT_WITDH-1 downto 0);
 
   signal anasel_en_gs : std_logic;
   signal digsel_en_rs : std_logic;
@@ -191,11 +189,13 @@ architecture rtl of JadePix3_Readout is
   signal gshutter_soft  : std_logic;
 
   -- FIFOs
-  signal ctrl_fifo_rst, data_fifo_rst : std_logic;
+  signal data_fifo_rst                : std_logic;
   signal slow_ctrl_fifo_rd_clk        : std_logic;
   signal slow_ctrl_fifo_rd_en         : std_logic;
   signal slow_ctrl_fifo_valid         : std_logic;
   signal slow_ctrl_fifo_empty         : std_logic;
+  signal slow_ctrl_fifo_prog_full     : std_logic;
+  signal slow_ctrl_fifo_wr_data_count : std_logic_vector(CFG_FIFO_COUNT_WITDH-1 downto 0);
   signal slow_ctrl_fifo_rd_dout       : std_logic_vector(31 downto 0);
 
   signal data_fifo_wr_clk      : std_logic;
@@ -390,13 +390,8 @@ begin
       DAC_DATA   => DAC_DATA,
 
       -- JadePix
-      cfg_start      => cfg_start,
-      cfg_sync       => cfg_sync,
-      cfg_fifo_rst   => cfg_fifo_rst,
-      cfg_busy       => cfg_busy,
-      cfg_fifo_empty => cfg_fifo_empty,
-      cfg_fifo_pfull => cfg_fifo_pfull,
-      cfg_fifo_count => cfg_fifo_count,
+      cfg_start => cfg_start,
+      cfg_busy  => cfg_busy,
 
       INQUIRY       => INQUIRY,
       CACHE_BIT_SET => CACHE_BIT_SET,
@@ -447,18 +442,19 @@ begin
       cfg_add_factor_t2 => cfg_add_factor_t2,
 
       -- FIFOs
-      ctrl_fifo_rst          => ctrl_fifo_rst,
-      slow_ctrl_fifo_rd_clk  => slow_ctrl_fifo_rd_clk,
-      slow_ctrl_fifo_rd_en   => slow_ctrl_fifo_rd_en,
-      slow_ctrl_fifo_valid   => slow_ctrl_fifo_valid,
-      slow_ctrl_fifo_empty   => slow_ctrl_fifo_empty,
-      slow_ctrl_fifo_rd_dout => slow_ctrl_fifo_rd_dout,
-      data_fifo_rst          => data_fifo_rst,
-      data_fifo_wr_clk       => data_fifo_wr_clk,
-      data_fifo_wr_en        => data_fifo_wr_en,
-      data_fifo_full         => data_fifo_full,
-      data_fifo_almost_full  => data_fifo_almost_full,
-      data_fifo_wr_din       => data_fifo_wr_din,
+      slow_ctrl_fifo_rd_clk        => slow_ctrl_fifo_rd_clk,
+      slow_ctrl_fifo_rd_en         => slow_ctrl_fifo_rd_en,
+      slow_ctrl_fifo_valid         => slow_ctrl_fifo_valid,
+      slow_ctrl_fifo_empty         => slow_ctrl_fifo_empty,
+      slow_ctrl_fifo_rd_dout       => slow_ctrl_fifo_rd_dout,
+      slow_ctrl_fifo_prog_full     => slow_ctrl_fifo_prog_full,
+      slow_ctrl_fifo_wr_data_count => slow_ctrl_fifo_wr_data_count,
+      data_fifo_rst                => data_fifo_rst,
+      data_fifo_wr_clk             => data_fifo_wr_clk,
+      data_fifo_wr_en              => data_fifo_wr_en,
+      data_fifo_full               => data_fifo_full,
+      data_fifo_almost_full        => data_fifo_almost_full,
+      data_fifo_wr_din             => data_fifo_wr_din,
 
       -- SPI master
       ss   => open,
@@ -500,13 +496,15 @@ begin
       load_soft     => load_soft,
       LOAD          => LOAD,
 
-      cfg_sync          => cfg_sync,
-      cfg_fifo_rst      => cfg_fifo_rst,
-      cfg_fifo_empty    => cfg_fifo_empty,
-      cfg_fifo_pfull    => cfg_fifo_pfull,
-      cfg_fifo_count    => cfg_fifo_count,
-      cfg_busy          => cfg_busy,
-      cfg_start         => cfg_start,
+      cfg_busy            => cfg_busy,
+      cfg_start           => cfg_start,
+      cfg_fifo_dout       => slow_ctrl_fifo_rd_dout(2 downto 0),
+      cfg_fifo_dout_valid => slow_ctrl_fifo_valid,
+      cfg_fifo_empty      => slow_ctrl_fifo_empty,
+      cfg_fifo_pfull      => slow_ctrl_fifo_prog_full,
+      cfg_fifo_count      => slow_ctrl_fifo_wr_data_count,
+      cfg_fifo_rd_en      => slow_ctrl_fifo_rd_en,
+
       cfg_add_factor_t0 => cfg_add_factor_t0,
       cfg_add_factor_t1 => cfg_add_factor_t1,
       cfg_add_factor_t2 => cfg_add_factor_t2,
@@ -613,23 +611,5 @@ begin
       data_fifo_full        => data_fifo_full,
       data_fifo_almost_full => data_fifo_almost_full
       );
-
-
---      gen_test: process(all)
---      variable cnt : integer range 0 to 1 := 0;
---      begin
---              if ?? rd_data_rst then
---                      test_data_in_16 <= 16X"FFFF";
---              elsif rising_edge(clk_rx) then
-
---                      if ?? clk_cache then
---                              test_data_in_16 <= test_data_in_16 + 1;
---                      end if;
-
---                      cnt := (cnt + 1) rem 2;
-
---              end if;
---      end process;
-
 
 end rtl;

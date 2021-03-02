@@ -35,13 +35,8 @@ entity ipbus_payload is
     -- JadePix
     -- chip config fifo
     cfg_start      : out std_logic;
-    cfg_sync       : out jadepix_cfg;
-    cfg_fifo_rst   : out std_logic;
     cfg_busy       : in  std_logic;
-    cfg_fifo_empty : in  std_logic;
-    cfg_fifo_pfull : in  std_logic;
-    cfg_fifo_count : in  std_logic_vector(CFG_FIFO_COUNT_WITDH-1 downto 0);
-
+    
     INQUIRY       : out std_logic_vector(1 downto 0);
     CACHE_BIT_SET : out std_logic_vector(3 downto 0);
 
@@ -84,18 +79,19 @@ entity ipbus_payload is
     SERIALIZER_RST : out std_logic;
 
     -- FIFO
-    ctrl_fifo_rst          : in  std_logic;
-    slow_ctrl_fifo_rd_clk  : in  std_logic;
-    slow_ctrl_fifo_rd_en   : in  std_logic;
-    slow_ctrl_fifo_valid   : out std_logic;
-    slow_ctrl_fifo_empty   : out std_logic;
-    slow_ctrl_fifo_rd_dout : out std_logic_vector(31 downto 0);
-    data_fifo_rst          : in  std_logic;
-    data_fifo_wr_clk       : in  std_logic;
-    data_fifo_wr_en        : in  std_logic;
-    data_fifo_wr_din       : in  std_logic_vector(31 downto 0);
-    data_fifo_full         : out std_logic;
-    data_fifo_almost_full  : out std_logic;
+    slow_ctrl_fifo_rd_clk        : in  std_logic;
+    slow_ctrl_fifo_rd_en         : in  std_logic;
+    slow_ctrl_fifo_valid         : out std_logic;
+    slow_ctrl_fifo_empty         : out std_logic;
+    slow_ctrl_fifo_prog_full     : out std_logic;
+    slow_ctrl_fifo_wr_data_count : out std_logic_vector(CFG_FIFO_COUNT_WITDH-1 downto 0);
+    slow_ctrl_fifo_rd_dout       : out std_logic_vector(31 downto 0);
+    data_fifo_rst                : in  std_logic;
+    data_fifo_wr_clk             : in  std_logic;
+    data_fifo_wr_en              : in  std_logic;
+    data_fifo_wr_din             : in  std_logic_vector(31 downto 0);
+    data_fifo_full               : out std_logic;
+    data_fifo_almost_full        : out std_logic;
 
     -- SPI Master
     ss   : out std_logic_vector(N_SS - 1 downto 0);
@@ -104,12 +100,12 @@ entity ipbus_payload is
     sclk : out std_logic;
 
     -- DEBUG
-    debug               : out std_logic;
-    hit_rst             : out std_logic;
-    ca_en               : out std_logic;
-    sel_chip_clk        : out std_logic;
-    ca_soft             : out std_logic_vector(COL_WIDTH-1 downto 0);
-    blk_sel_def         : out std_logic_vector(1 downto 0);
+    debug             : out std_logic;
+    hit_rst           : out std_logic;
+    ca_en             : out std_logic;
+    sel_chip_clk      : out std_logic;
+    ca_soft           : out std_logic_vector(COL_WIDTH-1 downto 0);
+    blk_sel_def       : out std_logic_vector(1 downto 0);
     cfg_add_factor_t0 : out std_logic_vector(7 downto 0);
     cfg_add_factor_t1 : out std_logic_vector(15 downto 0);
     cfg_add_factor_t2 : out std_logic_vector(7 downto 0);
@@ -201,13 +197,8 @@ begin
       spi_rst  => spi_rst,
       spi_busy => spi_busy,
 
-      cfg_start      => cfg_start,
-      cfg_sync       => cfg_sync,
-      cfg_fifo_rst   => cfg_fifo_rst,
-      cfg_busy       => cfg_busy,
-      cfg_fifo_empty => cfg_fifo_empty,
-      cfg_fifo_pfull => cfg_fifo_pfull,
-      cfg_fifo_count => cfg_fifo_count,
+      cfg_start    => cfg_start,
+      cfg_busy     => cfg_busy,
 
       INQUIRY       => INQUIRY,
       CACHE_BIT_SET => CACHE_BIT_SET,
@@ -241,33 +232,34 @@ begin
       digsel_en_soft => digsel_en_soft,
       load_soft      => load_soft,
 
-      PDB                 => PDB,
-      SN_OEn              => SN_OEn,
-      POR                 => POR,
-      EN_diff             => EN_diff,
-      Ref_clk_1G_f        => Ref_clk_1G_f,
-      CLK_SEL             => CLK_SEL,
-      D_RST               => D_RST,
-      SERIALIZER_RST      => SERIALIZER_RST,
-      sel_chip_clk        => sel_chip_clk,
-      blk_sel_def         => blk_sel_def,
+      PDB               => PDB,
+      SN_OEn            => SN_OEn,
+      POR               => POR,
+      EN_diff           => EN_diff,
+      Ref_clk_1G_f      => Ref_clk_1G_f,
+      CLK_SEL           => CLK_SEL,
+      D_RST             => D_RST,
+      SERIALIZER_RST    => SERIALIZER_RST,
+      sel_chip_clk      => sel_chip_clk,
+      blk_sel_def       => blk_sel_def,
       cfg_add_factor_t0 => cfg_add_factor_t0,
       cfg_add_factor_t1 => cfg_add_factor_t1,
       cfg_add_factor_t2 => cfg_add_factor_t2,
 
       --FIFO
-      ctrl_fifo_rst          => ctrl_fifo_rst,
-      slow_ctrl_fifo_rd_clk  => slow_ctrl_fifo_rd_clk,
-      slow_ctrl_fifo_rd_en   => slow_ctrl_fifo_rd_en,
-      slow_ctrl_fifo_valid   => slow_ctrl_fifo_valid,
-      slow_ctrl_fifo_empty   => slow_ctrl_fifo_empty,
-      slow_ctrl_fifo_rd_dout => slow_ctrl_fifo_rd_dout,
-      data_fifo_rst          => data_fifo_rst,
-      data_fifo_wr_clk       => data_fifo_wr_clk,
-      data_fifo_wr_en        => data_fifo_wr_en,
-      data_fifo_full         => data_fifo_full,
-      data_fifo_almost_full  => data_fifo_almost_full,
-      data_fifo_wr_din       => data_fifo_wr_din,
+      slow_ctrl_fifo_rd_clk        => slow_ctrl_fifo_rd_clk,
+      slow_ctrl_fifo_rd_en         => slow_ctrl_fifo_rd_en,
+      slow_ctrl_fifo_valid         => slow_ctrl_fifo_valid,
+      slow_ctrl_fifo_empty         => slow_ctrl_fifo_empty,
+      slow_ctrl_fifo_prog_full     => slow_ctrl_fifo_prog_full,
+      slow_ctrl_fifo_wr_data_count => slow_ctrl_fifo_wr_data_count,
+      slow_ctrl_fifo_rd_dout       => slow_ctrl_fifo_rd_dout,
+      data_fifo_rst                => data_fifo_rst,
+      data_fifo_wr_clk             => data_fifo_wr_clk,
+      data_fifo_wr_en              => data_fifo_wr_en,
+      data_fifo_full               => data_fifo_full,
+      data_fifo_almost_full        => data_fifo_almost_full,
+      data_fifo_wr_din             => data_fifo_wr_din,
 
       --DEBUG
       debug   => debug,
