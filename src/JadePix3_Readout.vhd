@@ -265,6 +265,12 @@ architecture rtl of JadePix3_Readout is
   attribute mark_debug of dplse_soft     : signal is "true";
   attribute mark_debug of sel_chip_clk   : signal is "true";
 
+  attribute mark_debug of slow_ctrl_fifo_rd_en         : signal is "true";
+  attribute mark_debug of slow_ctrl_fifo_valid         : signal is "true";
+  attribute mark_debug of slow_ctrl_fifo_empty         : signal is "true";
+  attribute mark_debug of slow_ctrl_fifo_rd_dout       : signal is "true";
+  attribute mark_debug of slow_ctrl_fifo_prog_full     : signal is "true";
+  attribute mark_debug of slow_ctrl_fifo_wr_data_count : signal is "true";
 
 begin
 
