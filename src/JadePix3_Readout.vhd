@@ -190,7 +190,6 @@ architecture rtl of JadePix3_Readout is
 
   -- FIFOs
   signal data_fifo_rst                : std_logic;
-  signal slow_ctrl_fifo_rd_clk        : std_logic;
   signal slow_ctrl_fifo_rd_en         : std_logic;
   signal slow_ctrl_fifo_valid         : std_logic;
   signal slow_ctrl_fifo_empty         : std_logic;
@@ -442,7 +441,7 @@ begin
       cfg_add_factor_t2 => cfg_add_factor_t2,
 
       -- FIFOs
-      slow_ctrl_fifo_rd_clk        => slow_ctrl_fifo_rd_clk,
+      slow_ctrl_fifo_rd_clk        => clk_sys,
       slow_ctrl_fifo_rd_en         => slow_ctrl_fifo_rd_en,
       slow_ctrl_fifo_valid         => slow_ctrl_fifo_valid,
       slow_ctrl_fifo_empty         => slow_ctrl_fifo_empty,
