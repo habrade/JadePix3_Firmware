@@ -118,10 +118,7 @@ entity ipbus_jadepix_device is
     debug   : out std_logic;
     hit_rst : out std_logic;
     ca_en   : out std_logic;
-    ca_soft : out std_logic_vector(COL_WIDTH-1 downto 0);
-
-    -- Test pattern
-    valid_len : out integer range 0 to 16
+    ca_soft : out std_logic_vector(COL_WIDTH-1 downto 0)
     );
 end ipbus_jadepix_device;
 
@@ -129,7 +126,7 @@ architecture behv of ipbus_jadepix_device is
   -- IPbus reg
   constant SYNC_REG_ENA               : boolean := false;
   constant N_STAT                     : integer := 2;
-  constant N_CTRL                     : integer := 11;
+  constant N_CTRL                     : integer := 10;
   constant N_WFIFO                    : integer := 1;
   constant N_RFIFO                    : integer := 1;
   signal stat                         : ipb_reg_v(N_STAT-1 downto 0);
@@ -159,8 +156,6 @@ architecture behv of ipbus_jadepix_device is
 
   -- IPbus drp
 --  signal ram_rst : std_logic_vector(N_FIFO-1 downto 0);
-
-  signal cfg : jadepix_cfg;
 
   -- DEBUG
   attribute mark_debug                    : string;
@@ -263,61 +258,54 @@ begin
   process(clk)
   begin
     if rising_edge(clk) then
-      cfg.wr_en <= ctrl(0)(3);
-      cfg.din   <= ctrl(0)(2 downto 0);
+      cfg_start_tmp  <= ctrl(0)(0);
+      rs_start_tmp   <= ctrl(0)(1);
+      gs_start_tmp   <= ctrl(0)(2);
+      spi_rst        <= ctrl(0)(3);
+      CLK_SEL        <= ctrl(0)(4);
+      PDB            <= ctrl(0)(5);
+      load_tmp       <= ctrl(0)(6);
+      cfg_fifo_rst   <= ctrl(0)(7);
+      cache_bit_set  <= ctrl(0)(11 downto 8);
+      D_RST          <= ctrl(0)(12);
+      gs_col         <= ctrl(0)(21 downto 13);
+      anasel_en_soft <= ctrl(0)(22);
+      digsel_en_soft <= ctrl(0)(23);
+      gs_sel_pulse   <= ctrl(0)(24);
+      aplse_soft     <= ctrl(0)(25);
+      dplse_soft     <= ctrl(0)(26);
+      gshutter_soft  <= ctrl(0)(27);
+      SN_OEn         <= ctrl(0)(28);
+      POR            <= ctrl(0)(29);
+      EN_diff        <= ctrl(0)(30);
+      Ref_clk_1G_f   <= ctrl(0)(31);
 
-      cfg_start_tmp  <= ctrl(1)(0);
-      rs_start_tmp   <= ctrl(1)(1);
-      gs_start_tmp   <= ctrl(1)(2);
-      spi_rst        <= ctrl(1)(3);
-      CLK_SEL        <= ctrl(1)(4);
-      PDB            <= ctrl(1)(5);
-      load_tmp       <= ctrl(1)(6);
-      cfg_fifo_rst   <= ctrl(1)(7);
-      cache_bit_set  <= ctrl(1)(11 downto 8);
-      D_RST          <= ctrl(1)(12);
-      gs_col         <= ctrl(1)(21 downto 13);
-      anasel_en_soft <= ctrl(1)(22);
-      digsel_en_soft <= ctrl(1)(23);
-      gs_sel_pulse   <= ctrl(1)(24);
-      aplse_soft     <= ctrl(1)(25);
-      dplse_soft     <= ctrl(1)(26);
-      gshutter_soft  <= ctrl(1)(27);
-      SN_OEn         <= ctrl(1)(28);
-      POR            <= ctrl(1)(29);
-      EN_diff        <= ctrl(1)(30);
-      Ref_clk_1G_f   <= ctrl(1)(31);
+      rs_frame_num_set <= ctrl(1)(FRAME_CNT_WIDTH-1 downto 0);
 
-      rs_frame_num_set <= ctrl(2)(FRAME_CNT_WIDTH-1 downto 0);
+      hitmap_col_low  <= ctrl(2)(8 downto 0);
+      hitmap_col_high <= ctrl(2)(17 downto 9);
+      hitmap_en       <= ctrl(2)(18);
+      hitmap_num      <= ctrl(2)(22 downto 19);
 
-      hitmap_col_low  <= ctrl(3)(8 downto 0);
-      hitmap_col_high <= ctrl(3)(17 downto 9);
-      hitmap_en       <= ctrl(3)(18);
-      hitmap_num      <= ctrl(3)(22 downto 19);
+      gs_pulse_delay_cnt      <= ctrl(3)(8 downto 0);
+      gs_pulse_width_cnt_low  <= ctrl(4);
+      gs_pulse_width_cnt_high <= ctrl(5)(1 downto 0);
+      gs_pulse_deassert_cnt   <= ctrl(6)(8 downto 0);
+      gs_deassert_cnt         <= ctrl(7)(8 downto 0);
 
-      gs_pulse_delay_cnt      <= ctrl(4)(8 downto 0);
-      gs_pulse_width_cnt_low  <= ctrl(5);
-      gs_pulse_width_cnt_high <= ctrl(6)(1 downto 0);
-      gs_pulse_deassert_cnt   <= ctrl(7)(8 downto 0);
-      gs_deassert_cnt         <= ctrl(8)(8 downto 0);
+      rst_rfifo      <= ctrl(8)(0);
+      SERIALIZER_RST <= ctrl(8)(1);
+      INQUIRY        <= ctrl(8)(3 downto 2);
+      debug          <= ctrl(8)(4);
+      ca_soft        <= ctrl(8)(13 downto 5);
+      ca_en          <= ctrl(8)(14);
+      hit_rst        <= ctrl(8)(15);
+      sel_chip_clk   <= ctrl(8)(16);
+      blk_sel_def    <= ctrl(8)(18 downto 17);
 
-      rst_rfifo      <= ctrl(9)(0);
-      SERIALIZER_RST <= ctrl(9)(1);
-      INQUIRY        <= ctrl(9)(3 downto 2);
-      debug          <= ctrl(9)(4);
-      ca_soft        <= ctrl(9)(13 downto 5);
-      ca_en          <= ctrl(9)(14);
-      hit_rst        <= ctrl(9)(15);
-      sel_chip_clk   <= ctrl(9)(16);
-      blk_sel_def    <= ctrl(9)(18 downto 17);
-
-
-      cfg_add_factor_t0 <= ctrl(10)(7 downto 0);
-      cfg_add_factor_t1 <= ctrl(10)(23 downto 8);
-      cfg_add_factor_t2 <= ctrl(10)(31 downto 24);
-
-      valid_len <= to_integer(unsigned(ctrl(9)(4 downto 1)));
-
+      cfg_add_factor_t0 <= ctrl(9)(7 downto 0);
+      cfg_add_factor_t1 <= ctrl(9)(23 downto 8);
+      cfg_add_factor_t2 <= ctrl(9)(31 downto 24);
 
       ctrl_reg_stb_r <= ctrl_reg_stb;
       stat_reg_stb_r <= stat_reg_stb;

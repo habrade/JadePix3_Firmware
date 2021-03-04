@@ -108,9 +108,7 @@ entity ipbus_payload is
     blk_sel_def       : out std_logic_vector(1 downto 0);
     cfg_add_factor_t0 : out std_logic_vector(7 downto 0);
     cfg_add_factor_t1 : out std_logic_vector(15 downto 0);
-    cfg_add_factor_t2 : out std_logic_vector(7 downto 0);
-
-    valid_len : out integer range 0 to 16
+    cfg_add_factor_t2 : out std_logic_vector(7 downto 0)
 
     );
 
@@ -265,10 +263,7 @@ begin
       debug   => debug,
       ca_en   => ca_en,
       ca_soft => ca_soft,
-      hit_rst => hit_rst,
-
-      valid_len => valid_len
-
+      hit_rst => hit_rst
       );
 
 end rtl;

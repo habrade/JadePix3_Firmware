@@ -221,11 +221,6 @@ architecture rtl of JadePix3_Readout is
   signal hit_rst_soft  : std_logic;
   signal hit_rst_logic : std_logic;
 
-  -- Generate valid signal for testing
-  signal valid_test : std_logic_vector(3 downto 0);
-  signal valid_len  : integer range 0 to 16 := 0;
-
-
   -- for test
   signal hitmap_r          : std_logic_vector(15 downto 0);
   signal sel_chip_clk      : std_logic := '0';
@@ -247,7 +242,6 @@ architecture rtl of JadePix3_Readout is
 
   attribute mark_debug of BLK_SELECT   : signal is "true";
   attribute mark_debug of FIFO_READ_EN : signal is "true";
-  attribute mark_debug of CACHE_CLK    : signal is "true";
   attribute mark_debug of HIT_RST      : signal is "true";
 
   attribute mark_debug of CA             : signal is "true";
@@ -584,7 +578,6 @@ begin
   CA_EN   <= ca_en_soft   when debug = '1' else ca_en_logic;
   HIT_RST <= hit_rst_soft when debug = '1' else hit_rst_logic;
 
-  valid_test  <= (others => clk_cache);
   rd_data_rst <= rs_start or gs_start or clk_sys_rst;  -- when start rolling shutter or global shutter, reset data readout
   jadepix_read_data : entity work.jadepix_read_data
     port map(

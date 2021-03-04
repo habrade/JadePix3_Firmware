@@ -694,27 +694,4 @@ begin
     end if;
   end process;
 
---  fifo_rst_gen : process(clk)
---  begin
---    if rising_edge(clk) then
---      fifo_rst <= rst or cfg_fifo_rst;
---    end if;
---  end process;
-
---  conf_fifo : fifo_generator_0
---    port map (
---      clk        => clk,
---      srst       => fifo_rst,
---      din        => cfg_sync.din,
---      wr_en      => cfg_sync.wr_en,
---      rd_en      => cfg_fifo_rd_en,
---      dout       => cfg_dout,
---      full       => open,
---      empty      => cfg_fifo_empty,
---      valid      => cfg_fifo_dout_valid,
---      data_count => cfg_fifo_count,
---      prog_full  => cfg_fifo_pfull
---      );
-
-
 end behv;
