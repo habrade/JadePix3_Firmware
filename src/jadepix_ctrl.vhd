@@ -293,7 +293,8 @@ begin
         end if;
 
       when CFG_NEXT_PIX =>
-        if cfg_fifo_empty = '1' and cfg_fifo_count = CFG_FIFO_COUNT_ZERO then
+--        if cfg_fifo_empty = '1' and cfg_fifo_count = CFG_FIFO_COUNT_ZERO then
+        if cfg_fifo_empty = '1' then
           state_next <= CFG_STOP;
         else
           state_next <= CFG_GO;
