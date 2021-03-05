@@ -110,7 +110,7 @@ end jadepix_ctrl;
 architecture behv of jadepix_ctrl is
 
   type JADEPIX_STATE is (IDLE,
-                         CFG_GO, CFG_GET_DATA, CFG_EN_DATA, CFG_EN_SEL, CFG_DIS_SEL, CFG_NEXT_PIX, CFG_STOP,
+                         CFG_GO, CFG_EN_DATA, CFG_EN_SEL, CFG_DIS_SEL, CFG_NEXT_PIX, CFG_STOP,
                          RS_GO, RS_SET_ROW, RS_SET_COL, RS_HOLD_COL,
                          RS_HITMAP_SET_COL, RS_HITMAP_NEXT_COL,
                          RS_HIT_RST, RS_END_ROW, RS_NEXT_STEP, RS_END_FRAME, RS_STOP,
@@ -273,9 +273,6 @@ begin
         end if;
 
       when CFG_GO =>
-        state_next <= CFG_GET_DATA;
-
-      when CFG_GET_DATA =>
         if cfg_fifo_dout_valid = '1' then
           state_next <= CFG_EN_DATA;
         end if;
@@ -470,12 +467,10 @@ begin
           cfg_fifo_rd_en <= '1';
           cfg_busy       <= '1';
           MATRIX_GRST    <= '1';
-
-        when CFG_GET_DATA =>
-          cfg_fifo_rd_en <= '0';
-
+          
         when CFG_EN_DATA =>
-          cfg_cnt <= cfg_cnt + 1;
+					cfg_fifo_rd_en <= '0';
+					cfg_cnt <= cfg_cnt + 1;
 
           RA_EN <= '1';
           CA_EN <= '1';
