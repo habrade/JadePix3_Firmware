@@ -123,6 +123,8 @@ architecture behv of jadepix_ctrl is
 --  signal empty, prog_full, fifo_rst : std_logic;
   signal pix_cnt                    : integer range 0 to (N_ROW * N_COL - 1) := 0;
   signal cfg_cnt                    : std_logic_vector(19 downto 0)          := (others => '0');
+  
+  signal cfg_fifo_dout_tmp          : std_logic_vector(2 downto 0);
 
   -- RS
 --  signal start_cache   : std_logic                                 := '0';
@@ -262,7 +264,7 @@ begin
     state_next <= state_reg;
     case state_reg is
       when IDLE =>
-        if cfg_start = '1' then
+        if cfg_start = '1' and cfg_fifo_pfull = '1' then
           state_next <= CFG_GO;
         elsif rs_start = '1' then
           state_next <= RS_GO;
@@ -293,7 +295,6 @@ begin
         end if;
 
       when CFG_NEXT_PIX =>
---        if cfg_fifo_empty = '1' and cfg_fifo_count = CFG_FIFO_COUNT_ZERO then
         if cfg_fifo_empty = '1' then
           state_next <= CFG_STOP;
         else
@@ -418,7 +419,6 @@ begin
   process(clk)
   begin
     if rising_edge(clk) then
-
       case(state_next) is
         when IDLE =>
           RD_EN   <= '0';
@@ -468,6 +468,9 @@ begin
           cfg_fifo_rd_en <= '1';
           cfg_busy       <= '1';
           MATRIX_GRST    <= '1';
+					if cfg_fifo_dout_valid = '1' then
+							cfg_fifo_dout_tmp <= cfg_fifo_dout;
+          end if;
           
         when CFG_EN_DATA =>
 					cfg_fifo_rd_en <= '0';
@@ -478,12 +481,12 @@ begin
           RA    <= std_logic_vector(to_unsigned(pix_cnt / N_COL, ROW_WIDTH));
           CA    <= std_logic_vector(to_unsigned(pix_cnt rem N_COL, COL_WIDTH));
 
-          CON_DATA <= cfg_fifo_dout(0);
+          CON_DATA <= cfg_fifo_dout_tmp(0);
 
         when CFG_EN_SEL =>
           cfg_cnt  <= cfg_cnt + 1;
-          CON_SELM <= cfg_fifo_dout(2);
-          CON_SELP <= cfg_fifo_dout(1);
+          CON_SELM <= cfg_fifo_dout_tmp(2);
+          CON_SELP <= cfg_fifo_dout_tmp(1);
 
         when CFG_DIS_SEL =>
           cfg_cnt  <= cfg_cnt + 1;
