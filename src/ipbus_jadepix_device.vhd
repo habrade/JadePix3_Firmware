@@ -316,7 +316,7 @@ begin
   begin
     if rising_edge(clk) then
 
-      if ctrl_reg_stb_r(1) = '1' then
+      if ctrl_reg_stb_r(0) = '1' then
         cfg_start <= cfg_start_tmp;
         rs_start  <= rs_start_tmp;
         gs_start  <= gs_start_tmp;
