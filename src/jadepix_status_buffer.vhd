@@ -94,15 +94,21 @@ architecture behv of jadepix_status_buffer is
   attribute mark_debug of buffer_empty      : signal is "true";
   attribute mark_debug of buffer_full       : signal is "true";
   attribute mark_debug of buffer_fill_count : signal is "true";
+  attribute mark_debug of wr_en             : signal is "true";
+  attribute mark_debug of wr_data           : signal is "true";
+  attribute mark_debug of row_in_data       : signal is "true";
+  attribute mark_debug of frame_in_data     : signal is "true";
+  attribute mark_debug of buffer_full_reg   : signal is "true";
+  attribute mark_debug of buf_cnt           : signal is "true";
 
 
 begin
 
-	row_in_data <= row - 1;             -- Write operation happens at next row
+  row_in_data <= row - 1;               -- Write operation happens at next row
 
   process(all)
-  begin  
-	if row_in_data = N_ROW-1 and frame_num > 0 then
+  begin
+    if row_in_data = N_ROW-1 and frame_num > 0 then
       frame_in_data <= frame_num - 1;
     else
       frame_in_data <= frame_num;

@@ -40,9 +40,10 @@ entity jadepix_fifo_monitor is
 
     clk_fpga : in std_logic;
 
-    start_cache   : in std_logic;
-    clk_cache     : in std_logic;
-    is_busy_cache : in std_logic;
+    start_cache     : in std_logic;
+    clk_cache       : in std_logic;
+    clk_cache_delay : in std_logic;
+    is_busy_cache   : in std_logic;
 
     fifo_valid_in : in std_logic;
     fifo_read_en  : in std_logic;
@@ -82,6 +83,8 @@ architecture behv of jadepix_fifo_monitor is
   attribute mark_debug of overflow_num  : signal is "true";
   attribute mark_debug of state_reg     : signal is "true";
   attribute mark_debug of state_next    : signal is "true";
+  attribute mark_debug of is_busy_cache : signal is "true";
+  attribute mark_debug of start_cache   : signal is "true";
 
   procedure GET_NEXT_STATE (signal fifo_valid_in : in    std_logic;
                             signal fifo_read_en  : in    std_logic;
@@ -250,7 +253,7 @@ begin
 
   process(all)
   begin
-    if rising_edge(clk_cache) then
+    if rising_edge(clk_cache_delay) then
       fifo_counters.valid_counter    <= std_logic_vector(to_unsigned(valid_num, fifo_counters.valid_counter'length));
       fifo_counters.overflow_counter <= std_logic_vector(to_unsigned(overflow_num, fifo_counters.overflow_counter'length));
     end if;

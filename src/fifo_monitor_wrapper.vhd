@@ -41,9 +41,10 @@ entity fifo_monitor_wrapper is
 
     clk_fpga : in std_logic;
 
-    start_cache   : in std_logic;
-    clk_cache     : in std_logic;
-    is_busy_cache : in std_logic;
+    start_cache     : in std_logic;
+    clk_cache       : in std_logic;
+    clk_cache_delay : in std_logic;
+    is_busy_cache   : in std_logic;
 
     fifo_read_en_v : in std_logic_vector(SECTOR_NUM-1 downto 0);
 
@@ -60,16 +61,17 @@ begin
   fifo_monitor : for index in SECTOR_NUM-1 downto 0 generate
     fifo_monitor_index : entity work.jadepix_fifo_monitor
       port map(
-        clk           => clk,
-        rst           => rst,
-        clk_fpga      => clk_fpga,
-        clk_cache     => clk_cache,
-        start_cache   => start_cache,
-        is_busy_cache => is_busy_cache,
-        fifo_read_en  => fifo_read_en_v(index),
-        fifo_valid_in => VALID_IN(index),
-        fifo_counters => sector_counters_v(index),
-        fifo_status   => fifo_status_v(index)
+        clk             => clk,
+        rst             => rst,
+        clk_fpga        => clk_fpga,
+        clk_cache       => clk_cache,
+        clk_cache_delay => clk_cache_delay,
+        start_cache     => start_cache,
+        is_busy_cache   => is_busy_cache,
+        fifo_read_en    => fifo_read_en_v(index),
+        fifo_valid_in   => VALID_IN(index),
+        fifo_counters   => sector_counters_v(index),
+        fifo_status     => fifo_status_v(index)
         );
   end generate;
 

@@ -682,7 +682,7 @@ begin
           if ?? start_cache then
             is_busy_cache <= '1';
           else
-            if rs_cache_cnt <= 14 and rs_cache_cnt >= 0 then
+            if rs_cache_cnt <= 16 and rs_cache_cnt >= 0 then
               is_busy_cache <= '1';
             else
               is_busy_cache <= '0';
