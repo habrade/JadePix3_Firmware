@@ -82,6 +82,8 @@ architecture behv of jadepix_fifo_monitor is
   attribute mark_debug of overflow_num  : signal is "true";
   attribute mark_debug of state_reg     : signal is "true";
   attribute mark_debug of state_next    : signal is "true";
+  attribute mark_debug of is_busy_cache : signal is "true";
+  attribute mark_debug of start_cache   : signal is "true";
 
   procedure GET_NEXT_STATE (signal fifo_valid_in : in    std_logic;
                             signal fifo_read_en  : in    std_logic;

@@ -102,7 +102,6 @@ architecture behv of jadepix_read_data is
   attribute mark_debug of start_cache      : signal is "true";
   attribute mark_debug of clk_cache        : signal is "true";
   attribute mark_debug of clk_cache_delay  : signal is "true";
-  attribute mark_debug of is_busy_cache    : signal is "true";
   attribute mark_debug of frame_num        : signal is "true";
   attribute mark_debug of row              : signal is "true";
   attribute mark_debug of VALID_IN         : signal is "true";

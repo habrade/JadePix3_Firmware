@@ -31,7 +31,7 @@ architecture behv of tb_fifo_monitor is
 
   signal fifo_valid_in  : std_logic := '0';
   signal fifo_counters  : sector_counters;
-  signal fifo_status    : sector_status;
+  signal fifo_status    : std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
   signal fifo_read_en   : std_logic := '0';
   signal fifo_index_out : std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
 
