@@ -39,9 +39,6 @@ entity jadepix_fifo_data is
     clk : in std_logic;
     rst : in std_logic;
 
---    read_frame_start : in std_logic;
---    read_frame_stop  : in std_logic;
-
     blk_select_delay : in std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
 
     buffer_data_record : in buffer_data_frame;
@@ -208,7 +205,6 @@ begin
   process(all)
   begin
     if rising_edge(clk) then
---      read_frame_stop_reg <= read_frame_stop;
       case(state_next) is
         when INITIAL =>
           wfifo_ov_cnt     <= (others => '0');
