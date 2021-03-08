@@ -68,10 +68,13 @@ architecture behv of jadepix_fifo_ctrl is
 
   type READ_FIFO_STATE is (INITIAL, IDLE, READ_BUFFER, READ_ROW,
                            READ_FIFO0_HALF1, READ_FIFO0_HALF2,
+                           SET_BLK_SEL1,
                            READ_FIFO1_HALF1, READ_FIFO1_HALF2,
-                           READ_FIFO2_HALF1, READ_FIFO2_HALF2,
-                           READ_FIFO3_HALF1, READ_FIFO3_HALF2,
-                           READ_ROW_END);
+													 SET_BLK_SEL2,
+												   READ_FIFO2_HALF1, READ_FIFO2_HALF2,
+													 SET_BLK_SEL3,
+												   READ_FIFO3_HALF1, READ_FIFO3_HALF2,
+												   READ_ROW_END);
 
   signal state_reg, state_next : READ_FIFO_STATE := IDLE;
 
@@ -130,11 +133,11 @@ begin
           if (cnt_sec0 /= 0) then
             state_next <= READ_FIFO0_HALF1;
           elsif (cnt_sec1 /= 0) then
-            state_next <= READ_FIFO1_HALF1;
+            state_next <= SET_BLK_SEL1;
           elsif (cnt_sec2 /= 0) then
-            state_next <= READ_FIFO2_HALF1;
+            state_next <= SET_BLK_SEL2;
           elsif (cnt_sec3 /= 0) then
-            state_next <= READ_FIFO3_HALF1;
+            state_next <= SET_BLK_SEL3;
           else
             state_next <= READ_ROW_END;
           end if;
@@ -147,16 +150,18 @@ begin
         if (cnt_sec0 /= 0) then
           state_next <= READ_FIFO0_HALF1;
         elsif (cnt_sec1 /= 0) then
-          state_next <= READ_FIFO1_HALF1;
+          state_next <= SET_BLK_SEL1;
         elsif (cnt_sec2 /= 0) then
-          state_next <= READ_FIFO2_HALF1;
+          state_next <= SET_BLK_SEL2;
         elsif (cnt_sec3 /= 0) then
-          state_next <= READ_FIFO3_HALF1;
+          state_next <= SET_BLK_SEL3;
         else
           state_next <= READ_ROW_END;
         end if;
-
-
+       
+      when SET_BLK_SEL1 =>
+      	state_next <= READ_FIFO1_HALF1;
+      	
       -- Read FIFO 1
       when READ_FIFO1_HALF1 =>
         state_next <= READ_FIFO1_HALF2;
@@ -164,13 +169,16 @@ begin
         if (cnt_sec1 /= 0) then
           state_next <= READ_FIFO1_HALF1;
         elsif (cnt_sec2 /= 0) then
-          state_next <= READ_FIFO2_HALF1;
+          state_next <= SET_BLK_SEL2;
         elsif (cnt_sec3 /= 0) then
-          state_next <= READ_FIFO3_HALF1;
+          state_next <= SET_BLK_SEL3;
         else
           state_next <= READ_ROW_END;
         end if;
 
+      when SET_BLK_SEL2 =>
+      	state_next <= READ_FIFO2_HALF1;
+      	
       -- Read FIFO 2
       when READ_FIFO2_HALF1 =>
         state_next <= READ_FIFO2_HALF2;
@@ -178,10 +186,13 @@ begin
         if (cnt_sec2 /= 0) then
           state_next <= READ_FIFO2_HALF1;
         elsif (cnt_sec3 /= 0) then
-          state_next <= READ_FIFO3_HALF1;
+          state_next <= SET_BLK_SEL3;
         else
           state_next <= READ_ROW_END;
         end if;
+
+      when SET_BLK_SEL3 =>
+      	state_next <= READ_FIFO3_HALF1;
 
       -- Read FIFO 3
       when READ_FIFO3_HALF1 =>
@@ -210,7 +221,7 @@ begin
 
         when IDLE =>
           buffer_read_en <= '0';
-          blk_select     <= blk_sel_def;
+          blk_select     <= "00";
           fifo_read_en_v <= (others => '0');
 
         when READ_BUFFER =>
@@ -243,36 +254,41 @@ begin
 
         -- Read FIFO 0
         when READ_FIFO0_HALF1 =>
-          blk_select     <= "00";
           fifo_read_en_v <= "0001";
           if cnt_sec0 > 0 then
             cnt_sec0 <= cnt_sec0 - 1;
           end if;
         when READ_FIFO0_HALF2 => null;
+        
+        when SET_BLK_SEL1 =>
+        	blk_select <= "01";
 
         -- Read FIFO 1
         when READ_FIFO1_HALF1 =>
-          blk_select     <= "01";
           fifo_read_en_v <= "0010";
 
           if cnt_sec1 > 0 then
             cnt_sec1 <= cnt_sec1 - 1;
           end if;
         when READ_FIFO1_HALF2 => null;
+        
+				when SET_BLK_SEL2 =>
+				  blk_select <= "10";
 
         -- Read FIFO 2
         when READ_FIFO2_HALF1 =>
-          blk_select     <= "10";
           fifo_read_en_v <= "0100";
 
           if cnt_sec2 > 0 then
             cnt_sec2 <= cnt_sec2 - 1;
           end if;
         when READ_FIFO2_HALF2 => null;
+        
+        when SET_BLK_SEL3 =>
+				  blk_select <= "11";
 
         -- Read FIFO 3
         when READ_FIFO3_HALF1 =>
-          blk_select     <= "11";
           fifo_read_en_v <= "1000";
 
           if cnt_sec3 > 0 then
@@ -281,7 +297,7 @@ begin
         when READ_FIFO3_HALF2 => null;
 
         when READ_ROW_END =>
-          blk_select     <= blk_sel_def;
+          blk_select     <= "00";
           fifo_read_en_v <= (others => '0');
 
         when others =>
