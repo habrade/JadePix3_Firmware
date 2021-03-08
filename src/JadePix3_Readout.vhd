@@ -225,7 +225,6 @@ architecture rtl of JadePix3_Readout is
   signal hitmap_r          : std_logic_vector(15 downto 0);
   signal sel_chip_clk      : std_logic := '0';
   signal rx_fpga_tmp       : std_logic := '0';
-  signal blk_sel_def       : std_logic_vector(1 downto 0);
   signal cfg_add_factor_t0 : std_logic_vector(7 downto 0);
   signal cfg_add_factor_t1 : std_logic_vector(15 downto 0);
   signal cfg_add_factor_t2 : std_logic_vector(7 downto 0);
@@ -435,7 +434,6 @@ begin
       D_RST             => D_RST,
       SERIALIZER_RST    => SERIALIZER_RST,
       sel_chip_clk      => sel_chip_clk,
-      blk_sel_def       => blk_sel_def,
       cfg_add_factor_t0 => cfg_add_factor_t0,
       cfg_add_factor_t1 => cfg_add_factor_t1,
       cfg_add_factor_t2 => cfg_add_factor_t2,
@@ -599,7 +597,6 @@ begin
 
       FIFO_READ_EN => FIFO_READ_EN,
       BLK_SELECT   => BLK_SELECT,
-      blk_sel_def  => blk_sel_def,
 
       -- DATA FIFO
       data_fifo_rst         => data_fifo_rst,

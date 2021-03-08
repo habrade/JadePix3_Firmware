@@ -55,7 +55,6 @@ entity jadepix_read_data is
 
     FIFO_READ_EN : out std_logic;
     BLK_SELECT   : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
-    blk_sel_def  : in  std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
 
     -- DATA FIFO
     data_fifo_rst         : out std_logic;
@@ -194,7 +193,6 @@ begin
 
       fifo_read_en_v => fifo_read_en_v,
       blk_select     => blk_select_obuf,
-      blk_sel_def    => blk_sel_def,
 
       buffer_data_record => buffer_data_record
 

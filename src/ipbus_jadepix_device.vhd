@@ -94,7 +94,6 @@ entity ipbus_jadepix_device is
     D_RST             : out std_logic;
     SERIALIZER_RST    : out std_logic;
     sel_chip_clk      : out std_logic;
-    blk_sel_def       : out std_logic_vector(1 downto 0);
     cfg_add_factor_t0 : out std_logic_vector(7 downto 0);
     cfg_add_factor_t1 : out std_logic_vector(15 downto 0);
     cfg_add_factor_t2 : out std_logic_vector(7 downto 0);
@@ -187,7 +186,6 @@ architecture behv of ipbus_jadepix_device is
   attribute mark_debug of debug             : signal is "true";
   attribute mark_debug of ca_en             : signal is "true";
   attribute mark_debug of ca_soft           : signal is "true";
-  attribute mark_debug of blk_sel_def       : signal is "true";
   attribute mark_debug of sel_chip_clk      : signal is "true";
   attribute mark_debug of cfg_add_factor_t0 : signal is "true";
   attribute mark_debug of cfg_add_factor_t1 : signal is "true";
@@ -301,7 +299,6 @@ begin
       ca_en          <= ctrl(8)(14);
       hit_rst        <= ctrl(8)(15);
       sel_chip_clk   <= ctrl(8)(16);
-      blk_sel_def    <= ctrl(8)(18 downto 17);
 
       cfg_add_factor_t0 <= ctrl(9)(7 downto 0);
       cfg_add_factor_t1 <= ctrl(9)(23 downto 8);

@@ -55,7 +55,6 @@ entity jadepix_fifo_ctrl is
     -- To Jadepix FIFO
     fifo_read_en_v : out std_logic_vector(SECTOR_NUM-1 downto 0);
     blk_select     : out std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
-    blk_sel_def    : in  std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
 
     buffer_data_record : out buffer_data_frame
 

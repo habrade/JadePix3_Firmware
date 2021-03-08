@@ -105,7 +105,6 @@ entity ipbus_payload is
     ca_en             : out std_logic;
     sel_chip_clk      : out std_logic;
     ca_soft           : out std_logic_vector(COL_WIDTH-1 downto 0);
-    blk_sel_def       : out std_logic_vector(1 downto 0);
     cfg_add_factor_t0 : out std_logic_vector(7 downto 0);
     cfg_add_factor_t1 : out std_logic_vector(15 downto 0);
     cfg_add_factor_t2 : out std_logic_vector(7 downto 0)
@@ -239,7 +238,6 @@ begin
       D_RST             => D_RST,
       SERIALIZER_RST    => SERIALIZER_RST,
       sel_chip_clk      => sel_chip_clk,
-      blk_sel_def       => blk_sel_def,
       cfg_add_factor_t0 => cfg_add_factor_t0,
       cfg_add_factor_t1 => cfg_add_factor_t1,
       cfg_add_factor_t2 => cfg_add_factor_t2,

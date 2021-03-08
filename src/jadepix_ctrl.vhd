@@ -201,6 +201,7 @@ architecture behv of jadepix_ctrl is
   attribute mark_debug of rs_hitmap_cnt           : signal is "true";
   attribute mark_debug of hitmap_num              : signal is "true";
   attribute mark_debug of hitmap_cnt              : signal is "true";
+  attribute mark_debug of MATRIX_GRST             : signal is "true";
 
 
   component fifo_generator_0
