@@ -518,6 +518,7 @@ begin
           MATRIX_GRST    <= '0';
 
         when RS_GO =>
+          MATRIX_GRST  <= '0';
           rs_busy      <= '1';
           RA           <= (others => '0');
           digsel_en_rs <= '1';
