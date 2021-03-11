@@ -521,7 +521,8 @@ begin
           MATRIX_GRST    <= '0';
 
         when RS_GO =>
-          MATRIX_GRST  <= '0' when is_rs_in_gs='1' else '1';
+          MATRIX_GRST  <= '0';
+          gshutter_gs  <= '0' when is_rs_in_gs='1' else '1';
           rs_busy      <= '1';
           RA           <= (others => '0');
           digsel_en_rs <= '1';
