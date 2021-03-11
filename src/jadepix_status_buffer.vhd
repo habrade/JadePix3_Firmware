@@ -80,6 +80,8 @@ architecture behv of jadepix_status_buffer is
 
   signal buffer_full_reg : std_logic := '0';
 
+  signal row_empty_flag : std_logic;
+
   -- DEBUG
   attribute mark_debug                      : string;
   attribute mark_debug of state_reg         : signal is "true";
@@ -100,6 +102,7 @@ architecture behv of jadepix_status_buffer is
   attribute mark_debug of frame_in_data     : signal is "true";
   attribute mark_debug of buffer_full_reg   : signal is "true";
   attribute mark_debug of buf_cnt           : signal is "true";
+  attribute mark_debug of row_empty_flag    : signal is "true";
 
 
 begin
@@ -115,7 +118,13 @@ begin
     end if;
   end process;
 
-  wr_en   <= '0' when buffer_full else buffer_w_en;
+  row_empty_flag <= '0' when ((sector_counters_v(0).valid_counter > 0) or
+                              (sector_counters_v(1).valid_counter > 0) or
+                              (sector_counters_v(2).valid_counter > 0) or
+                              (sector_counters_v(3).valid_counter > 0))
+                    else '1';
+
+  wr_en   <= '0' when (buffer_full or row_empty_flag) else buffer_w_en;
   wr_data <= frame_in_data &
              row_in_data &
              sector_counters_v(0).valid_counter & sector_counters_v(0).overflow_counter &

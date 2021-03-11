@@ -121,10 +121,10 @@ architecture behv of jadepix_ctrl is
 
   -- FIFO
 --  signal empty, prog_full, fifo_rst : std_logic;
-  signal pix_cnt                    : integer range 0 to (N_ROW * N_COL - 1) := 0;
-  signal cfg_cnt                    : std_logic_vector(19 downto 0)          := (others => '0');
-  
-  signal cfg_fifo_dout_tmp          : std_logic_vector(2 downto 0);
+  signal pix_cnt : integer range 0 to (N_ROW * N_COL - 1) := 0;
+  signal cfg_cnt : std_logic_vector(19 downto 0)          := (others => '0');
+
+  signal cfg_fifo_dout_tmp : std_logic_vector(2 downto 0);
 
   -- RS
 --  signal start_cache   : std_logic                                 := '0';
@@ -145,6 +145,7 @@ architecture behv of jadepix_ctrl is
   signal gs_deassert_counter       : unsigned(8 downto 0);
   signal pulse_out                 : std_logic;
   signal is_gs                     : std_logic;
+  signal is_rs_in_gs               : std_logic;
 
   -- for test
   signal rs_frame_stop : std_logic := '0';
@@ -173,6 +174,7 @@ architecture behv of jadepix_ctrl is
   attribute mark_debug of cfg_busy            : signal is "true";
   attribute mark_debug of rs_busy             : signal is "true";
   attribute mark_debug of gs_busy             : signal is "true";
+  attribute mark_debug of is_rs_in_gs         : signal is "true";
   attribute mark_debug of cfg_start           : signal is "true";
   attribute mark_debug of rs_start            : signal is "true";
   attribute mark_debug of gs_start            : signal is "true";
@@ -460,7 +462,8 @@ begin
 
           gs_busy <= '0';
 
-          is_gs <= '0';
+          is_gs       <= '0';
+          is_rs_in_gs <= '0';
 
           pulse_out <= '0';
           rs_busy   <= '0';
@@ -469,13 +472,13 @@ begin
           cfg_fifo_rd_en <= '1';
           cfg_busy       <= '1';
           MATRIX_GRST    <= '1';
-					if cfg_fifo_dout_valid = '1' then
-							cfg_fifo_dout_tmp <= cfg_fifo_dout;
+          if cfg_fifo_dout_valid = '1' then
+            cfg_fifo_dout_tmp <= cfg_fifo_dout;
           end if;
-          
+
         when CFG_EN_DATA =>
-					cfg_fifo_rd_en <= '0';
-					cfg_cnt <= cfg_cnt + 1;
+          cfg_fifo_rd_en <= '0';
+          cfg_cnt        <= cfg_cnt + 1;
 
           RA_EN <= '1';
           CA_EN <= '1';
@@ -518,7 +521,7 @@ begin
           MATRIX_GRST    <= '0';
 
         when RS_GO =>
-          MATRIX_GRST  <= '0';
+          MATRIX_GRST  <= '0' when is_rs_in_gs='1' else '1';
           rs_busy      <= '1';
           RA           <= (others => '0');
           digsel_en_rs <= '1';
@@ -638,7 +641,8 @@ begin
           anasel_en_gs <= '0';
           gshutter_gs  <= '0';
 
-          gs_busy <= '0';
+          gs_busy     <= '0';
+          is_rs_in_gs <= '1';
 
           gs_width_counter          <= (others => '0');
           gs_pulse_delay_counter    <= (others => '0');
