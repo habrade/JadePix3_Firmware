@@ -213,13 +213,15 @@ architecture rtl of JadePix3_Readout is
   signal spi_trans_end : std_logic;
 
   -- DEBUG
-  signal debug         : std_logic;
-  signal ca_en_soft    : std_logic;
-  signal ca_en_logic   : std_logic;
-  signal ca_soft       : std_logic_vector(COL_WIDTH-1 downto 0);
-  signal ca_logic      : std_logic_vector(COL_WIDTH-1 downto 0);
-  signal hit_rst_soft  : std_logic;
-  signal hit_rst_logic : std_logic;
+  signal debug             : std_logic;
+  signal ca_en_soft        : std_logic;
+  signal ca_en_logic       : std_logic;
+  signal ca_soft           : std_logic_vector(COL_WIDTH-1 downto 0);
+  signal ca_logic          : std_logic_vector(COL_WIDTH-1 downto 0);
+  signal matrix_grst_soft  : std_logic;
+  signal matrix_grst_logic : std_logic;
+  signal hit_rst_soft      : std_logic;
+  signal hit_rst_logic     : std_logic;
 
   -- for test
   signal hitmap_r          : std_logic_vector(15 downto 0);
@@ -532,7 +534,7 @@ begin
       HIT_RST => hit_rst_logic,
       RD_EN   => RD_EN,
 
-      MATRIX_GRST => MATRIX_GRST,
+      MATRIX_GRST => matrix_grst_logic,
 
       gshutter_gs => gshutter_gs,
       aplse_gs    => aplse_gs,
@@ -557,11 +559,12 @@ begin
   for_debug : process(all)
   begin
     if debug = '0' then
-      DIGSEL_EN <= digsel_en_rs when digsel_en_soft = '1' else '0';
-      ANASEL_EN <= anasel_en_gs when anasel_en_soft = '1' else '0';
---      APLSE     <= aplse_gs     when aplse_soft = '1'     else '0';
-      DPLSE     <= dplse_gs     when dplse_soft = '1' else '0';
-      GSHUTTER  <= gshutter_gs or gshutter_soft;
+      DIGSEL_EN   <= digsel_en_rs and digsel_en_soft;
+      ANASEL_EN   <= anasel_en_gs and anasel_en_soft;
+--      APLSE     <= aplse_gs     and aplse_soft ;
+      DPLSE       <= dplse_gs and dplse_soft;
+      MATRIX_GRST <= matrix_grst_soft and matrix_grst_logic;
+      GSHUTTER    <= gshutter_gs or gshutter_soft;
     else
       DIGSEL_EN <= digsel_en_soft;
       ANASEL_EN <= anasel_en_soft;
@@ -570,7 +573,7 @@ begin
       GSHUTTER  <= gshutter_gs;
     end if;
   end process;
-  
+
   APLSE <= '1';
 
   RA      <= row_num;

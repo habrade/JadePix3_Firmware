@@ -114,10 +114,11 @@ entity ipbus_jadepix_device is
     data_fifo_almost_full        : out std_logic;
 
     -- DEBUG
-    debug   : out std_logic;
-    hit_rst : out std_logic;
-    ca_en   : out std_logic;
-    ca_soft : out std_logic_vector(COL_WIDTH-1 downto 0)
+    debug            : out std_logic;
+    hit_rst          : out std_logic;
+    ca_en            : out std_logic;
+    ca_soft          : out std_logic_vector(COL_WIDTH-1 downto 0);
+    matrix_grst_soft : out std_logic
     );
 end ipbus_jadepix_device;
 
@@ -179,9 +180,10 @@ architecture behv of ipbus_jadepix_device is
   attribute mark_debug of rfifo_almost_full : signal is "true";
   attribute mark_debug of rfifo_wr_din      : signal is "true";
 
-  attribute mark_debug of anasel_en_soft : signal is "true";
-  attribute mark_debug of digsel_en_soft : signal is "true";
-  attribute mark_debug of gs_sel_pulse   : signal is "true";
+  attribute mark_debug of anasel_en_soft   : signal is "true";
+  attribute mark_debug of digsel_en_soft   : signal is "true";
+  attribute mark_debug of gs_sel_pulse     : signal is "true";
+  attribute mark_debug of matrix_grst_soft : signal is "true";
 
   attribute mark_debug of debug             : signal is "true";
   attribute mark_debug of ca_en             : signal is "true";
@@ -291,14 +293,15 @@ begin
       gs_pulse_deassert_cnt   <= ctrl(6)(8 downto 0);
       gs_deassert_cnt         <= ctrl(7)(8 downto 0);
 
-      rst_rfifo      <= ctrl(8)(0);
-      SERIALIZER_RST <= ctrl(8)(1);
-      INQUIRY        <= ctrl(8)(3 downto 2);
-      debug          <= ctrl(8)(4);
-      ca_soft        <= ctrl(8)(13 downto 5);
-      ca_en          <= ctrl(8)(14);
-      hit_rst        <= ctrl(8)(15);
-      sel_chip_clk   <= ctrl(8)(16);
+      rst_rfifo        <= ctrl(8)(0);
+      SERIALIZER_RST   <= ctrl(8)(1);
+      INQUIRY          <= ctrl(8)(3 downto 2);
+      debug            <= ctrl(8)(4);
+      ca_soft          <= ctrl(8)(13 downto 5);
+      ca_en            <= ctrl(8)(14);
+      hit_rst          <= ctrl(8)(15);
+      sel_chip_clk     <= ctrl(8)(16);
+      matrix_grst_soft <= ctrl(8)(17);
 
       cfg_add_factor_t0 <= ctrl(9)(7 downto 0);
       cfg_add_factor_t1 <= ctrl(9)(23 downto 8);

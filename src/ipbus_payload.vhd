@@ -34,9 +34,9 @@ entity ipbus_payload is
 
     -- JadePix
     -- chip config fifo
-    cfg_start      : out std_logic;
-    cfg_busy       : in  std_logic;
-    
+    cfg_start : out std_logic;
+    cfg_busy  : in  std_logic;
+
     INQUIRY       : out std_logic_vector(1 downto 0);
     CACHE_BIT_SET : out std_logic_vector(3 downto 0);
 
@@ -100,11 +100,13 @@ entity ipbus_payload is
     sclk : out std_logic;
 
     -- DEBUG
-    debug             : out std_logic;
-    hit_rst           : out std_logic;
-    ca_en             : out std_logic;
-    sel_chip_clk      : out std_logic;
-    ca_soft           : out std_logic_vector(COL_WIDTH-1 downto 0);
+    debug            : out std_logic;
+    hit_rst          : out std_logic;
+    ca_en            : out std_logic;
+    sel_chip_clk     : out std_logic;
+    ca_soft          : out std_logic_vector(COL_WIDTH-1 downto 0);
+    matrix_grst_soft : out std_logic;
+
     cfg_add_factor_t0 : out std_logic_vector(7 downto 0);
     cfg_add_factor_t1 : out std_logic_vector(15 downto 0);
     cfg_add_factor_t2 : out std_logic_vector(7 downto 0)
@@ -194,8 +196,8 @@ begin
       spi_rst  => spi_rst,
       spi_busy => spi_busy,
 
-      cfg_start    => cfg_start,
-      cfg_busy     => cfg_busy,
+      cfg_start => cfg_start,
+      cfg_busy  => cfg_busy,
 
       INQUIRY       => INQUIRY,
       CACHE_BIT_SET => CACHE_BIT_SET,
@@ -258,10 +260,11 @@ begin
       data_fifo_wr_din             => data_fifo_wr_din,
 
       --DEBUG
-      debug   => debug,
-      ca_en   => ca_en,
-      ca_soft => ca_soft,
-      hit_rst => hit_rst
+      debug            => debug,
+      ca_en            => ca_en,
+      ca_soft          => ca_soft,
+      hit_rst          => hit_rst,
+      matrix_grst_soft => matrix_grst_soft
       );
 
 end rtl;
