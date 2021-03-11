@@ -559,17 +559,19 @@ begin
     if debug = '0' then
       DIGSEL_EN <= digsel_en_rs when digsel_en_soft = '1' else '0';
       ANASEL_EN <= anasel_en_gs when anasel_en_soft = '1' else '0';
-      APLSE     <= aplse_gs     when aplse_soft = '1'     else '0';
+--      APLSE     <= aplse_gs     when aplse_soft = '1'     else '0';
       DPLSE     <= dplse_gs     when dplse_soft = '1' else '0';
       GSHUTTER  <= gshutter_gs or gshutter_soft;
     else
       DIGSEL_EN <= digsel_en_soft;
       ANASEL_EN <= anasel_en_soft;
-      APLSE     <= aplse_soft;
+--      APLSE     <= aplse_soft;
       DPLSE     <= dplse_soft;
       GSHUTTER  <= gshutter_gs;
     end if;
   end process;
+  
+  APLSE <= '1';
 
   RA      <= row_num;
   CA      <= ca_soft      when debug = '1' else ca_logic;
