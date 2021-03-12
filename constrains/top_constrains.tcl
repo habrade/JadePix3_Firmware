@@ -252,3 +252,5 @@ set_clock_groups -asynchronous -group [get_clocks ipbus_clk] -group [get_clocks 
 set_clock_groups -asynchronous -group [get_clocks dac_clk] -group [get_clocks -include_generated_clocks [get_clocks ref_clk]]
 set_clock_groups -asynchronous -group [get_clocks clk_sys] -group [get_clocks -include_generated_clocks [get_clocks ref_clk]]
 set_clock_groups -asynchronous -group [get_clocks clk_sys] -group [get_clocks -include_generated_clocks [get_clocks dac_clk]]
+
+set_property CLOCK_DEDICATED_ROUTE ANY_CMT_COLUMN [get_nets rx_fpga_tmp1]

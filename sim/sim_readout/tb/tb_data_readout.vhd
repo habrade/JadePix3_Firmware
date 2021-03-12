@@ -20,8 +20,10 @@ entity tb_data_readout is
 end entity;
 
 architecture behv of tb_data_readout is
-  signal clk           : std_logic := '1';
-  signal rst           : std_logic := '0';
+  signal clk : std_logic := '1';
+  signal clk_sys : std_logic := '1';
+  signal clk_fpga : std_logic := '0';
+  signal rst : std_logic := '0';
 
   signal clk_cache       : std_logic := '0';
   signal clk_cache_delay : std_logic := '0';
@@ -36,10 +38,12 @@ architecture behv of tb_data_readout is
   signal BLK_SELECT   : std_logic_vector(BLK_SELECT_WIDTH-1 downto 0) := "00";
   signal INQUIRY      : std_logic_vector(BLK_SELECT_WIDTH-1 downto 0) := "00";
 
-  signal data_fifo_rst    : std_logic                     := '0';
-  signal data_fifo_wr_clk : std_logic                     := '0';
-  signal data_fifo_wr_en  : std_logic                     := '0';
-  signal data_fifo_full   : std_logic                     := '0';
+  signal data_fifo_rst         : std_logic := '0';
+  signal data_fifo_wr_clk      : std_logic := '0';
+  signal data_fifo_wr_en       : std_logic := '0';
+  signal data_fifo_full        : std_logic := '0';
+  signal data_fifo_almost_full : std_logic := '0';
+
   signal data_fifo_wr_din : std_logic_vector(31 downto 0) := (others => '0');
 
   constant SYS_PERIOD : time := 12 ns;
@@ -68,6 +72,8 @@ architecture behv of tb_data_readout is
 begin
 
   clk <= not clk after SYS_PERIOD/2;
+  clk_sys <= clk;
+  clk_fpga <= not clk_sys;
 
   process (all)
   begin
@@ -97,31 +103,33 @@ begin
 
   jadepix_read_data : entity work.jadepix_read_data
     port map(
+      clk => clk_sys,
+      rst => rd_data_rst,
 
-      clk => clk,
-      rst => rst,
+      clk_fpga => clk_fpga,
 
-
+      start_cache     => start_cache,
       clk_cache       => clk_cache,
       clk_cache_delay => clk_cache_delay,
+      is_busy_cache   => is_busy_cache,
 
-      frame_num => frame_num,
-      row       => row,
+      frame_num => rs_frame_cnt,
+      row       => row_num,
 
       VALID_IN => VALID_IN,
       DATA_IN  => DATA_IN,
 
-      FIFO_READ_EN     => FIFO_READ_EN,
-      BLK_SELECT       => BLK_SELECT,
-      INQUIRY          => INQUIRY,
-      -- DATA FIFO
-      data_fifo_rst    => data_fifo_rst,
-      data_fifo_wr_clk => data_fifo_wr_clk,
-      data_fifo_wr_en  => data_fifo_wr_en,
-      data_fifo_wr_din => data_fifo_wr_din,
-      data_fifo_full   => data_fifo_full
-      );
+      FIFO_READ_EN => FIFO_READ_EN,
+      BLK_SELECT   => BLK_SELECT,
 
+      -- DATA FIFO
+      data_fifo_rst         => data_fifo_rst,
+      data_fifo_wr_clk      => data_fifo_wr_clk,
+      data_fifo_wr_en       => data_fifo_wr_en,
+      data_fifo_wr_din      => data_fifo_wr_din,
+      data_fifo_full        => data_fifo_full,
+      data_fifo_almost_full => data_fifo_almost_full
+      );
 
   main : process
   begin

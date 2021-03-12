@@ -119,6 +119,7 @@ architecture rtl of JadePix3_Readout is
   signal clk_wfifo                                            : std_logic;
   signal clk_ref_rst, clk_dac_rst, clk_sys_rst, clk_wfifo_rst : std_logic;
 
+
   -- IPbus
   signal clk_ipb, rst_ipb, clk_125M, clk_aux, rst_aux, locked_ipbus_mmcm, nuke, soft_rst, phy_rst_e, userled : std_logic;
   signal mac_addr                                                                                            : std_logic_vector(47 downto 0);
@@ -188,6 +189,12 @@ architecture rtl of JadePix3_Readout is
   signal dplse_soft     : std_logic;
   signal gshutter_soft  : std_logic;
 
+  signal digsel_en_manually : std_logic;
+  signal anasel_en_manually : std_logic;
+  signal aplse_manually     : std_logic;
+  signal dplse_manually     : std_logic;
+  signal gshutter_manually  : std_logic;
+
   -- FIFOs
   signal data_fifo_rst                : std_logic;
   signal slow_ctrl_fifo_rd_en         : std_logic;
@@ -213,20 +220,26 @@ architecture rtl of JadePix3_Readout is
   signal spi_trans_end : std_logic;
 
   -- DEBUG
-  signal debug             : std_logic;
-  signal ca_en_soft        : std_logic;
-  signal ca_en_logic       : std_logic;
-  signal ca_soft           : std_logic_vector(COL_WIDTH-1 downto 0);
-  signal ca_logic          : std_logic_vector(COL_WIDTH-1 downto 0);
-  signal matrix_grst_soft  : std_logic;
-  signal matrix_grst_logic : std_logic;
-  signal hit_rst_soft      : std_logic;
-  signal hit_rst_logic     : std_logic;
+  signal debug                : std_logic;
+  signal ca_en_soft           : std_logic;
+  signal ca_en_manually       : std_logic;
+  signal ca_en_logic          : std_logic;
+  signal ca_soft              : std_logic_vector(COL_WIDTH-1 downto 0);
+  signal ca_soft_manually     : std_logic;
+  signal ca_logic             : std_logic_vector(COL_WIDTH-1 downto 0);
+  signal matrix_grst_soft     : std_logic;
+  signal matrix_grst_manually : std_logic;
+  signal matrix_grst_logic    : std_logic;
+  signal hit_rst_soft         : std_logic;
+  signal hit_rst_manually     : std_logic;
+  signal hit_rst_logic        : std_logic;
 
   -- for test
   signal hitmap_r          : std_logic_vector(15 downto 0);
   signal sel_chip_clk      : std_logic := '0';
-  signal rx_fpga_tmp       : std_logic := '0';
+  signal rx_fpga_tmp1      : std_logic := '0';
+  signal rx_fpga_tmp2      : std_logic := '0';
+  signal rx_fpga_oe        : std_logic;
   signal cfg_add_factor_t0 : std_logic_vector(7 downto 0);
   signal cfg_add_factor_t1 : std_logic_vector(15 downto 0);
   signal cfg_add_factor_t2 : std_logic_vector(7 downto 0);
@@ -292,19 +305,24 @@ begin
       IOSTANDARD => "DEFAULT",
       SLEW       => "SLOW")
     port map (
-      O => RX_FPGA,     -- Buffer output (connect directly to top-level port)
-      I => rx_fpga_tmp                  -- Buffer input 
+      O => RX_FPGA,      -- Buffer output (connect directly to top-level port)
+      I => rx_fpga_tmp2                 -- Buffer input 
       );
 
   BUFGMUX_CTRL_inst : BUFGMUX_CTRL
     port map (
-      O  => rx_fpga_tmp,                -- 1-bit output: Clock output
+      O  => rx_fpga_tmp1,               -- 1-bit output: Clock output
       I0 => clk_fpga,                   -- 1-bit input: Clock input (S=0)
       I1 => clk_sys,                    -- 1-bit input: Clock input (S=1)
       S  => sel_chip_clk                -- 1-bit input: Clock select
       );
 
-
+  BUFGCE_inst : BUFGCE
+    port map (
+      O  => rx_fpga_tmp2,               -- 1-bit output: Clock output
+      CE => rx_fpga_oe,    -- 1-bit input: Clock enable input for I0
+      I  => rx_fpga_tmp1                -- 1-bit input: Primary clock
+      );
 
   ibufgds0 : IBUFGDS port map(
     i  => sysclk_p,
@@ -462,10 +480,22 @@ begin
       sclk => sclk,
 
       -- DEBUG
-      debug   => debug,
-      ca_en   => ca_en_soft,
-      ca_soft => ca_soft,
-      hit_rst => hit_rst_soft
+      debug      => debug,
+      ca_en      => ca_en_soft,
+      ca_soft    => ca_soft,
+      hit_rst    => hit_rst_soft,
+      rx_fpga_oe => rx_fpga_oe,
+
+      digsel_en_manually   => digsel_en_manually,
+      anasel_en_manually   => anasel_en_manually,
+      dplse_manually       => dplse_manually,
+      aplse_manually       => aplse_manually,
+      matrix_grst_manually => matrix_grst_manually,
+      gshutter_manually    => gshutter_manually,
+      ca_soft_manually     => ca_soft_manually,
+      ca_en_manually       => ca_en_manually,
+      hit_rst_manually     => hit_rst_manually
+
       );
 
 
@@ -555,31 +585,18 @@ begin
       anasel_en_gs => anasel_en_gs
       );
 
+  DIGSEL_EN   <= digsel_en_soft   when digsel_en_manually   else digsel_en_rs;
+  ANASEL_EN   <= anasel_en_soft   when anasel_en_manually   else anasel_en_gs;
+  DPLSE       <= dplse_soft       when dplse_manually       else dplse_gs;
+  APLSE       <= aplse_soft       when aplse_manually       else aplse_gs;
+  MATRIX_GRST <= matrix_grst_soft when matrix_grst_manually else matrix_grst_logic;
+  GSHUTTER    <= gshutter_soft    when gshutter_manually    else gshutter_gs;
 
-  for_debug : process(all)
-  begin
-    if debug = '0' then
-      DIGSEL_EN   <= digsel_en_rs and digsel_en_soft;
-      ANASEL_EN   <= anasel_en_gs and anasel_en_soft;
---      APLSE     <= aplse_gs     and aplse_soft ;
-      DPLSE       <= dplse_gs and dplse_soft;
-      MATRIX_GRST <= matrix_grst_soft and matrix_grst_logic;
-      GSHUTTER    <= gshutter_gs or gshutter_soft;
-    else
-      DIGSEL_EN <= digsel_en_soft;
-      ANASEL_EN <= anasel_en_soft;
---      APLSE     <= aplse_soft;
-      DPLSE     <= dplse_soft;
-      GSHUTTER  <= gshutter_gs;
-    end if;
-  end process;
+  RA <= row_num;
 
-  APLSE <= '1';
-
-  RA      <= row_num;
-  CA      <= ca_soft      when debug = '1' else ca_logic;
-  CA_EN   <= ca_en_soft   when debug = '1' else ca_en_logic;
-  HIT_RST <= hit_rst_soft when debug = '1' else hit_rst_logic;
+  CA      <= ca_soft      when ca_soft_manually else ca_logic;
+  CA_EN   <= ca_en_soft   when ca_en_manually   else ca_en_logic;
+  HIT_RST <= hit_rst_soft when hit_rst_manually else hit_rst_logic;
 
   rd_data_rst <= rs_start or gs_start or clk_sys_rst;  -- when start rolling shutter or global shutter, reset data readout
   jadepix_read_data : entity work.jadepix_read_data

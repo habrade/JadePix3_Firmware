@@ -65,7 +65,7 @@ end jadepix_fifo_ctrl;
 
 architecture behv of jadepix_fifo_ctrl is
 
-  type READ_FIFO_STATE is (INITIAL, IDLE, READ_BUFFER, READ_ROW, DELAY1, DELAY2,
+  type READ_FIFO_STATE is (INITIAL, IDLE, READ_BUFFER, READ_ROW,
                            READ_FIFO0_HALF1, READ_FIFO0_HALF2,
                            SET_BLK_SEL1,
                            READ_FIFO1_HALF1, READ_FIFO1_HALF2,
@@ -124,14 +124,8 @@ begin
         end if;
 
       when READ_BUFFER =>
-        state_next <= DELAY1;
-			
-			when DELAY1 =>
-				state_next <= DELAY2;
-			
-			when DELAY2 =>
-				state_next <= READ_ROW;
-
+        state_next <= READ_ROW;
+        
       -- Read row by row
       when READ_ROW =>
         if buffer_data_valid = '1' then
@@ -231,10 +225,6 @@ begin
 
         when READ_BUFFER =>
           buffer_read_en <= '1';
-         
-        when DELAY1 => null;
-        
-        when DELAY2 => null;
           
         when READ_ROW =>
           buffer_read_en <= '0';

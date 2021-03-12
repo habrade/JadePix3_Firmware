@@ -100,12 +100,22 @@ entity ipbus_payload is
     sclk : out std_logic;
 
     -- DEBUG
-    debug            : out std_logic;
-    hit_rst          : out std_logic;
-    ca_en            : out std_logic;
-    sel_chip_clk     : out std_logic;
-    ca_soft          : out std_logic_vector(COL_WIDTH-1 downto 0);
-    matrix_grst_soft : out std_logic;
+    debug                : out std_logic;
+    hit_rst              : out std_logic;
+    ca_en                : out std_logic;
+    sel_chip_clk         : out std_logic;
+    ca_soft              : out std_logic_vector(COL_WIDTH-1 downto 0);
+    matrix_grst_soft     : out std_logic;
+    rx_fpga_oe           : out std_logic;
+    digsel_en_manually   : out std_logic;
+    anasel_en_manually   : out std_logic;
+    dplse_manually       : out std_logic;
+    aplse_manually       : out std_logic;
+    matrix_grst_manually : out std_logic;
+    gshutter_manually    : out std_logic;
+    ca_soft_manually     : out std_logic;
+    ca_en_manually       : out std_logic;
+    hit_rst_manually     : out std_logic;
 
     cfg_add_factor_t0 : out std_logic_vector(7 downto 0);
     cfg_add_factor_t1 : out std_logic_vector(15 downto 0);
@@ -258,13 +268,21 @@ begin
       data_fifo_full               => data_fifo_full,
       data_fifo_almost_full        => data_fifo_almost_full,
       data_fifo_wr_din             => data_fifo_wr_din,
+      ca_en                        => ca_en,
+      ca_soft                      => ca_soft,
+      hit_rst                      => hit_rst,
+      matrix_grst_soft             => matrix_grst_soft,
+      rx_fpga_oe                   => rx_fpga_oe,
 
-      --DEBUG
-      debug            => debug,
-      ca_en            => ca_en,
-      ca_soft          => ca_soft,
-      hit_rst          => hit_rst,
-      matrix_grst_soft => matrix_grst_soft
+      digsel_en_manually   => digsel_en_manually,
+      anasel_en_manually   => anasel_en_manually,
+      dplse_manually       => dplse_manually,
+      aplse_manually       => aplse_manually,
+      matrix_grst_manually => matrix_grst_manually,
+      gshutter_manually    => gshutter_manually,
+      ca_soft_manually     => ca_soft_manually,
+      ca_en_manually       => ca_en_manually,
+      hit_rst_manually     => hit_rst_manually
       );
 
 end rtl;
