@@ -48,6 +48,8 @@ entity jadepix_fifo_data is
 
     fifo_data_valid : in std_logic;
     DATA_IN         : in std_logic_vector(7 downto 0);
+    
+    is_chip_fifo_readable: out std_logic;
 
     -- DATA FIFO
     data_fifo_rst         : out std_logic;
@@ -104,6 +106,8 @@ begin
 
   row_in_data   <= buffer_data_record.row;
   frame_in_data <= buffer_data_record.frame_num;
+  
+  is_chip_fifo_readable <= not (read_frame_start or read_frame_stop);
 
   process(all)
   begin

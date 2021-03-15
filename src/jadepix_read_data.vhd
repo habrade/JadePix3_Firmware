@@ -92,6 +92,7 @@ architecture behv of jadepix_read_data is
 
   signal buffer_data_record : buffer_data_frame;
 
+  signal is_chip_fifo_readable : std_logic;
 
   signal fifo_oc          : std_logic_vector(OC_WIDTH-1 downto 0);
   signal blk_select_delay : std_logic_vector(BLK_SELECT_WIDTH-1 downto 0);
@@ -194,6 +195,9 @@ begin
       fifo_read_en_v => fifo_read_en_v,
       blk_select     => blk_select_obuf,
 
+      is_chip_fifo_readable => is_chip_fifo_readable,
+
+
       buffer_data_record => buffer_data_record
 
       );
@@ -211,6 +215,8 @@ begin
 
       fifo_data_valid => fifo_data_valid,
       DATA_IN         => DATA_IN,
+
+      is_chip_fifo_readable => is_chip_fifo_readable,
 
       data_fifo_rst         => data_fifo_rst,
       data_fifo_wr_clk      => data_fifo_wr_clk,
