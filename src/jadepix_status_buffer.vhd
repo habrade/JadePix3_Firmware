@@ -82,6 +82,7 @@ architecture behv of jadepix_status_buffer is
 
   signal row_empty_flag : std_logic;
 
+
   -- DEBUG
   attribute mark_debug                      : string;
   attribute mark_debug of state_reg         : signal is "true";

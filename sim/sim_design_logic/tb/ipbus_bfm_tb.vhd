@@ -53,7 +53,7 @@ architecture behavioral of ipbus_bfm_tb is
   signal sysclk : std_logic := '0';
 
   signal clk_sys     : std_logic := '0';
-  signal clk_fpga      : std_logic := '0';
+  signal clk_fpga    : std_logic := '0';
   signal clk_sys_rst : std_logic := '0';
   signal clk_dac_rst : std_logic := '0';
 
@@ -194,14 +194,14 @@ architecture behavioral of ipbus_bfm_tb is
   signal DPLSE       : std_logic;
   signal APLSE       : std_logic;
 
-  signal POR  : std_logic;
-  signal LOAD : std_logic;
-  signal SN_OEn         :  std_logic;  -- enabel clock level shift output, low active
-  signal EN_diff        :  std_logic;
-  signal Ref_clk_1G_f   :  std_logic;
-  signal CLK_SEL        :  std_logic;
-  signal D_RST          :  std_logic;
-  signal SERIALIZER_RST :  std_logic;
+  signal POR            : std_logic;
+  signal LOAD           : std_logic;
+  signal SN_OEn         : std_logic;  -- enabel clock level shift output, low active
+  signal EN_diff        : std_logic;
+  signal Ref_clk_1G_f   : std_logic;
+  signal CLK_SEL        : std_logic;
+  signal D_RST          : std_logic;
+  signal SERIALIZER_RST : std_logic;
 
 
   -- SPI Master
@@ -246,6 +246,8 @@ architecture behavioral of ipbus_bfm_tb is
   signal slow_ctrl_fifo_rd_en         : std_logic                     := '0';
   signal slow_ctrl_fifo_valid         : std_logic                     := '0';
   signal slow_ctrl_fifo_empty         : std_logic                     := '0';
+  signal slow_ctrl_fifo_prog_full     : std_logic;
+  signal slow_ctrl_fifo_wr_data_count : std_logic_vector(CFG_FIFO_COUNT_WITDH-1 downto 0);
   signal slow_ctrl_fifo_rd_dout       : std_logic_vector(31 downto 0) := (others => '0');
 
   signal data_fifo_wr_clk      : std_logic                     := '0';
@@ -277,9 +279,19 @@ architecture behavioral of ipbus_bfm_tb is
   signal dplse_soft     : std_logic;
   signal gshutter_soft  : std_logic;
 
-  signal sel_chip_clk        : std_logic := '0';
-  signal rx_fpga_tmp         : std_logic := '0';
-  signal blk_sel_def         : std_logic_vector(1 downto 0);
+  signal digsel_en_manually   : std_logic;
+  signal anasel_en_manually   : std_logic;
+  signal aplse_manually       : std_logic;
+  signal dplse_manually       : std_logic;
+  signal gshutter_manually    : std_logic;
+  signal ca_en_manually       : std_logic;
+  signal ca_soft_manually     : std_logic;
+  signal hit_rst_manually     : std_logic;
+
+
+  signal sel_chip_clk : std_logic := '0';
+  signal rx_fpga_tmp  : std_logic := '0';
+  signal blk_sel_def  : std_logic_vector(1 downto 0);
 
 
   signal load_soft     : std_logic;
@@ -299,16 +311,21 @@ architecture behavioral of ipbus_bfm_tb is
   signal INQUIRY      : std_logic_vector(BLK_SELECT_WIDTH-1 downto 0) := "00";
 
   -- debug
-  signal debug         : std_logic;
-  signal ca_en_soft    : std_logic;
-  signal ca_en_logic   : std_logic;
-  signal ca_soft       : std_logic_vector(COL_WIDTH-1 downto 0);
-  signal ca_logic      : std_logic_vector(COL_WIDTH-1 downto 0);
-  signal hit_rst_soft  : std_logic;
-  signal hit_rst_logic : std_logic;
+  signal debug                : std_logic;
+  signal ca_en_soft           : std_logic;
+  signal ca_en_logic          : std_logic;
+  signal ca_soft              : std_logic_vector(COL_WIDTH-1 downto 0);
+  signal ca_logic             : std_logic_vector(COL_WIDTH-1 downto 0);
+  signal matrix_grst_soft     : std_logic;
+  signal matrix_grst_manually : std_logic;
+  signal matrix_grst_logic    : std_logic;
+  signal hit_rst_soft         : std_logic;
+  signal hit_rst_logic        : std_logic;
 
   -- for test
   signal test_data_in : unsigned(7 downto 0) := (others => '0');
+  signal rx_fpga_oe   : std_logic;
+
 
   constant SYS_PERIOD : time := 12 ns;
   procedure gen_valid(
@@ -359,14 +376,12 @@ begin
       clk_ref     => REFCLK,
       clk_dac     => DACCLK,
       clk_sys     => clk_sys,
-      clk_fpga      => clk_fpga,
+      clk_fpga    => clk_fpga,
       clk_dac_rst => clk_dac_rst,
       clk_ref_rst => clk_ref_rst,
       clk_sys_rst => clk_sys_rst,
       locked      => locked_jadepix_mmcm
       );
-
-
 
   ipbus_payload : entity work.ipbus_payload
     generic map(
@@ -394,13 +409,8 @@ begin
       DAC_DATA   => DAC_DATA,
 
       -- JadePix
-      cfg_start      => cfg_start,
-      cfg_sync       => cfg_sync,
-      cfg_fifo_rst   => cfg_fifo_rst,
-      cfg_busy       => cfg_busy,
-      cfg_fifo_empty => cfg_fifo_empty,
-      cfg_fifo_pfull => cfg_fifo_pfull,
-      cfg_fifo_count => cfg_fifo_count,
+      cfg_start => cfg_start,
+      cfg_busy  => cfg_busy,
 
       INQUIRY       => INQUIRY,
       CACHE_BIT_SET => CACHE_BIT_SET,
@@ -436,33 +446,33 @@ begin
 
       spi_trans_end => spi_trans_end,
 
-      PDB                 => open,
-      SN_OEn              => SN_OEn,
-      POR                 => POR,
-      EN_diff             => EN_diff,
-      Ref_clk_1G_f        => Ref_clk_1G_f,
-      CLK_SEL             => CLK_SEL,
-      D_RST               => D_RST,
-      SERIALIZER_RST      => SERIALIZER_RST,
-      sel_chip_clk        => sel_chip_clk,
-      blk_sel_def         => blk_sel_def,
+      PDB               => open,
+      SN_OEn            => SN_OEn,
+      POR               => POR,
+      EN_diff           => EN_diff,
+      Ref_clk_1G_f      => Ref_clk_1G_f,
+      CLK_SEL           => CLK_SEL,
+      D_RST             => D_RST,
+      SERIALIZER_RST    => SERIALIZER_RST,
+      sel_chip_clk      => sel_chip_clk,
       cfg_add_factor_t0 => cfg_add_factor_t0,
       cfg_add_factor_t1 => cfg_add_factor_t1,
       cfg_add_factor_t2 => cfg_add_factor_t2,
 
       -- FIFOs
-      ctrl_fifo_rst          => ctrl_fifo_rst,
-      slow_ctrl_fifo_rd_clk  => slow_ctrl_fifo_rd_clk,
-      slow_ctrl_fifo_rd_en   => slow_ctrl_fifo_rd_en,
-      slow_ctrl_fifo_valid   => slow_ctrl_fifo_valid,
-      slow_ctrl_fifo_empty   => slow_ctrl_fifo_empty,
-      slow_ctrl_fifo_rd_dout => slow_ctrl_fifo_rd_dout,
-      data_fifo_rst          => data_fifo_rst,
-      data_fifo_wr_clk       => data_fifo_wr_clk,
-      data_fifo_wr_en        => data_fifo_wr_en,
-      data_fifo_full         => data_fifo_full,
-      data_fifo_almost_full  => data_fifo_almost_full,
-      data_fifo_wr_din       => data_fifo_wr_din,
+      slow_ctrl_fifo_rd_clk        => clk_sys,
+      slow_ctrl_fifo_rd_en         => slow_ctrl_fifo_rd_en,
+      slow_ctrl_fifo_valid         => slow_ctrl_fifo_valid,
+      slow_ctrl_fifo_empty         => slow_ctrl_fifo_empty,
+      slow_ctrl_fifo_rd_dout       => slow_ctrl_fifo_rd_dout,
+      slow_ctrl_fifo_prog_full     => slow_ctrl_fifo_prog_full,
+      slow_ctrl_fifo_wr_data_count => slow_ctrl_fifo_wr_data_count,
+      data_fifo_rst                => data_fifo_rst,
+      data_fifo_wr_clk             => data_fifo_wr_clk,
+      data_fifo_wr_en              => data_fifo_wr_en,
+      data_fifo_full               => data_fifo_full,
+      data_fifo_almost_full        => data_fifo_almost_full,
+      data_fifo_wr_din             => data_fifo_wr_din,
 
       -- SPI master
       ss   => open,
@@ -471,11 +481,25 @@ begin
       sclk => sclk,
 
       -- DEBUG
-      debug   => debug,
-      ca_en   => ca_en_soft,
-      ca_soft => ca_soft,
-      hit_rst => hit_rst_soft
+      debug      => debug,
+      ca_en      => ca_en_soft,
+      ca_soft    => ca_soft,
+      hit_rst    => hit_rst_soft,
+      rx_fpga_oe => rx_fpga_oe,
+
+      digsel_en_manually   => digsel_en_manually,
+      anasel_en_manually   => anasel_en_manually,
+      dplse_manually       => dplse_manually,
+      aplse_manually       => aplse_manually,
+      matrix_grst_manually => matrix_grst_manually,
+      gshutter_manually    => gshutter_manually,
+      ca_soft_manually     => ca_soft_manually,
+      ca_en_manually       => ca_en_manually,
+      hit_rst_manually     => hit_rst_manually
+
       );
+
+
 
   jadepix_ctrl_wrapper : entity work.jadepix_ctrl_wrapper
     port map(
@@ -488,13 +512,15 @@ begin
       load_soft     => load_soft,
       LOAD          => LOAD,
 
-      cfg_sync            => cfg_sync,
-      cfg_fifo_rst        => cfg_fifo_rst,
-      cfg_fifo_empty      => cfg_fifo_empty,
-      cfg_fifo_pfull      => cfg_fifo_pfull,
-      cfg_fifo_count      => cfg_fifo_count,
       cfg_busy            => cfg_busy,
       cfg_start           => cfg_start,
+      cfg_fifo_dout       => slow_ctrl_fifo_rd_dout(2 downto 0),
+      cfg_fifo_dout_valid => slow_ctrl_fifo_valid,
+      cfg_fifo_empty      => slow_ctrl_fifo_empty,
+      cfg_fifo_pfull      => slow_ctrl_fifo_prog_full,
+      cfg_fifo_count      => slow_ctrl_fifo_wr_data_count,
+      cfg_fifo_rd_en      => slow_ctrl_fifo_rd_en,
+
       cfg_add_factor_t0 => cfg_add_factor_t0,
       cfg_add_factor_t1 => cfg_add_factor_t1,
       cfg_add_factor_t2 => cfg_add_factor_t2,
@@ -525,7 +551,7 @@ begin
       HIT_RST => hit_rst_logic,
       RD_EN   => RD_EN,
 
-      MATRIX_GRST => MATRIX_GRST,
+      MATRIX_GRST => matrix_grst_logic,
 
       gshutter_gs => gshutter_gs,
       aplse_gs    => aplse_gs,
@@ -546,17 +572,22 @@ begin
       anasel_en_gs => anasel_en_gs
       );
 
-
-  DIGSEL_EN <= digsel_en_rs and digsel_en_soft;
-  ANASEL_EN <= anasel_en_gs and anasel_en_soft;
-  GSHUTTER  <= gshutter_gs or gshutter_soft;
-  APLSE     <= aplse_gs and aplse_soft;
-  DPLSE     <= dplse_gs and dplse_soft;
+  DIGSEL_EN   <= digsel_en_soft   when digsel_en_manually   else digsel_en_rs;
+  ANASEL_EN   <= anasel_en_soft   when anasel_en_manually   else anasel_en_gs;
+  DPLSE       <= dplse_soft       when dplse_manually       else dplse_gs;
+  APLSE       <= aplse_soft       when aplse_manually       else aplse_gs;
+  MATRIX_GRST <= matrix_grst_soft when matrix_grst_manually else matrix_grst_logic;
+  GSHUTTER    <= gshutter_soft    when gshutter_manually    else gshutter_gs;
 
   RA <= row_num;
 
-  VALID_IN    <= (others => clk_cache);
+  CA      <= ca_soft      when ca_soft_manually else ca_logic;
+  CA_EN   <= ca_en_soft   when ca_en_manually   else ca_en_logic;
+  HIT_RST <= hit_rst_soft when hit_rst_manually else hit_rst_logic;
+
   rd_data_rst <= rs_start or gs_start or clk_sys_rst;  -- when start rolling shutter or global shutter, reset data readout
+
+
   jadepix_read_data : entity work.jadepix_read_data
     port map(
       clk => clk_sys,
@@ -577,7 +608,6 @@ begin
 
       FIFO_READ_EN => FIFO_READ_EN,
       BLK_SELECT   => BLK_SELECT,
-      blk_sel_def  => blk_sel_def,
 
       -- DATA FIFO
       data_fifo_rst         => data_fifo_rst,
@@ -589,198 +619,198 @@ begin
       );
 
 
-  -- Instantiate the IPbus transactor wrapper. It is necessary.
-  ipbus_transactor_wrapper_0 : entity work.ipbus_transactor_wrapper
-    port map (
-      clk                      => clk_ipb,
-      rst                      => rst_ipb,
-      ipbus_transactor_inputs  => ipbus_transactor_inputs,
-      ipbus_transactor_outputs => ipbus_transactor_outputs
-      );
+-- Instantiate the IPbus transactor wrapper. It is necessary.
+ipbus_transactor_wrapper_0 : entity work.ipbus_transactor_wrapper
+  port map (
+    clk                      => clk_ipb,
+    rst                      => rst_ipb,
+    ipbus_transactor_inputs  => ipbus_transactor_inputs,
+    ipbus_transactor_outputs => ipbus_transactor_outputs
+    );
 
-  main : process
-    variable RV     : RandomPType;
-    variable RV_SLV : std_logic_vector(7 downto 0);
-  begin
-    wait for 2*CLK_IPB_PERIOD;
+main : process
+  variable RV     : RandomPType;
+  variable RV_SLV : std_logic_vector(7 downto 0);
+begin
+  wait for 2*CLK_IPB_PERIOD;
 
-    gen_pulse(rst_ipb, 2 * CLK_IPB_PERIOD, "Reset ipbus pulse");
-    wait for 2*CLK_IPB_PERIOD;
+  gen_pulse(rst_ipb, 2 * CLK_IPB_PERIOD, "Reset ipbus pulse");
+  wait for 2*CLK_IPB_PERIOD;
 
-    --ipbus_transact(read_request_transaction,
-    --               response_transaction,
-    --               ipbus_transactor_inputs,
-    --               ipbus_transactor_outputs,
-    --               clk_ipb);
-    --check_value(response_transaction.bodyy(0), X"FFFFFF02", FAILURE,
-    --            "Checking read transaction.");
+  --ipbus_transact(read_request_transaction,
+  --               response_transaction,
+  --               ipbus_transactor_inputs,
+  --               ipbus_transactor_outputs,
+  --               clk_ipb);
+  --check_value(response_transaction.bodyy(0), X"FFFFFF02", FAILURE,
+  --            "Checking read transaction.");
 
-    ipbus_transact(write_rst_transaction,
-                   response_transaction,
-                   ipbus_transactor_inputs,
-                   ipbus_transactor_outputs,
-                   clk_ipb);
+  ipbus_transact(write_rst_transaction,
+                 response_transaction,
+                 ipbus_transactor_inputs,
+                 ipbus_transactor_outputs,
+                 clk_ipb);
 
 
-    wait for 5*CLK_IPB_PERIOD;
+  wait for 5*CLK_IPB_PERIOD;
 /*
-      ipbus_transact(hitmap_transaction,
-                     response_transaction,
-                     ipbus_transactor_inputs,
-                     ipbus_transactor_outputs,
-                     clk_ipb);
-    */
-
-    wait for 5*CLK_IPB_PERIOD;
-    ipbus_transact(frame_num_transaction,
+    ipbus_transact(hitmap_transaction,
                    response_transaction,
                    ipbus_transactor_inputs,
                    ipbus_transactor_outputs,
                    clk_ipb);
+  */
 
-    wait for CLK_IPB_PERIOD;
-    ipbus_transact(start_rs_transaction,
-                   response_transaction,
-                   ipbus_transactor_inputs,
-                   ipbus_transactor_outputs,
-                   clk_ipb);
+  wait for 5*CLK_IPB_PERIOD;
+  ipbus_transact(frame_num_transaction,
+                 response_transaction,
+                 ipbus_transactor_inputs,
+                 ipbus_transactor_outputs,
+                 clk_ipb);
 
-
-
-
-    --ipbus_transact(gs_pulse_delay_transaction,
-    --               response_transaction,
-    --               ipbus_transactor_inputs,
-    --               ipbus_transactor_outputs,
-    --               clk_ipb);
-    --ipbus_transact(gs_pulse_width_low_transaction,
-    --               response_transaction,
-    --               ipbus_transactor_inputs,
-    --               ipbus_transactor_outputs,
-    --               clk_ipb);
-    --ipbus_transact(gs_pulse_width_high_transaction,
-    --               response_transaction,
-    --               ipbus_transactor_inputs,
-    --               ipbus_transactor_outputs,
-    --               clk_ipb);
-    --ipbus_transact(gs_pulse_deassert_transaction,
-    --               response_transaction,
-    --               ipbus_transactor_inputs,
-    --               ipbus_transactor_outputs,
-    --               clk_ipb);
-    --ipbus_transact(gs_deassert_transaction,
-    --               response_transaction,
-    --               ipbus_transactor_inputs,
-    --               ipbus_transactor_outputs,
-    --               clk_ipb);
-    --ipbus_transact(start_gs_transaction,
-    --               response_transaction,
-    --               ipbus_transactor_inputs,
-    --               ipbus_transactor_outputs,
-    --               clk_ipb);
-
-    ----check_value(ipb_control_regs(0), C_WRITE_DATA(0), FAILURE,
-    --            "Checking write transaction.");
-    --check_value(ipb_control_regs(1), C_WRITE_DATA(1), FAILURE,
-    --            "Checking write transaction.");
-
-    --ipbus_transact(non_inc_read_request_transaction,
-    --               response_transaction,
-    --               ipbus_transactor_inputs,
-    --               ipbus_transactor_outputs,
-    --               clk_ipb);
-    --check_value(response_transaction.bodyy(0), X"FFFFFF03", FAILURE,
-    --            "Checking non-incrementing read transaction.");
-    --check_value(response_transaction.bodyy(1), X"FFFFFF03", FAILURE,
-    --            "Checking non-incrementing read transaction.");
-    --check_value(response_transaction.bodyy(2), X"FFFFFF03", FAILURE,
-    --            "Checking non-incrementing read transaction.");
-
-    --ipbus_transact(non_inc_write_request_transaction,
-    --               response_transaction,
-    --               ipbus_transactor_inputs,
-    --               ipbus_transactor_outputs,
-    --               clk_ipb);
-    --check_value(ipb_control_regs(2), C_NON_INC_WRITE_DATA(3), FAILURE,
-    --            "Checking non-incrementing write transaction.");
-
-    --ipbus_transact(rmw_bits_request_transaction,
-    --               response_transaction,
-    --               ipbus_transactor_inputs,
-    --               ipbus_transactor_outputs,
-    --               clk_ipb);
-    --check_value(ipb_control_regs(0), X"F0000004", FAILURE,
-    --            "Checking read/modify/write bits transaction.");
-
-    --ipbus_transact(rmw_sum_request_transaction,
-    --               response_transaction,
-    --               ipbus_transactor_inputs,
-    --               ipbus_transactor_outputs,
-    --               clk_ipb);
-    --check_value(ipb_control_regs(3), X"00000003", FAILURE,
-    --            "Checking read/modify/write sum transaction.");
-
-    --RV.InitSeed (RV'instance_name) ;
-    --RV_SLV := RV.RandSlv(0, 255, 8) ;
-    --DATA_IN <= RV_SLV;
-
-    --wait for 15*SYS_CLK_PERIOD;
-    ---- channel 0
-    --gen_valid(clk_cache, 0.2, 6, 0, VALID_IN);
-    --
-    --RV_SLV := RV.RandSlv(0, 255, 8) ;
-    --DATA_IN <= RV_SLV;
-    --gen_valid(clk_cache, 0.1, 12, 0, VALID_IN);
-
-    --RV_SLV := RV.RandSlv(0, 255, 8) ;
-    --DATA_IN <= RV_SLV;
-    --gen_valid(clk_cache, 0.1, 16, 0, VALID_IN);
-
-    --RV_SLV := RV.RandSlv(0, 255, 8) ;
-    --DATA_IN <= RV_SLV;
-    --gen_valid(clk_cache, 0.1, 16, 0, VALID_IN);
-
-    --RV_SLV := RV.RandSlv(0, 255, 8) ;
-    --DATA_IN <= RV_SLV;
-    --gen_valid(clk_cache, 0.2, 14, 0, VALID_IN);
-
-    ---- channel 1
-    --RV_SLV := RV.RandSlv(0, 255, 8) ;
-    --DATA_IN <= RV_SLV;
-    --gen_valid(clk_cache, 0.3, 14, 1, VALID_IN);
+  wait for CLK_IPB_PERIOD;
+  ipbus_transact(start_rs_transaction,
+                 response_transaction,
+                 ipbus_transactor_inputs,
+                 ipbus_transactor_outputs,
+                 clk_ipb);
 
 
 
-    wait for 15*CLK_IPB_PERIOD;
-    wait on clk_cache until clk_cache = '1';
-    wait for 0.1*SYS_PERIOD;
-    wait on rs_busy until rs_busy = '0';
-    wait for 15*CLK_IPB_PERIOD;
+
+  --ipbus_transact(gs_pulse_delay_transaction,
+  --               response_transaction,
+  --               ipbus_transactor_inputs,
+  --               ipbus_transactor_outputs,
+  --               clk_ipb);
+  --ipbus_transact(gs_pulse_width_low_transaction,
+  --               response_transaction,
+  --               ipbus_transactor_inputs,
+  --               ipbus_transactor_outputs,
+  --               clk_ipb);
+  --ipbus_transact(gs_pulse_width_high_transaction,
+  --               response_transaction,
+  --               ipbus_transactor_inputs,
+  --               ipbus_transactor_outputs,
+  --               clk_ipb);
+  --ipbus_transact(gs_pulse_deassert_transaction,
+  --               response_transaction,
+  --               ipbus_transactor_inputs,
+  --               ipbus_transactor_outputs,
+  --               clk_ipb);
+  --ipbus_transact(gs_deassert_transaction,
+  --               response_transaction,
+  --               ipbus_transactor_inputs,
+  --               ipbus_transactor_outputs,
+  --               clk_ipb);
+  --ipbus_transact(start_gs_transaction,
+  --               response_transaction,
+  --               ipbus_transactor_inputs,
+  --               ipbus_transactor_outputs,
+  --               clk_ipb);
+
+  ----check_value(ipb_control_regs(0), C_WRITE_DATA(0), FAILURE,
+  --            "Checking write transaction.");
+  --check_value(ipb_control_regs(1), C_WRITE_DATA(1), FAILURE,
+  --            "Checking write transaction.");
+
+  --ipbus_transact(non_inc_read_request_transaction,
+  --               response_transaction,
+  --               ipbus_transactor_inputs,
+  --               ipbus_transactor_outputs,
+  --               clk_ipb);
+  --check_value(response_transaction.bodyy(0), X"FFFFFF03", FAILURE,
+  --            "Checking non-incrementing read transaction.");
+  --check_value(response_transaction.bodyy(1), X"FFFFFF03", FAILURE,
+  --            "Checking non-incrementing read transaction.");
+  --check_value(response_transaction.bodyy(2), X"FFFFFF03", FAILURE,
+  --            "Checking non-incrementing read transaction.");
+
+  --ipbus_transact(non_inc_write_request_transaction,
+  --               response_transaction,
+  --               ipbus_transactor_inputs,
+  --               ipbus_transactor_outputs,
+  --               clk_ipb);
+  --check_value(ipb_control_regs(2), C_NON_INC_WRITE_DATA(3), FAILURE,
+  --            "Checking non-incrementing write transaction.");
+
+  --ipbus_transact(rmw_bits_request_transaction,
+  --               response_transaction,
+  --               ipbus_transactor_inputs,
+  --               ipbus_transactor_outputs,
+  --               clk_ipb);
+  --check_value(ipb_control_regs(0), X"F0000004", FAILURE,
+  --            "Checking read/modify/write bits transaction.");
+
+  --ipbus_transact(rmw_sum_request_transaction,
+  --               response_transaction,
+  --               ipbus_transactor_inputs,
+  --               ipbus_transactor_outputs,
+  --               clk_ipb);
+  --check_value(ipb_control_regs(3), X"00000003", FAILURE,
+  --            "Checking read/modify/write sum transaction.");
+
+  --RV.InitSeed (RV'instance_name) ;
+  --RV_SLV := RV.RandSlv(0, 255, 8) ;
+  --DATA_IN <= RV_SLV;
+
+  --wait for 15*SYS_CLK_PERIOD;
+  ---- channel 0
+  --gen_valid(clk_cache, 0.2, 6, 0, VALID_IN);
+  --
+  --RV_SLV := RV.RandSlv(0, 255, 8) ;
+  --DATA_IN <= RV_SLV;
+  --gen_valid(clk_cache, 0.1, 12, 0, VALID_IN);
+
+  --RV_SLV := RV.RandSlv(0, 255, 8) ;
+  --DATA_IN <= RV_SLV;
+  --gen_valid(clk_cache, 0.1, 16, 0, VALID_IN);
+
+  --RV_SLV := RV.RandSlv(0, 255, 8) ;
+  --DATA_IN <= RV_SLV;
+  --gen_valid(clk_cache, 0.1, 16, 0, VALID_IN);
+
+  --RV_SLV := RV.RandSlv(0, 255, 8) ;
+  --DATA_IN <= RV_SLV;
+  --gen_valid(clk_cache, 0.2, 14, 0, VALID_IN);
+
+  ---- channel 1
+  --RV_SLV := RV.RandSlv(0, 255, 8) ;
+  --DATA_IN <= RV_SLV;
+  --gen_valid(clk_cache, 0.3, 14, 1, VALID_IN);
 
 
-    ipbus_transact(read_rfifo_len,
-                   response_transaction,
-                   ipbus_transactor_inputs,
-                   ipbus_transactor_outputs,
-                   clk_ipb);
 
-    wait for 15*CLK_IPB_PERIOD;
+  wait for 15*CLK_IPB_PERIOD;
+  wait on clk_cache until clk_cache = '1';
+  wait for 0.1*SYS_PERIOD;
+  wait on rs_busy until rs_busy = '0';
+  wait for 15*CLK_IPB_PERIOD;
 
-    std.env.stop;
-  end process;
 
-  gen_test : process(all)
-    variable cnt : integer range 0 to 1 := 0;
-  begin
-    if ?? rd_data_rst then
-      test_data_in <= 8X"FF";
-    elsif rising_edge(clk_fpga) then
-      if ?? clk_cache then
-        test_data_in <= test_data_in + cnt;
-      end if;
-      cnt := (cnt + 1) rem 2;
+  ipbus_transact(read_rfifo_len,
+                 response_transaction,
+                 ipbus_transactor_inputs,
+                 ipbus_transactor_outputs,
+                 clk_ipb);
+
+  wait for 15*CLK_IPB_PERIOD;
+
+  std.env.stop;
+end process;
+
+gen_test : process(all)
+  variable cnt : integer range 0 to 1 := 0;
+begin
+  if ?? rd_data_rst then
+    test_data_in <= 8X"FF";
+  elsif rising_edge(clk_fpga) then
+    if ?? clk_cache then
+      test_data_in <= test_data_in + cnt;
     end if;
-  end process;
+    cnt := (cnt + 1) rem 2;
+  end if;
+end process;
 
 
 end behavioral;

@@ -48,8 +48,8 @@ entity jadepix_fifo_data is
 
     fifo_data_valid : in std_logic;
     DATA_IN         : in std_logic_vector(7 downto 0);
-    
-    is_chip_fifo_readable: out std_logic;
+
+    is_chip_fifo_readable : out std_logic;
 
     -- DATA FIFO
     data_fifo_rst         : out std_logic;
@@ -79,6 +79,7 @@ architecture behv of jadepix_fifo_data is
   signal frame_in_data      : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0) := (others => '0');
   signal frame_in_data_reg1 : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0) := (others => '0');
   signal frame_in_data_reg2 : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0) := (others => '0');
+  signal last_frame_num     : std_logic_vector(FRAME_CNT_WIDTH-1 downto 0) := (others => '0');
 
   -- DEBUG
   attribute mark_debug                          : string;
@@ -106,7 +107,7 @@ begin
 
   row_in_data   <= buffer_data_record.row;
   frame_in_data <= buffer_data_record.frame_num;
-  
+
   is_chip_fifo_readable <= not (read_frame_start or read_frame_stop);
 
   process(all)
@@ -127,7 +128,8 @@ begin
       read_frame_stop  <= '0';
     elsif rising_edge(clk) then
       if frame_in_data > 22X"0" then
-        read_frame_stop  <= '1' when (frame_in_data_reg1 > frame_in_data_reg2) else '0';
+        read_frame_stop  <= '1'                when (frame_in_data_reg1 > frame_in_data_reg2) else '0';
+        last_frame_num   <= frame_in_data_reg2 when (frame_in_data_reg1 > frame_in_data_reg2);
         read_frame_start <= read_frame_stop;
       end if;
     end if;
@@ -247,7 +249,7 @@ begin
           data_fifo_wr_din <= FRAME_RSV &
                               "00" &    -- flag
                               "0" &
-                              std_logic_vector(unsigned(buffer_data_record.frame_num) - 1);
+                              last_frame_num;
 
         when W_ERROR =>
           wfifo_ov_cnt     <= wfifo_ov_cnt + 1;

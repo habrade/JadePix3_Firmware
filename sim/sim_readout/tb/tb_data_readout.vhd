@@ -20,10 +20,10 @@ entity tb_data_readout is
 end entity;
 
 architecture behv of tb_data_readout is
-  signal clk : std_logic := '1';
-  signal clk_sys : std_logic := '1';
+  signal clk      : std_logic := '1';
+  signal clk_sys  : std_logic := '1';
   signal clk_fpga : std_logic := '0';
-  signal rst : std_logic := '0';
+  signal rst      : std_logic := '0';
 
   signal clk_cache       : std_logic := '0';
   signal clk_cache_delay : std_logic := '0';
@@ -50,6 +50,10 @@ architecture behv of tb_data_readout is
 
   signal clk_cache_cnt : integer range 0 to 15 := 0;
 
+  signal rd_data_rst : std_logic := '0';
+  signal row_num         : std_logic_vector(ROW_WIDTH-1 downto 0) := (others=>'0');
+
+
   procedure gen_valid(
     signal clk_cache     : in  std_logic;
     constant delay_num   : in  real;
@@ -71,8 +75,8 @@ architecture behv of tb_data_readout is
 
 begin
 
-  clk <= not clk after SYS_PERIOD/2;
-  clk_sys <= clk;
+  clk      <= not clk after SYS_PERIOD/2;
+  clk_sys  <= clk;
   clk_fpga <= not clk_sys;
 
   process (all)
@@ -100,6 +104,8 @@ begin
       clk_cache_delay => clk_cache_delay
       );
 
+
+  rd_data_rst <= rs_start or gs_start or clk_sys_rst;  -- when start rolling shutter or global shutter, reset data readout
 
   jadepix_read_data : entity work.jadepix_read_data
     port map(
