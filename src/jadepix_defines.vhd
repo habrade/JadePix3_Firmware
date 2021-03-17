@@ -83,8 +83,8 @@ package JADEPIX_DEFINES is
   constant FRAME_CNT_WIDTH         : integer := 22;
   constant RBOF_WIDTH              : integer := 15;
   constant BUFFER_DATA_FRAME_WIDTH : integer := FRAME_CNT_WIDTH + ROW_WIDTH + (SECTOR_NUM*(VC_WIDTH+OC_WIDTH)) + RBOF_WIDTH;
-  constant BUFFER_DATA_DEPTH_WIDTH : integer := 8;
-  constant BUFFER_DATA_DEPTH       : integer := 192;
+  constant BUFFER_DATA_DEPTH_WIDTH : integer := 10;
+  constant BUFFER_DATA_DEPTH       : integer := 1024;
 
   -- IPbus reg fifo slave
   constant WFIFO_ADDR_SLOW_CTRL_CMD : integer := 0;
