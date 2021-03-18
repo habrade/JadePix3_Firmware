@@ -63,14 +63,11 @@ end jadepix_fifo_data;
 
 architecture behv of jadepix_fifo_data is
 
-  signal wfifo_ov_cnt : unsigned(22 downto 0)         := (others => '0');
+  signal wfifo_ov_cnt : unsigned(FRAME_CNT_WIDTH-1 downto 0)         := (others => '0');
   signal data_send    : std_logic_vector(15 downto 0) := (others => '0');
 
   type WRITE_FIFO_STATE is (INITIAL, IDLE, W_HEAD, GET_DATA_LOW, W_DATA, W_TAIL, W_ERROR);
   signal state_reg, state_next : WRITE_FIFO_STATE := IDLE;
-
-  constant FRAME_WIDTH : integer                                     := 25;
-  constant FRAME_RSV   : std_logic_vector(32-FRAME_WIDTH-1 downto 0) := (others => '0');
 
   signal read_frame_start : std_logic := '0';
   signal read_frame_stop  : std_logic := '0';
@@ -126,12 +123,11 @@ begin
     if ?? rst then
       read_frame_start <= '0';
       read_frame_stop  <= '0';
+      last_frame_num <= (others => '0');
     elsif rising_edge(clk) then
-      if frame_in_data > 22X"0" then
         read_frame_stop  <= '1'                when (frame_in_data_reg1 > frame_in_data_reg2) else '0';
         last_frame_num   <= frame_in_data_reg2 when (frame_in_data_reg1 > frame_in_data_reg2);
         read_frame_start <= read_frame_stop;
-      end if;
     end if;
   end process;
 
@@ -223,8 +219,8 @@ begin
 
         when W_HEAD =>
           data_fifo_wr_en  <= '1';
-          data_fifo_wr_din <= FRAME_RSV &
-                              "01" &    -- flag
+          data_fifo_wr_din <= "01" &    -- flag
+                              "0000000" &
                               fifo_status_v(0) &
                               fifo_status_v(1) &
                               fifo_status_v(2) &
@@ -238,24 +234,21 @@ begin
 
         when W_DATA =>
           data_fifo_wr_en  <= '1';
-          data_fifo_wr_din <= FRAME_RSV &
-                              "10" &    -- flag
+          data_fifo_wr_din <= "10" &    -- flag
+                              "0000000" &
                               fifo_oc &
                               blk_select_delay &
                               DATA_IN & data_send(7 downto 0);
 
         when W_TAIL =>
           data_fifo_wr_en  <= '1';
-          data_fifo_wr_din <= FRAME_RSV &
-                              "00" &    -- flag
-                              "0" &
+          data_fifo_wr_din <= "00" &    -- flag
                               last_frame_num;
 
         when W_ERROR =>
           wfifo_ov_cnt     <= wfifo_ov_cnt + 1;
           data_fifo_wr_en  <= '1';
-          data_fifo_wr_din <= FRAME_RSV &
-                              "11" &    -- flag 
+          data_fifo_wr_din <= "11" &    -- flag 
                               std_logic_vector(wfifo_ov_cnt);
 
         when others =>
