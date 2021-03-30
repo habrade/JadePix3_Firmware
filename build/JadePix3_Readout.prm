@@ -8,4 +8,4 @@ Start Address      0x00000000
 End Address        0x07FFFFFF
 
 Addr1         Addr2         Date                    File(s)
-0x00000000    0x00522C17    Mar 19 09:53:47 2021    ../JadePix3_Readout.runs/impl_3/JadePix3_Readout.bit
+0x00000000    0x0048DC7F    Mar 30 15:10:55 2021    ../JadePix3_Readout.runs/impl_3/JadePix3_Readout.bit
